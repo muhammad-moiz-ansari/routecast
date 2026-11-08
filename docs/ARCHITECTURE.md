@@ -57,3 +57,11 @@ CorridorRepo/Service/Pydantic contracts own curvilinear spherical tube sampling,
 CorridorStore encapsulates CorridorRun ORM queries, token leases, validity checks and publication. One unique record belongs to each completed AnalysisRun, storing the fixed anchor, separate status, dataset and sanitized failure. No heatmap frame is a separate database row. CorridorCache mirrors the immutable dataset with database fallback on cache miss.
 
 Planning publishes core results first, then invokes the ancillary enqueue callback after commit. Callback failure cannot roll back core data; the periodic coordinator can recover missing ancillary outbox entries. Corridor Celery work runs on the corridor queue, with its own locks/status/fencing. Stop, input/current-version changes and inactivity prevent publication. Core route assessment never waits for corridor completion, and corridor GETs never call providers. See API_CONTRACT.md for sample method, clipping and resolution limits.
+
+## Phase 7 frontend
+
+frontend/src/app owns router/providers/shell; src/api contains typed backend contracts and the session/CSRF fetch client; features/trip-planner owns schema and accessible place search; styles owns CSS-variable day/night tokens and responsive layout; utils/time owns explicit IANA wall-time conversion. Server state belongs to TanStack Query, form state to React Hook Form/Zod. No frontend risk/ranking calculation is introduced.
+
+A shared session-bootstrap promise prevents parallel place searches from racing anonymous ownership. Requests use same-origin cookies; unsafe writes include CSRF headers. Trips are created only by form submission; synchronous and submitted-state guards prevent duplicate POSTs, retries are disabled, and navigation preserves the mounted planner. Search cancels obsolete requests, requires explicit selection and retains visible field errors. Temporal disambiguation=reject avoids silently moving a departure through DST gaps/overlaps.
+
+Development fixtures are explicitly gated by DEV and an opt-in flag; production builds reject the flag and tree-shake the fixture module. UI review never starts a backend/provider workflow. Phase 8/9 visualization/lifecycle features and complete API response shapes will be added as needed rather than unused scaffolding now.

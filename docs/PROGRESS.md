@@ -1,26 +1,26 @@
 # Progress
 
-Current phase: **Phase 6 complete — cached corridor forecast dataset.**
-Completed implementation phases: 0–6. Next phase: 7, only upon explicit user request.
+Current phase: **Phase 7 complete — frontend foundation and trip planner.**
+Completed implementation phases: 0–7. Next phase: 8, only upon explicit user request.
 
 ## Implementation
 
-Added CorridorRepo/Service/Pydantic contracts and a spherical full-polyline tube grid with perpendicular lanes/endcaps, overlap coordinate union/deduplication and adaptive spacing capped at 100 forecast locations. Configurable half-width defaults to 10 miles. Along/cross spacing and approximation method are exposed; authoritative checkpoint sampling remains unchanged.
+Created React/TypeScript/Vite frontend with bounded dependencies and package-lock.json; React Router, TanStack Query, React Hook Form/Zod, Temporal, Radix Dialog and Lucide. Graphite header, warm workspace, blue actions, system/day/night preferences, persistent theme, CSS tokens and responsive planner follow the companion design. System sans avoids remote font requests.
 
-Independent CorridorRun/task/queue follows core publication; token-owned leases and database fences prevent stopped, inactive or replaced analysis jobs from publishing. Bounded pending recovery also discovers missing ancillary outbox entries. Corridor failure cannot invalidate or block a completed core analysis. One JSON dataset is stored per analysis and mirrored in cache.
+Trip form provides labeled explicit-select autocomplete with debounce/cancellation, keyboard Up/Down/Enter/Escape, empty/loading/error states, swap, local date/time plus IANA zone, cargo pounds and default 25-mile segmented 10/25/50 radios. Time conversion rejects DST ambiguity/gaps rather than shifting departure. Client validation and server field messages retain entered values and focus the error summary.
 
-Datasets carry a fixed UTC-hour anchor, 49 frames (hours 0–48), analysis version, fetched time, wind/rain/snow arrays, units, coverage and explicit per-variable missing masks. Shared forecast caching/batching/usage counters are reused; provider batch errors yield partial coverage without retry/extrapolation. Combined corridor risk is not included; checkpoint assessment remains independent.
+Typed API client shares anonymous session bootstrap, sends same-origin cookies/CSRF, and never creates trips from mount effects. Submission is guarded against duplicates and retries; accepted inputs stay visible until explicit Plan another trip. Queued stage feedback reads backend status without invented percentages. Basic visible-only status polling stops on terminal status/errors; full refresh/heartbeat/version synchronization remains Phase 9 scope.
 
-## API and verification
+Opt-in development fixture mode is always labeled synthetic, contacts no backend/providers, and is forbidden in production builds. Normal bundles exclude fixture data. Backend implementation/configuration remains unchanged.
 
-GET /api/v1/trips/{id}/corridor/ returns owner-scoped cached/database data, independent status, stale/stopped flags and private ETags/304. Slider selection uses local frame arrays, never provider requests or recommendation changes.
+## Verification
 
-11 new offline cases and 2 affected foundation checks passed across targeted runs. Covers overlap/sample cap, geographic edge cases, 49 frames/UTC anchor, missing masks, ownership/ETags, provider-free reads, failure isolation and recovery. Fixture setup and a test-only distance constant typo were fixed; only affected checks repeated. Configuration, migration consistency and final lint pass. New 0003 migration applied to local PostgreSQL. Real .env/dependencies/lockfile unchanged; optional width example added. External provider API calls: zero.
+16 unique new offline UI/schema tests pass across targeted runs. TypeScript/production build and production fixture rejection checks pass. Actual CUA browser review covered desktop/tablet/320px mobile and both themes, keyboard selection/error focus and complete synthetic submission. Implemented contrast pairs meet targeted text/control thresholds. See P7 records in VERIFICATION_LOG.md for fingerprints, retest reasons and resolved failures. No previous backend/provider checks were repeated. Routing/weather API calls: zero.
 
 ## Limitations
 
-Grid is sparse and curvilinear, with anisotropic coarsening on long routes; it is not a dense raster or polygon export. Frontend must clip scalar interpolation to source route tubes, use fixed legends and avoid additive intensities. Forecast model resolution differs from visualization sample spacing.
+Phase 7 supplies planning and processing feedback only. Route comparison, map/checkpoint inspection and corridor timeline belong to Phases 8/9; no fake live results shown. Direct trip URLs show processing status, but page-reload draft restoration and full heartbeat/refresh lifecycle remain future work. Backend POST still lacks idempotency; uncertain network outcomes require care before explicit resubmission.
 
-Real corridor/Celery workers and live provider contracts remain unverified. A separate corridor queue worker is required; none started by the agent. Processing lease expiry is a visible failure; replacement comes with a new core analysis rather than an unbounded retry loop. Cache outage failover is not claimed. Existing quota, broker, geometry, forecast and anonymous-session limitations remain.
+Real frontend/backend/worker/provider end-to-end integration, live provider evidence, manual screen-reader/device/enlarged-text tests remain pending. Targeted contrast/keyboard checks do not certify WCAG compliance. Temporary fixture preview was stopped. No real environment/credentials, worker processes or backend data changed.
 
-No frontend/Phase 7 implementation, staging, commit, push, PR, publishing or deployment. Stopped after Phase 6; wait for the user's next-phase request.
+Stopped after Phase 7. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 8 request.

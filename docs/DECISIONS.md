@@ -40,3 +40,9 @@
 - Use a bounded spherical tube grid rather than adding GIS dependencies: three perpendicular lanes and geodesic endcaps; merge overlapping visualization coordinates and double along-route spacing to meet 100-location cap. Report anisotropic spacing; consumer clips scalar interpolation to source route tubes. This visualization approximation does not coarsen authoritative checkpoints.
 - Persist one bounded dataset JSON per CorridorRun and mirror it in cache. GET returns complete cached arrays/version, never provider requests per slider position. Nulls/masks remain explicit; no additive heatmap or independent recommendation recalculation.
 - Corridor delivery recovery is bounded at five attempts; provider batch failure yields partial coverage without retrying. Processing lease expiry is a visible failure. A new core analysis produces a new corridor; no automatic unbounded corridor retries.
+
+- 2026-11-08, Phase 7: implement React/Vite locally using the Sites skill's local-only workflow; no registration, hosting manifest, source sync or deployment. System sans font avoids remote font requests.
+- Use Temporal polyfill with rejected ambiguous/skipped local times; preserve explicit IANA zone and send UTC instant. Do not hard-code a provider forecast horizon in React.
+- Vite dev proxy preserves original Host for same-origin Django CSRF validation. Backend authentication/configuration remains unchanged.
+- Keep planner mounted across root/trip URLs, lock accepted submission until explicit Plan another trip, never POST from effects or automatically retry. Only color-theme preference persists; location drafts are not stored beyond page lifetime.
+- Opt-in dev fixture mode is persistently labeled and rejected for production builds; normal production bundles exclude synthetic fixtures. Map/risk comparison/timeline deferred to Phases 8/9.

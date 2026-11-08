@@ -11,3 +11,8 @@ __pycache__/
 .coverage
 node_modules/
 dist/
+
+.npm-cache/
+frontend/coverage/
+
+frontend/.test-tmp/
