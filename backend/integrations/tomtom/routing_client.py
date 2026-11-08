@@ -22,6 +22,7 @@ class TomTomRoutingClient:
                 "travelMode": "truck",
                 "maxAlternatives": 2,
                 "routeRepresentation": "polyline",
+                "instructionsType": "coded",
                 "departAt": request.departure_at.isoformat(),
                 "traffic": "true",
             },

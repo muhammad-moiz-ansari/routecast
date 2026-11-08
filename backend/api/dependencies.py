@@ -34,3 +34,10 @@ def get_trip_service():
 
     routing = RoutingService(TomTomRoutingClient(ProviderHTTP(settings.TOMTOM_API_KEY)))
     return TripService(TripStore(), routing)
+
+
+def get_checkpoint_service():
+    """Compose the pure checkpoint calculator; no infrastructure clients are needed."""
+    from services.checkpoint.checkpoint_service import CheckpointService
+
+    return CheckpointService()

@@ -14,3 +14,8 @@
 - TripStore owns the initial trip/snapshot persistence together to keep publication atomic; no unused separate route store is scaffolded.
 - No fabricated truck dimensions/gross weight. Idempotency keys, distributed quota accounting and retries remain later work; clients must submit once explicitly.
 - Plans were found/read in the parent directory after being moved outside the repository. They were not recreated or changed.
+
+- 2026-11-08, Phase 2: generate checkpoint projections deterministically from owned stored route snapshots; no checkpoint persistence or data migration is needed before assessed snapshots are introduced.
+- Keep provider road distance as authoritative cumulative chainage. Measure the full polyline on a mean-radius sphere, then scale its chainage to provider total. This reconciles route/interval mileage and maneuver timing; expose both measured length and distance_method so the approximation is explicit.
+- Request coded maneuver guidance inside the existing routing call (no additional provider calls). Normalize monotonic offsets/times, anchor to route totals, and label missing/invalid timing as proportional_distance; old snapshots do not require refresh.
+- Reject unsampleable geometry or more than 10,000 intervals with a clear checkpoint error; do not silently reduce spacing or fabricate coordinates.

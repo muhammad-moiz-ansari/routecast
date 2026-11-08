@@ -1,6 +1,6 @@
 # RouteCast
 
-Weather-aware truck route planning. Phase 1 adds anonymous owner-scoped trips, place search and truck route options. Weather assessment and frontend implementation remain later phases. The frontend specification applies to phases 7â€“9. No frontend has been scaffolded.
+Weather-aware truck route planning. Phase 2 builds on owner-scoped trips, place search and truck routes with distance checkpoints and arrival estimates. Weather assessment and frontend implementation remain later phases. The frontend specification applies to phases 7â€“9. No frontend has been scaffolded.
 
 ## Windows local setup (PowerShell)
 
@@ -47,3 +47,11 @@ Apply the new domain migration with `uv run --no-sync python manage.py migrate` 
 Bootstrap the session at GET /api/v1/session/, retain its cookies, then submit trip JSON to POST /api/v1/trips/ with the returned token in X-CSRFToken. Inspect your trip and stored routes using its UUID. See docs/API_CONTRACT.md for complete shapes/statuses. Phase 1 routes synchronously and returns 201; queued analysis belongs to Phase 5. There is no weather/risk recommendation yet.
 
 New focused offline checks: `uv run --no-sync pytest tests/test_phase1.py`. Read the ledger first and repeat only checks affected by your changes. Existing Phase 0 helper/Redis/readiness evidence remains reusable.
+
+## Phase 2 use
+
+After creating a trip, read `/api/v1/trips/{id}/checkpoints/?route_id=A` with the same session cookie. Use an actual available route ID from its route options. The trip's stored spacing controls sampling. The response includes endpoints, intervals, arrival timestamps, analysis version and an explicit ETA method/fallback notice. Reads use stored geometry and timing only, without provider requests. Older Phase 1 snapshots work without a migration or refresh.
+
+New route fetches ask for maneuver timing in the same TomTom request. Checkpoint placement uses measured full-polyline geometry scaled to provider route distance; this approximation and limits are documented in docs/API_CONTRACT.md. Weather/risk assessment is not yet implemented.
+
+New focused offline checks: `uv run --no-sync pytest tests/test_phase2.py`. Existing verification is recorded in docs/VERIFICATION_LOG.md; do not repeat successful unrelated checks or refresh routes merely to view checkpoints. Phase 2 requires no dependency installation, database migration or environment change.

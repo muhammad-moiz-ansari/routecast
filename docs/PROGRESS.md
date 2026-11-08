@@ -1,28 +1,30 @@
 # Progress
 
-Current phase: **Phase 1 complete — trip persistence, location search and route options.**
-Completed implementation phases: 0 and 1. Next phase: 2, only upon the user's explicit request.
+Current phase: **Phase 2 complete — checkpoints and ETA calculation.**
+Completed implementation phases: 0, 1 and 2. Next phase: 3, only upon explicit user request.
 
 ## Current implementation
 
-Django/Ninja foundation and idle Celery remain in place. Phase 1 adds LocationRepo/Service, RoutingRepo/Service, TripRepo/Service with Pydantic models, explicit composition, TomTom HTTP adapters, anonymous owner sessions with CSRF, Trip/RouteSnapshot ORM entities and migration, owner-scoped stores and stored snapshot reads. Provider calls are synchronous for this phase; no background jobs were invented.
+Existing owner-scoped trips, location search, truck route snapshots and idle infrastructure remain in place. Phase 2 adds CheckpointRepo/CheckpointService/Pydantic models, full-polyline sampling at saved 10/25/50-mile spacing, origin/destination inclusion, final partial intervals, route-specific stable checkpoint IDs and cumulative ETA calculation. No checkpoint ORM scaffold, migration, dependency or environment change was needed.
 
-Trips validate coordinates, aware future departure, IANA display timezone, finite nonnegative cargo and 10/25/50 spacing. Routing requests truck mode, departure, primary plus two alternatives; preserves full GeoJSON geometry and stable A/B/C snapshot IDs; removes duplicate/resampled geometry. Zero/one/two options are reported honestly. Cargo is not gross vehicle weight. Stored reads never call providers. Failed operations retain sanitized failure state.
+The existing routing call now asks for coded maneuver timing. Valid provider offsets/elapsed times are normalized to route totals and interpolated by span. Missing or inconsistent timings use explicit proportional_distance fallback. Old route snapshot JSON without timing remains readable without re-fetch/backfill. Checkpoint projection uses owned stored route geometry/timing only and never calls providers.
 
 ## API changes
 
-GET /api/v1/session/, GET /api/v1/locations/search/, POST /api/v1/trips/ (201 synchronous), GET /api/v1/trips/{id}/, GET /api/v1/trips/{id}/routes/. All trip reads enforce session ownership; POST requires CSRF. See API_CONTRACT.md for fields, errors, statuses and bootstrap flow.
+Added GET /api/v1/trips/{id}/checkpoints/?route_id=A. Requires owner session; saved trip spacing applies. Returns route/analysis identifiers, checkpoint coordinates/distances/UTC arrival times, actual interval lengths, eta_method, timing_notice and distance-method metadata. Optional normalized timing_points/timing_notice are added to route snapshots. See API_CONTRACT.md.
 
 ## Verification
 
-See P1-OFFLINE through P1-LINT in VERIFICATION_LOG.md: all 26 new offline cases pass across targeted runs, relevant foundation checks pass, migration consistency/configuration/lint pass, domain migration applied to local PostgreSQL. Successful unaffected Phase 0 checks reused. External provider calls: 0. Public provider documentation consulted only.
+P2-CHECKPOINTS through P2-LINT in VERIFICATION_LOG.md: 44 tests passed once (35 new, 9 affected regressions), 39 unrelated cases deselected. Django check and targeted lint passed. Coverage includes short/exact/partial spacing cases, route-specific geometry, repeated vertices/dateline, interval reconciliation, monotonic distance/time, exact destination duration, provider interpolation/fallback, schema/interface checks, old snapshots, ownership, OpenAPI and provider-free repeated reads. No failed checks remain.
 
-Phase 0 local setup: user reported Docker/Compose/migrations/server working; Phase 1 independently confirmed PostgreSQL through migration application. No fresh Redis readiness request was needed. Earlier Docker-unavailable entry remains historical with the follow-up recorded in the ledger.
+Dependencies/lockfile and ORM/migrations unchanged; prior PostgreSQL migration, provider-error, unit/time and readiness evidence reused. No external provider calls: 0 requests, 0 locations, 0 estimated usage units. Public guidance docs consulted only. Existing user-reported Phase 0 Docker setup and independently observed Phase 1 PostgreSQL migration evidence remain recorded without repeating those checks.
 
-## Limitations / pending live evidence
+## Limitations and pending live evidence
 
-Live TomTom search/routing and region/vehicle coverage remain unverified; no live tests were necessary for offline implementation. Credentials are optional for tests; missing keys fail clearly at runtime, without a fixture fallback. API errors expose no provider URLs/keys. Numeric Retry-After is supported; date-form parsing is deferred.
+Provider search/routing/maneuver timing remains unverified live. Guidance is optional; proportional fallback is honest and not traffic-precise. Arrival times remain estimates based on planned departure and supplied route duration, without GPS tracking.
 
-No idempotency-key handling yet: clients must prevent duplicate submissions and automatic POST retries. Per-process HTTP concurrency/timeouts are implemented; shared quota accounting, caching/coalescing/throttling and controlled retry policy remain future work. Keep current endpoints local pending later production controls. Clearing the anonymous session loses access; recovery/accounts are outside scope.
+Placement uses mean-radius spherical full-polyline chainage scaled to provider road distance so offsets, spacing and interval totals agree. This is an exposed approximation, not an ellipsoidal survey or evidence of conditions between checkpoints. Degenerate geometry, ambiguous antipodal interpolation, arrival overflow and more than 10,000 intervals fail explicitly. Checkpoints are deterministic read projections; assessed checkpoint snapshot persistence belongs to later analysis work.
 
-No checkpoint calculation, weather, recommendation, queued planning, refresh, frontend, publishing or deployment was added. No Git mutation was performed. Stopped after Phase 1; wait for the user's Phase 2 request.
+Previous Phase 1 limitations remain: no idempotency keys, per-process rather than distributed provider capacity accounting, numeric-only Retry-After, and no anonymous-session recovery. Weather/risk, refresh/background orchestration and frontend are not implemented yet.
+
+Stopped after Phase 2. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 3 request.

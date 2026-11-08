@@ -31,6 +31,12 @@ class RouteGeometry(BaseModel):
         return values
 
 
+class RouteTimingPoint(BaseModel):
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
+    distance_meters: float = Field(ge=0)
+    cumulative_travel_seconds: float = Field(ge=0)
+
+
 class RouteCandidate(BaseModel):
     model_config = ConfigDict(allow_inf_nan=False)
     id: str
@@ -39,6 +45,8 @@ class RouteCandidate(BaseModel):
     distance_meters: float = Field(gt=0)
     duration_seconds: float = Field(gt=0)
     arrival_at: datetime
+    timing_points: list[RouteTimingPoint] = Field(default_factory=list)
+    timing_notice: str | None = None
 
 
 class RouteOptions(BaseModel):

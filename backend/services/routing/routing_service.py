@@ -4,6 +4,7 @@ from integrations.exceptions import ProviderError
 
 from .models import RouteCandidate, RouteGeometry, RouteOptions, RouteRequest
 from .routing_repo import RoutingRepo
+from .timing import instruction_timing
 
 
 def geometry_key(points):
@@ -47,6 +48,11 @@ class RoutingService(RoutingRepo):
                 raise ProviderError(
                     "provider_invalid_response", "Provider returned an invalid route duration."
                 ) from None
+            timing_points, timing_notice = instruction_timing(
+                candidate.guidance,
+                candidate.summary.lengthInMeters,
+                candidate.summary.travelTimeInSeconds,
+            )
             routes.append(
                 RouteCandidate(
                     id=identifier,
@@ -55,6 +61,8 @@ class RoutingService(RoutingRepo):
                     distance_meters=candidate.summary.lengthInMeters,
                     duration_seconds=candidate.summary.travelTimeInSeconds,
                     arrival_at=arrival_at,
+                    timing_points=timing_points,
+                    timing_notice=timing_notice,
                 )
             )
             if len(routes) == 3:

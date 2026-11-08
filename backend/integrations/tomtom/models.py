@@ -20,6 +20,7 @@ class Leg(BaseModel):
 
 
 class ProviderRoute(BaseModel):
+    guidance: dict = Field(default_factory=dict)
     summary: Summary
     legs: list[Leg] = Field(min_length=1)
 
