@@ -1,0 +1,32 @@
+[project]
+name = "routecast-backend"
+version = "0.1.0"
+description = "Weather-aware route planning backend"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "django>=5.2,<5.3",
+  "django-ninja>=1.7,<2",
+  "pydantic>=2.11,<3",
+  "psycopg[binary]>=3.2,<4",
+  "redis>=6,<8",
+  "celery[redis]>=5.5,<6",
+  "httpx>=0.28,<0.29",
+  "python-dotenv>=1.1,<2",
+  "tzdata>=2025.2,<2027",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.4,<10", "pytest-django>=4.11,<5", "pytest-socket>=0.7,<1", "ruff>=0.12,<1"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+pythonpath = ["."]
+testpaths = ["tests"]
+addopts = "--disable-socket"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
