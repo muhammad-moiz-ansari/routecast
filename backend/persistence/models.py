@@ -56,3 +56,16 @@ class AnalysisRun(models.Model):
                 name="one_active_analysis_per_trip",
             ),
         ]
+
+
+class CorridorRun(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    analysis = models.OneToOneField(AnalysisRun, on_delete=models.CASCADE, related_name="corridor")
+    anchor_at = models.DateTimeField()
+    status = models.CharField(max_length=24, default="pending")
+    token = models.UUIDField(null=True)
+    lease_until = models.DateTimeField(null=True)
+    due_at = models.DateTimeField(default=timezone.now)
+    deliveries = models.PositiveIntegerField(default=0)
+    data = models.JSONField(null=True)
+    error_code = models.CharField(max_length=64, null=True)

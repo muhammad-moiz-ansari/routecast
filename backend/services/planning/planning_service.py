@@ -28,6 +28,7 @@ class PlanningService(PlanningRepo):
         locks,
         dispatch,
         clock=lambda: datetime.now(UTC),
+        corridor_submit=lambda _: None,
     ):
         self.store, self.trip_store, self.routing, self.checkpoint = (
             store,
@@ -42,6 +43,7 @@ class PlanningService(PlanningRepo):
             dispatch,
         )
         self.clock = clock
+        self.corridor_submit = corridor_submit
 
     def deliver(self, run_id):
         """Dispatch a durable queued record; periodic recovery handles broker failures."""
@@ -141,6 +143,11 @@ class PlanningService(PlanningRepo):
             }
             guard("assessing")
             self.store.publish(run.id, run.token, self.clock(), payload)
+            try:
+                transaction.on_commit(lambda: self.corridor_submit(run.id))
+            except Exception:
+                # Ancillary dispatch must never roll back or fail the completed core result.
+                pass
         except LeaseLost:
             pass
         except ProviderError as exc:

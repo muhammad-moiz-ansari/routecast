@@ -85,3 +85,17 @@ POST /api/v1/trips/ now returns 202 with trip and analysis identifiers. A worker
 The new 0002 migration was applied to local PostgreSQL during implementation. Fresh checkouts still run the normal migrate setup. Historical trip viewer activity is expired by migration; a heartbeat/manual refresh is required to schedule old trips again. No new dependency installation is needed. Previous Phase 1–4 use sections are historical where they describe synchronous writes or direct weather acquisition.
 
 New fake-clock/offline lifecycle acceptance tests: tests/test_phase5.py. Read the verification ledger before rerunning successful checks. Real Redis lease scripts and PostgreSQL publication/uniqueness were checked locally using rolled-back synthetic data. A real Celery broker/worker/Beat end-to-end run remains pending; no worker was started and no live provider test was run by the agent.
+
+## Phase 6 use
+
+GET `/api/v1/trips/{id}/corridor/` with the owner session returns independent corridor status and, when ready/partial, all 49 cached frames. Select slider hours locally from the arrays; GET and frame selection never fetch providers or change route recommendation. See docs/API_CONTRACT.md for indexing, missing masks, spatial approximation and clipping.
+
+The new 0003 corridor migration was applied to local PostgreSQL during implementation. Existing real .env files were not changed. Optional CORRIDOR_WIDTH_MILES defaults to 10 miles on each side; provider request budgets and terms still apply. Initial visualization spacing is 10 miles along/10 miles across and is coarsened along long routes to stay at most 100 locations.
+
+Corridor tasks use a separate `corridor` queue. Keep the core worker on `-Q celery` and start a separate corridor worker only when ready for runtime provider usage:
+
+```powershell
+uv run --no-sync celery -A config.celery:app worker -Q corridor --pool=solo --loglevel=info
+```
+
+Use the existing single Beat scheduler for bounded pending delivery recovery. As before, Windows solo is for local development; supported Linux workers provide reliable task time limits. No workers or Beat were started by the agent. Full broker/worker and live provider verification remain pending. Focused offline tests are in tests/test_phase6.py; read the ledger before repeating successful checks.

@@ -131,3 +131,21 @@ Execution evidence: initial selection **11 passed, 20 deselected** (9 new + 2 re
 Eight earlier integration cases asserting synchronous 201 creation or current-cache projections were superseded and removed in favor of the new lifecycle tests. Pure routing/normalization/geometry/weather/rule tests remain, and their recorded evidence was reused. The shared routing fixture helper now exposes RoutingService directly rather than relying on the retired synchronous TripService constructor. This is a contract migration, not a claim those historical expectations still apply.
 
 No provider contract checks, dependency installations, successful earlier migrations or existing readiness checks were repeated. Real broker/worker/Beat execution and live providers remain pending; implementation is verified via service-level fake dispatch/clocks, guarded offline fixtures and targeted local infrastructure smokes. No Git mutation, frontend, publishing or deployment.
+
+
+## Phase 6 — 2026-11-08
+
+Fingerprint `81ae33e24658bfb843bed22e4be0f67061434185d1864269bc01d6ad2ff62fb4`: SHA-256 over sorted backend Python/JSON paths + LF + bytes + LF, excluding .venv/__pycache__. Dependencies/lockfile/real environment unchanged; 0003 adds CorridorRun. External provider requests **0**, locations **0**, estimated usage units **0**. All forecast acquisition used synthetic test services.
+
+| ID | Behavior | Mode/result | Evidence | Retest trigger |
+| --- | --- | --- | --- | --- |
+| P6-GRID | Geographic tube sampling/overlap/budget | Offline/PASS | Duplicate routes deduplicate; adaptive spacing and three long alternatives stay <=100 locations; dateline/high-latitude/repeated vertices valid; points on an equatorial route tube/endcaps stay within the requested 10-mile radius. | Geometry/cap/config changes |
+| P6-DATA | Frames, masks, cache, ownership/versions | Offline/PASS | 49 frames, fixed UTC anchor, correct analysis version; missing/null/provider-error masks; unchanged cached arrays after clock advance; duplicate delivery does not refetch; owner/foreign session checks and private ETag 304. | Dataset/cache/API changes |
+| P6-JOBS | Failure isolation/recovery/stop | Offline/PASS | Core payload unchanged after null/batch failures, stop and ancillary dispatch failure. Stopped jobs make no forecast call; missing ancillary entry recovered once without provider work during recovery. | Job/store/lifecycle hook changes |
+| P6-CONFIG | Configuration/migration consistency/lint | Offline/PASS | Two relevant foundation docs/import cases passed; Django check passed, makemigrations --check --dry-run reports no changes; final Ruff check passes. | Models/settings/imports/source changes |
+| P6-MIGRATION | PostgreSQL | Local/PASS | persistence.0003_corridorrun applied OK; existing core snapshots unchanged. | Schema/backend changes |
+| P6-LIVE | Real worker/provider acquisition | Pending | No worker/Beat/live provider execution performed; earlier pending process/provider evidence remains pending. | Explicit justified bounded missing live/process check |
+
+11 new Phase 6 cases and 2 affected existing foundation cases passed across targeted runs. Initial run: 6 passed, 20 deselected, 5 fixture setup errors (implicit fixture import removed by Ruff). Explicit fixture alias fixed setup; affected 5 passed. Recovery/config/read changes justified targeted recovery/stop/frame retests. New geographic containment test had a test-only conversion typo (16093.344 instead of 16093.44), corrected; only that failed case repeated and passed. No unresolved test failures.
+
+Existing provider normalization/cache, usage accounting, core risk and Redis lock evidence reused; no dependency installation, old migration repetition, live API or broad pure regression suite. No Git mutation/frontend/publishing/deployment. Sparse curvilinear sampling/renderer clipping requirements documented; real broker/provider execution remains pending.

@@ -90,6 +90,7 @@ def get_planning_service():
         lambda weather: RecommendationService(checkpoint, weather, RiskService()),
         RedisLocks(Redis.from_url(settings.REDIS_URL, socket_connect_timeout=2, socket_timeout=2)),
         dispatch,
+        corridor_submit=lambda run_id: get_corridor_service().enqueue(run_id),
     )
 
 
@@ -104,4 +105,36 @@ def get_refresh_service():
         AnalysisStore(),
         get_planning_service(),
         scheduling_enabled=not settings.ROUTECAST_LIVE_TEST_MODE,
+        corridor_recover=lambda: get_corridor_service().recover(),
+    )
+
+
+def get_corridor_service():
+    """Compose independent corridor storage/cache/provider/lock dependencies without I/O."""
+    from django.conf import settings
+    from django.core.cache import cache
+    from redis import Redis
+
+    from cache.corridor_cache import CorridorCache
+    from cache.forecast_cache import ForecastCache
+    from cache.locks import RedisLocks
+    from cache.provider_usage import record_weather_usage
+    from integrations.open_meteo.weather_client import OpenMeteoClient
+    from persistence.stores.corridor_store import CorridorStore
+    from services.corridor.corridor_service import CorridorService
+
+    def dispatch(job_id):
+        from tasks.corridor_tasks import corridor
+
+        corridor.apply_async(args=[job_id], retry=False)
+
+    return CorridorService(
+        CorridorStore(),
+        OpenMeteoClient(),
+        ForecastCache(cache),
+        CorridorCache(cache),
+        lambda n: record_weather_usage(cache, n),
+        RedisLocks(Redis.from_url(settings.REDIS_URL, socket_connect_timeout=2, socket_timeout=2)),
+        dispatch,
+        width_miles=settings.CORRIDOR_WIDTH_MILES,
     )

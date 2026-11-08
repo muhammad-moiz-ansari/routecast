@@ -23,3 +23,7 @@ No live Open-Meteo contract check was performed. Before any necessary missing li
 ## Phase 5 runtime
 
 Provider acquisition now occurs in explicitly queued planning jobs, not trip/prefetch HTTP request handlers. Do not start a worker/Beat as an unannounced live verification: queued jobs may fetch providers. One Beat scheduler coordinates active viewers and bounded retries. Use ROUTECAST_LIVE_TEST_MODE=true to disable periodic scheduling while checking adapters. Actual API keys are still backend-only; none were inspected or changed by the agent. Runtime credential/invalid-request failures require explicit owner action before periodic scheduling resumes. API request budgets for future live verification must still be stated before calls.
+
+## Phase 6 corridor budget
+
+Independent corridor work requests at most 100 visualization locations, split into batches <=50, reusing valid cached exact coordinates. This does not change checkpoint forecast acquisition. Provider errors produce explicit partial data/masks without retries. No corridor-wide live test was performed; future live verification must justify missing evidence and stay within an announced request/location budget (the existing initial smoke ceiling is one request/up to five locations, not an authorization to fetch an entire corridor).

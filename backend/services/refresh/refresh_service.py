@@ -9,9 +9,17 @@ from .refresh_repo import RefreshRepo
 
 
 class RefreshService(RefreshRepo):
-    def __init__(self, store, planning, clock=lambda: datetime.now(UTC), scheduling_enabled=True):
+    def __init__(
+        self,
+        store,
+        planning,
+        clock=lambda: datetime.now(UTC),
+        scheduling_enabled=True,
+        corridor_recover=lambda: None,
+    ):
         self.store, self.planning, self.clock = store, planning, clock
         self.scheduling_enabled = scheduling_enabled
+        self.corridor_recover = corridor_recover
 
     def refresh(self, owner_id, trip_id) -> RefreshResult:
         """Coalesce manual requests and apply a cooldown without provider I/O."""
@@ -53,6 +61,7 @@ class RefreshService(RefreshRepo):
         if not self.scheduling_enabled:
             return
         now = self.clock()
+        self.corridor_recover()
         self.store.schedule(now)
         for run_id in self.store.dispatchable(now):
             self.planning.deliver(run_id)

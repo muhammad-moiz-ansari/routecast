@@ -80,3 +80,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "loggers": {"httpx": {"level": "WARNING"}, "httpcore": {"level": "WARNING"}},
 }
+
+CORRIDOR_WIDTH_MILES = float(os.environ.get("CORRIDOR_WIDTH_MILES", "10"))
+
+CELERY_TASK_ROUTES = {"routecast.corridor": {"queue": "corridor"}}
