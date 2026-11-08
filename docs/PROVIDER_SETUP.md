@@ -13,3 +13,9 @@ Live search/routing contract evidence remains pending. Before any necessary live
 ## Phase 2 timing
 
 The existing Calculate Route request now includes `instructionsType=coded` to obtain maneuver timing without human-readable instruction text. The [v1 guidance contract](https://docs.tomtom.com/routing-api/documentation/tomtom-maps/v1/guidance-instructions) defines `routeOffsetInMeters` and `travelTimeInSeconds` as cumulative distance/travel time to the instruction. Those fields are normalized and persisted with the route snapshot. Provider timing availability is not guaranteed: missing/invalid values use a visible proportional-distance ETA fallback. Existing snapshots need no provider refresh. No live routing contract test was run for this optional guidance parameter; that evidence remains pending.
+
+## Phase 3 Open-Meteo
+
+The weather adapter uses the public HTTPS `/v1/forecast` endpoint; no API key or environment change is required for this implementation. Check [Open-Meteo documentation and usage terms](https://open-meteo.com/en/docs) for your intended use; customer/paid endpoint configuration is not implemented. Requested hourly fields are wind_speed_10m, rain, showers and snowfall, with UTC Unix timestamps, metric precipitation and km/h wind. Unit metadata is inspected, array sizes/hourly cadence validated, and invalid responses sanitized. Null or absent variables remain missing. Requested coordinates are cache identities; the provider may use a nearby model grid cell and no meteorological point-precision claim is made.
+
+No live Open-Meteo contract check was performed. Before any necessary missing live check, announce the reason and a ceiling of one weather request with at most five locations, no retries/background jobs. Existing successful adapter evidence must be reused. Adding credentials or beginning a new phase does not authorize repeated checks.

@@ -1,7 +1,7 @@
 # Progress
 
-Current phase: **Phase 2 complete — checkpoints and ETA calculation.**
-Completed implementation phases: 0, 1 and 2. Next phase: 3, only upon explicit user request.
+Current phase: **Phase 3 complete — weather integration, prefetch and matching.**
+Completed implementation phases: 0, 1, 2 and 3. Next phase: 4, only upon explicit user request.
 
 ## Current implementation
 
@@ -25,6 +25,14 @@ Provider search/routing/maneuver timing remains unverified live. Guidance is opt
 
 Placement uses mean-radius spherical full-polyline chainage scaled to provider road distance so offsets, spacing and interval totals agree. This is an exposed approximation, not an ellipsoidal survey or evidence of conditions between checkpoints. Degenerate geometry, ambiguous antipodal interpolation, arrival overflow and more than 10,000 intervals fail explicitly. Checkpoints are deterministic read projections; assessed checkpoint snapshot persistence belongs to later analysis work.
 
-Previous Phase 1 limitations remain: no idempotency keys, per-process rather than distributed provider capacity accounting, numeric-only Retry-After, and no anonymous-session recovery. Weather/risk, refresh/background orchestration and frontend are not implemented yet.
+Previous Phase 1 limitations remain: no idempotency keys, per-process rather than distributed provider capacity accounting, numeric-only Retry-After, and no anonymous-session recovery. Risk, refresh/background orchestration and frontend are not implemented yet.
 
-Stopped after Phase 2. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 3 request.
+Stopped after Phase 3. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 4 request.
+
+## Phase 3 implementation and verification
+
+Added WeatherRepo/Service/Pydantic contracts, Open-Meteo adapter, exact-coordinate forecast cache and shared daily request/location/estimated-unit accounting. Owner/CSRF-protected POST weather/prefetch retrieves all route checkpoint locations in deduplicated batches; GET weather only reads/matches cached series. Metric/unit metadata is inspected; rain+showers and snowfall depth normalized; missing data/horizon gaps remain explicit. Hourly accumulation uses (t-1h,t] and interior wind uses the larger bracket. Freshness is separate from coverage. Request max horizon covers route ETAs when available and the future 48-hour visualization window without silently extrapolating unavailable dates.
+
+18 new offline tests and 2 affected foundation tests passed across targeted runs; Django check and targeted lint passed. Zero external provider calls. No ORM/migration, dependency or environment changes required. Prior unaffected evidence reused. Live Open-Meteo evidence remains pending, along with earlier live TomTom evidence. No risk/recommendation implementation added.
+
+Additional limits: explicit synchronous prefetch until Phase 5 orchestration; no distributed request coalescing/quota enforcement; fixed public provider endpoint; estimated location usage units are not billing guarantees. Cache retention 24h, freshness 15min; stale data is labeled. Full forecast absence/partial values remain unavailable/incomplete rather than clear weather. Provider model grid resolution limits location precision.

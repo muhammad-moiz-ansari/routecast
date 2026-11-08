@@ -1,4 +1,4 @@
-# API contract — Phase 2
+# API contract — Phase 3
 
 Base prefix `/api/v1/`. Same-origin session cookies and CSRF are required; owner IDs are never accepted from clients.
 
@@ -62,3 +62,17 @@ Provider maneuver offsets and elapsed seconds are normalized to origin `(0,0)` a
 New route snapshots additionally include `timing_points` (`distance_meters`, `cumulative_travel_seconds`) and nullable `timing_notice`. Old snapshots without these fields deserialize to an empty list and use the same explicit fallback; no re-fetch/backfill is needed. Checkpoint IDs are stable within the same snapshot, route and trip spacing. Degenerate geometry, ambiguous antipodal interpolation, arrival overflow or more than 10,000 intervals fail explicitly with 409; they are never replaced by fabricated geometry/times.
 
 No weather/risk fields or recommendation are returned in Phase 2. Checkpoint generation on read is deterministic and pure; persistence of assessed checkpoints belongs with later analysis snapshots.
+
+## Phase 3 weather
+
+POST `/api/v1/trips/{id}/weather/prefetch/` explicitly retrieves forecasts for all stored route checkpoints. Requires owner cookie and CSRF. GET `/api/v1/trips/{id}/weather/` only matches cached series to current checkpoint ETAs and never contacts providers. Both return 200 WeatherResult, common owner/auth/validation/provider errors, or 409 if routes/geometry are unavailable. Ownership is checked before cache/provider work. These operations do not classify risk or choose a recommended route.
+
+WeatherResult contains `analysis_versions` by route, `checkpoints`, and per-operation `provider_requests`, `unique_locations_requested`, `estimated_usage_units`. CheckpointWeather includes route/checkpoint IDs, UTC arrival/fetch times, preceding-hour interval boundaries, wind sample times, normalized `wind_mph`, `rain_inches_per_hour`, `snow_inches_per_hour`, `coverage` (complete/incomplete/unavailable) and `freshness` (fresh/stale/missing). Missing values remain null; incomplete/stale records are not eligibility or Low-risk claims.
+
+Accumulation intervals are `(timestamp - 1 hour, timestamp]`: an exact-hour ETA uses the accumulation ending at that timestamp. Rain equals rain + showers only when both are present. Snow uses snowfall depth (cm/2.54), not precipitation water equivalent. Values are hourly accumulation converted to hour-equivalent rates; totals are not temporally interpolated. Wind at an exact timestamp uses that sample; between timestamps it uses the larger of both bracketing samples, requiring both. No extrapolation outside returned coverage.
+
+Series are keyed by exact requested coordinate (no coarse rounding), shared across routes and reused for changed ETAs. Fetches request UTC hourly data for 16 forecast days plus one past day, independent of ETA and the future 48-hour corridor window. This is a requested maximum, not a provider coverage promise: actual returned timestamps/values determine assessment availability. Far-future departures/arrivals remain unassessed. No corridor implementation is added here.
+
+Cache freshness is 15 minutes; normalized series are retained 24 hours so GET can truthfully display stale data. Explicit prefetch replaces missing/stale series in batches of up to 50 exact locations; fresh series are reused even if an ETA is outside their returned horizon (no futile repeat fetch). Provider failures propagate sanitized errors; previously cached series remain available to subsequent GETs. No fixture fallback exists.
+
+Usage counts are recorded before each HTTP attempt, including failures, in shared daily Redis request/location/estimated-unit counters. Estimated units use one per location as an application estimate, not a billing guarantee. HTTP is bounded to two in-flight requests per process, 3-second connection and 20-second read/write/pool limits, with no redirects/retries. Distributed coalescing, quota enforcement and background scheduling remain Phase 5 work; concurrent explicit prefetch operations can duplicate requests.

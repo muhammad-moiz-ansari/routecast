@@ -73,3 +73,21 @@ Code/fixture fingerprint: `074fb7d283a56b65a77b928e6a7e5eb879ba25e5263b557c1757a
 One combined targeted test execution: **44 passed, 39 deselected** (35 new Phase 2 cases + 9 affected existing cases). No failed tests and no unnecessary successful test reruns. Targeted command: `pytest -q tests/test_phase2.py tests/test_phase1.py tests/test_foundation.py -k 'phase2 or routing_contract_and_normalization or fewer_routes or resampled_duplicate_geometry or owner_csrf_and_persisted_reads or failed_trip_retained or imports_and_idle_celery or liveness_and_documentation'`. All test sockets blocked by existing pytest configuration.
 
 Reused Phase 0 units/time, health/readiness/Redis and dependency evidence, and unaffected Phase 1 location, validation, provider-error/timeout and PostgreSQL migration evidence. No ORM or dependency changes justified repeating migrations, Docker startup, package installation or infrastructure checks. No live requests, background jobs, frontend, Git mutations, publishing or deployment.
+
+
+## Phase 3 — 2026-11-08
+
+Code/fixture fingerprint `189f76c49aaffb4e49968ab9fc4386fbb30cbfa3d3553ed2db7245f17b62ca4c`: SHA-256 over sorted backend Python/JSON paths + LF + bytes + LF excluding .venv/__pycache__. ORM/migrations/dependencies/lockfile/environment unchanged. Actual external provider requests **0**, locations **0**, estimated usage units **0**. Public Open-Meteo documentation consulted only.
+
+| ID | Behavior | Mode/result | Evidence | Retest trigger |
+| --- | --- | --- | --- | --- |
+| P3-OFFLINE | Unit normalization, nulls, matching, horizon, cache reuse/staleness | Offline/PASS | Initial targeted run: 18 passed, 20 deselected (16 new Phase 3 cases + 2 affected foundation cases). Covers rain+showers, cm snow depth, missing variables, malformed units/arrays/NaN/time axis, exact-hour boundaries/bracketing wind, outside horizon, exact coordinate deduplication, changed ETAs reusing cache, stale GETs, missing cache and error handling without retries. | Corresponding weather/client/cache/matching changes |
+| P3-BATCH | Batch boundary and shared usage counts; timeout and alternate units | Offline/PASS | Two additional new cases passed, 16 existing Phase 3 cases deselected: 51 locations produce two HTTP mock requests, counts 2/51 recorded in shared cache; timeout sanitized and inch/mph units handled. | Batching/accounting/provider adapter changes |
+| P3-API | Owner enforcement, CSRF and cache-only reads | Offline/PASS | Included in initial run: owner GET with empty cache makes no request, POST without CSRF rejected, valid prefetch returns data, repeated GET issues no requests, foreign session denied. | API/session/composition changes |
+| P3-CONFIG | Configuration and source lint | Offline/PASS | Django check reports no issues; changed/new source passes Ruff after formatting/import cleanup. No test failures. | API/config/source changes |
+| P3-FOUNDATION | Imports, idle Celery and docs registration | Offline/PASS | Two relevant foundation cases passed in initial targeted run with sockets blocked. | Composition/API import changes |
+| P3-LIVE | Real Open-Meteo contract/coverage | Live/PENDING | No live test needed for offline implementation; no API budget spent. If necessary later, state reason and max one request/five locations/no retries first. | Justified missing live adapter evidence |
+
+Totals: 18 new Phase 3 cases plus 2 affected existing cases passed across two targeted executions. Existing pytest socket blocking remained enabled; HTTPX MockTransport fixtures supplied synthetic provider arrays. Successful unrelated Phase 0–2 tests and PostgreSQL migration evidence were reused. No migrations, infrastructure restarts, package installation or prior provider checks repeated. No Git mutation, frontend, publishing or deployment.
+
+Known limits: provider-backed runtime/cache freshness is implemented but live provider validation remains pending. Fixed public endpoint, per-process concurrency and daily shared usage counters do not implement distributed coalescing or enforce provider quotas. Retained stale cache survives failed prefetch and is available via GET; no background retry/job is started.

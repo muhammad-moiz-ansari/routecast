@@ -19,3 +19,8 @@
 - Keep provider road distance as authoritative cumulative chainage. Measure the full polyline on a mean-radius sphere, then scale its chainage to provider total. This reconciles route/interval mileage and maneuver timing; expose both measured length and distance_method so the approximation is explicit.
 - Request coded maneuver guidance inside the existing routing call (no additional provider calls). Normalize monotonic offsets/times, anchor to route totals, and label missing/invalid timing as proportional_distance; old snapshots do not require refresh.
 - Reject unsampleable geometry or more than 10,000 intervals with a clear checkpoint error; do not silently reduce spacing or fabricate coordinates.
+
+- 2026-11-08, Phase 3: use explicit owner/CSRF protected weather prefetch POST and cache-only GET until queued planning in Phase 5; never silently fetch weather from projection reads.
+- Normalize hourly accumulations on (t-1h,t]; exact-hour wind uses one sample, interior-hour wind the larger bracketing value. Missing variables stay null; actual timestamp coverage controls availability.
+- Request the public provider's 16-day maximum plus one past day; retain exact-coordinate normalized series 24h, mark fresh for 15min, and reuse for changed ETAs. No extra request to chase out-of-horizon ETAs.
+- Share daily attempted request/location/estimated-unit counters in Redis. Estimated units are not a provider billing claim. Distributed locks/coalescing/quota enforcement and paid endpoint configuration are not implemented in this phase.

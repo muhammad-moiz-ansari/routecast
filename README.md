@@ -55,3 +55,9 @@ After creating a trip, read `/api/v1/trips/{id}/checkpoints/?route_id=A` with th
 New route fetches ask for maneuver timing in the same TomTom request. Checkpoint placement uses measured full-polyline geometry scaled to provider route distance; this approximation and limits are documented in docs/API_CONTRACT.md. Weather/risk assessment is not yet implemented.
 
 New focused offline checks: `uv run --no-sync pytest tests/test_phase2.py`. Existing verification is recorded in docs/VERIFICATION_LOG.md; do not repeat successful unrelated checks or refresh routes merely to view checkpoints. Phase 2 requires no dependency installation, database migration or environment change.
+
+## Phase 3 use
+
+POST `/api/v1/trips/{id}/weather/prefetch/` with the existing owner session and CSRF token to explicitly fetch live Open-Meteo hourly series for route checkpoints. GET `/api/v1/trips/{id}/weather/` returns cached matching without provider calls. These are weather/coverage results, not risk classifications. See docs/API_CONTRACT.md for units, boundary semantics and freshness. No migration, package install or environment change is required. Offline tests use HTTPX fixtures, never production fixture fallback.
+
+Read the verification ledger before running the new focused tests: `uv run --no-sync pytest tests/test_phase3.py`. No live provider tests were run for Phase 3; provider contract evidence remains pending.

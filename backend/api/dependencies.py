@@ -41,3 +41,17 @@ def get_checkpoint_service():
     from services.checkpoint.checkpoint_service import CheckpointService
 
     return CheckpointService()
+
+
+def get_weather_service():
+    """Wire the forecast adapter, Redis cache and shared usage accounting without I/O."""
+    from django.core.cache import cache
+
+    from cache.forecast_cache import ForecastCache
+    from cache.provider_usage import record_weather_usage
+    from integrations.open_meteo.weather_client import OpenMeteoClient
+    from services.weather.weather_service import WeatherService
+
+    return WeatherService(
+        OpenMeteoClient(), ForecastCache(cache), lambda n: record_weather_usage(cache, n)
+    )
