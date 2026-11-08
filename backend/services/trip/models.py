@@ -10,6 +10,13 @@ from services.routing.models import RouteOptions, RouteRequest
 
 
 class TripStatus(StrEnum):
+    QUEUED = "queued"
+    CHECKPOINTS = "checkpoints"
+    WEATHER = "weather"
+    ASSESSING = "assessing"
+    COMPLETE = "complete"
+    FAILED = "failed"
+    STOPPED = "stopped"
     ROUTING = "routing"
     ROUTES_READY = "routes_ready"
     ROUTING_FAILED = "routing_failed"
@@ -43,3 +50,6 @@ class TripResponse(TripCreateRequest):
     analysis_version: int = 1
     route_options: RouteOptions | None = None
     error_code: str | None = None
+    analysis_revision: int | None = None
+    input_revision: int = 1
+    analysis_id: UUID | None = None

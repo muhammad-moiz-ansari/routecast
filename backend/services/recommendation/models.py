@@ -12,6 +12,9 @@ class RecommendationExplanation(BaseModel):
 
 
 class RecommendationResult(BaseModel):
+    stale: bool = False
+    retained_previous: bool = False
+    previous_recommended_route_id: str | None = None
     state: Literal["RECOMMENDED", "NO_ELIGIBLE_ROUTE", "INCOMPLETE_DATA", "PENDING"]
     analysis_version: int
     rules_version: str = RULES_VERSION

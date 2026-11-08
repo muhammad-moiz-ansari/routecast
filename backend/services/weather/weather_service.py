@@ -6,8 +6,9 @@ from .weather_repo import WeatherRepo
 
 
 class WeatherService(WeatherRepo):
-    def __init__(self, client, cache, usage, clock=lambda: datetime.now(UTC)):
+    def __init__(self, client, cache, usage, clock=lambda: datetime.now(UTC), guard=lambda: None):
         self.client, self.cache, self.usage, self.clock = client, cache, usage, clock
+        self.guard = guard
 
     def assess(self, request: ForecastRequest, fetch: bool = False) -> WeatherResult:
         """Deduplicate checkpoint locations, reuse fresh series and match ETAs independently."""
@@ -28,10 +29,13 @@ class WeatherService(WeatherRepo):
             for offset in range(0, len(missing), 50):
                 keys = missing[offset : offset + 50]
                 # Account attempts before I/O, including provider errors and multi-location usage.
+                self.guard()
                 self.usage(len(keys))
                 requests += 1
                 locations += len(keys)
-                for key, s in zip(keys, self.client.fetch([coordinates[k] for k in keys])):
+                batch = self.client.fetch([coordinates[k] for k in keys])
+                self.guard()
+                for key, s in zip(keys, batch):
                     self.cache.set(s)
                     series[key] = s
         results = []

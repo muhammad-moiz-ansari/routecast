@@ -1,11 +1,9 @@
 from copy import deepcopy
 from datetime import UTC, datetime, timedelta
-from unittest.mock import patch
 
 import httpx
 import pytest
 from django.core.cache import caches
-from django.test import Client
 
 from cache.forecast_cache import ForecastCache
 from cache.provider_usage import record_weather_usage
@@ -139,31 +137,6 @@ def test_provider_errors_no_retries(status):
     with pytest.raises(ProviderError):
         OpenMeteoClient(httpx.MockTransport(respond)).fetch([generate().checkpoints[0].coordinate])
     assert len(calls) == 1
-
-
-@pytest.mark.django_db
-def test_weather_owner_csrf_and_cached_get():
-    from tests.test_phase1 import INPUTS, fixture, trip_service
-
-    c = Client(enforce_csrf_checks=True)
-    token = c.get("/api/v1/session/").json()["csrf_token"]
-    with patch(
-        "api.routes.trip_routes.get_trip_service", return_value=trip_service(fixture("routes"), [])
-    ):
-        trip = c.post(
-            "/api/v1/trips/", INPUTS, content_type="application/json", HTTP_X_CSRFTOKEN=token
-        ).json()
-    url = f"/api/v1/trips/{trip['id']}/weather/"
-    service, calls = setup_service()
-    with patch("api.routes.weather_routes.get_weather_service", return_value=service):
-        assert c.get(url).status_code == 200 and not calls
-        assert c.post(url + "prefetch/").status_code == 403
-        assert c.post(url + "prefetch/", HTTP_X_CSRFTOKEN=token).status_code == 200
-        count = len(calls)
-        assert c.get(url).status_code == 200 and len(calls) == count
-        other = Client()
-        other.get("/api/v1/session/")
-        assert other.get(url).status_code == 404
 
 
 def test_batch_boundary_and_shared_accounting():

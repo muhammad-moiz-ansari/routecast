@@ -55,7 +55,15 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
 # No provider tasks or periodic schedules are enabled in Phase 0.
-CELERY_BEAT_SCHEDULE = {}
+ROUTECAST_LIVE_TEST_MODE = os.environ.get("ROUTECAST_LIVE_TEST_MODE", "false").lower() == "true"
+CELERY_BEAT_SCHEDULE = (
+    {}
+    if ROUTECAST_LIVE_TEST_MODE
+    else {"refresh-active-trips": {"task": "routecast.refresh_tick", "schedule": 60.0}}
+)
+CELERY_TASK_PUBLISH_RETRY = False
+CELERY_BROKER_TRANSPORT_OPTIONS = {"socket_connect_timeout": 2, "socket_timeout": 2}
+
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = False
 USE_TZ = True
 TIME_ZONE = "UTC"
@@ -65,3 +73,10 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 
 TOMTOM_API_KEY = os.environ.get("TOMTOM_API_KEY", "")
+
+# Celery commonly runs with INFO logging; HTTPX INFO includes credential-bearing URLs.
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "loggers": {"httpx": {"level": "WARNING"}, "httpcore": {"level": "WARNING"}},
+}

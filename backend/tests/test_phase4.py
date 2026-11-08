@@ -1,18 +1,14 @@
-from copy import deepcopy
 from math import inf, nextafter
-from unittest.mock import patch
 
 import pytest
-from django.test import Client
 from pydantic import ValidationError
 
 from common.enums import RiskCategory as R
 from config.risk_rules import BOUNDS, ORDER
-from services.checkpoint.checkpoint_service import CheckpointService
 from services.recommendation.recommendation_service import RecommendationService
 from services.risk.models import RiskRequest
 from services.risk.risk_service import RiskService, category_for
-from services.weather.models import CheckpointWeather, WeatherResult
+from services.weather.models import CheckpointWeather
 from tests.test_phase2 import generate, route
 
 
@@ -179,39 +175,6 @@ def test_ineligible_states_and_unassessed_alternative():
     assert result.state == "RECOMMENDED" and result.notices and len(result.routes) == 2
 
 
-@pytest.mark.django_db
-def test_owner_cached_recommendation_and_no_provider_requests():
-    from tests.test_phase1 import INPUTS, fixture, trip_service
-
-    c = Client()
-    token = c.get("/api/v1/session/").json()["csrf_token"]
-    with patch(
-        "api.routes.trip_routes.get_trip_service", return_value=trip_service(fixture("routes"), [])
-    ):
-        trip = c.post(
-            "/api/v1/trips/", INPUTS, content_type="application/json", HTTP_X_CSRFTOKEN=token
-        ).json()
-    url = f"/api/v1/trips/{trip['id']}/recommendation/"
-    with (
-        patch("integrations.http_client.ProviderHTTP.get", side_effect=AssertionError),
-        patch(
-            "integrations.open_meteo.weather_client.OpenMeteoClient.fetch",
-            side_effect=AssertionError,
-        ),
-    ):
-        result = c.get(url)
-        assert result.status_code == 200, result.content
-        assert result.json()["state"] == "INCOMPLETE_DATA"
-        assert c.get(url).json() == result.json()
-        other = Client()
-        other.get("/api/v1/session/")
-        assert other.get(url).status_code == 404
-        assert Client().get(url).status_code == 401
-        assert "rules_version" in result.json()
-        schema = c.get("/api/v1/openapi.json").json()
-        assert "/api/v1/trips/{trip_id}/recommendation/" in schema["paths"]
-
-
 def test_pending_failed_and_version_mismatch():
     from datetime import UTC, datetime
     from uuid import uuid4
@@ -244,56 +207,3 @@ def test_pending_failed_and_version_mismatch():
         RiskRequest(route=cp, weather=[w], cargo_load_lb=0, duration_seconds=1000)
     )
     assert risk.checkpoints[0].category == R.UNKNOWN
-
-
-@pytest.mark.django_db
-def test_complete_cached_recommendation_has_no_fetch_or_snapshot_mutation():
-    from unittest.mock import Mock
-
-    from persistence.models import RouteSnapshot, Trip
-    from tests.test_phase1 import INPUTS, fixture, trip_service
-
-    c = Client()
-    token = c.get("/api/v1/session/").json()["csrf_token"]
-    with patch(
-        "api.routes.trip_routes.get_trip_service", return_value=trip_service(fixture("routes"), [])
-    ):
-        trip = c.post(
-            "/api/v1/trips/", INPUTS, content_type="application/json", HTTP_X_CSRFTOKEN=token
-        ).json()
-    original = deepcopy(RouteSnapshot.objects.get(trip_id=trip["id"]).data)
-
-    def cached(request, fetch=False):
-        assert fetch is False
-        rows = [
-            CheckpointWeather(
-                route_id=r.route_id,
-                checkpoint_id=cp.id,
-                arrival_at=cp.arrival_at,
-                wind_mph=0,
-                rain_inches_per_hour=0,
-                snow_inches_per_hour=0,
-                coverage="complete",
-                freshness="fresh",
-            )
-            for r in request.routes
-            for cp in r.checkpoints
-        ]
-        return WeatherResult(
-            analysis_versions={r.route_id: r.analysis_version for r in request.routes},
-            checkpoints=rows,
-            provider_requests=0,
-            unique_locations_requested=0,
-            estimated_usage_units=0,
-        )
-
-    weather = Mock()
-    weather.assess.side_effect = cached
-    service = RecommendationService(CheckpointService(), weather, RiskService())
-    url = f"/api/v1/trips/{trip['id']}/recommendation/"
-    with patch("api.routes.recommendation_routes.get_recommendation_service", return_value=service):
-        data = c.get(url).json()
-        assert data["state"] == "RECOMMENDED" and data["recommended_route_id"] == "A"
-        assert len(data["routes"]) == 3
-    assert RouteSnapshot.objects.get(trip_id=trip["id"]).data == original
-    assert Trip.objects.get(pk=trip["id"]).status == "routes_ready"

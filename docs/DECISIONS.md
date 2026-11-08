@@ -28,3 +28,10 @@
 - 2026-11-08, Phase 4: risk rules version 2026-11-08.v1 implements continuous weather thresholds, strict cargo >30k/>40k overrides, and unrounded lexicographic ranking.
 - Missing coverage preserves known hazards, while otherwise Unknown stays unscored. Separate unassessed mileage can overlap category mileage and never participates as zero risk. Stale/incomplete routes are ineligible, averages null.
 - Recommendation GET is an owner-scoped cached-data projection, preserving all alternatives and existing route snapshots. Durable assessed snapshot publication is deferred to Phase 5's consistency lifecycle; do not claim projection results are immutable historical assessments.
+
+- 2026-11-08, Phase 5: replace synchronous creation with durable AnalysisRun outbox + post-commit Celery dispatch; return 202 and identifiers. Existing Trip/RouteSnapshot rows are preserved.
+- Capture candidate inputs/revision, use per-trip Redis leases plus PostgreSQL fencing tokens/conditional uniqueness, and publish complete payload/current pointer atomically. Partial working routes are available initially but do not replace prior published analysis.
+- Completed recommendation/checkpoint/weather projections read stored assessments. Separate stale/input-change overlays prevent expired recommendations from appearing eligible. Raw historical evidence is immutable.
+- Only explicit heartbeats or manual refresh maintain viewer activity; status polling does not. Stop is permanent in this phase. PATCH accepts a full replacement input document and fences prior revision work.
+- Transient retries capped at three; durable broker deliveries capped at five. Missing/invalid credentials and provider invalid-request failures block periodic retry. Initial fresh route candidates survive weather retries.
+- No worker/Beat started during implementation; fake-clock workflows and local PostgreSQL/Redis smokes avoid live providers. Eight superseded synchronous/current-cache integration cases were replaced by Phase 5 queue/snapshot coverage; pure adapter/rule tests retained.

@@ -1,4 +1,40 @@
-# API contract — Phase 4
+# API contract — Phase 5
+
+## Current Phase 5 contract (supersedes historical Phase 1–4 behavior below)
+
+All trip operations require the server-side owner session; unsafe requests additionally require X-CSRFToken. Unknown and foreign-owned IDs both return 404. No GET schedules or requests provider data.
+
+| Method | Path | Current behavior |
+| --- | --- | --- |
+| POST | /trips/ | 202 TripResponse with id, queued analysis_id and input_revision; no synchronous provider calls |
+| GET | /trips/{id}/ | Inputs, job status, analysis_id, current analysis_version/revision and available route options |
+| PATCH | /trips/{id}/ | Full validated TripCreateRequest replacement, increment input revision, invalidate old candidates, return 202 RefreshResult |
+| POST | /trips/{id}/refresh/ | 202 queued/coalesced RefreshResult; 429 refresh_cooldown with retry_after_seconds; stopped trip 409 |
+| POST | /trips/{id}/stop/ | 200 stopped=true; retain completed data, cancel/fence queued or running jobs; idempotent |
+| POST | /trips/{id}/heartbeat/ | Explicit owner activity, no-store response; does not restart a stopped trip |
+| GET | /trips/{id}/analysis/ | AnalysisProjection: current completed data plus latest candidate status, no provider/heartbeat side effect; ETag/If-None-Match returns 304 |
+| GET | /trips/{id}/routes/ | Retain published geometry; initial working geometry can appear while weather is pending |
+| GET | /trips/{id}/checkpoints/?route_id=A | Stored published checkpoints, 409 until a completed analysis exists |
+| GET | /trips/{id}/weather/ | Stored matched forecast values; stale freshness overlaid at read time |
+| POST | /trips/{id}/weather/prefetch/ | Compatibility entry point for the coordinated queued refresh, same cooldown/coalescing policy; no direct forecast fetch |
+| GET | /trips/{id}/recommendation/ | Stored recommendation; stale/input-mismatched snapshots retain prior data but withhold current recommendation/eligibility |
+
+TripResponse.analysis_version/revision describe the current complete snapshot (version 0/null before first publication), while input_revision describes requested inputs. analysis_id identifies the latest queued/running/completed candidate. analysis_version increases for each requested analysis, including failed/superseded candidates, so gaps are expected. IDs and numeric versions are scoped to the owning trip.
+
+AnalysisProjection includes trip_id, input_revision, latest analysis_id/status/stage/error_code, current completed analysis_version/analysis_revision/completed_at, stopped, retained_previous, routing_stale and weather_stale. `data` is null initially, then an immutable completed payload containing its own captured inputs, route options, checkpoints by route, matched weather, recommendation/risk reasons and independent routing/forecast fetched timestamps. A queued/failed refresh never blanks this data. Always use payload inputs with payload geometry; requested inputs may already be newer. Underlying frozen payload flags describe assessment time; outer stale flags describe present usability. Recommendation projection overlays stale state with INCOMPLETE_DATA, no current recommended_route_id, previous_recommended_route_id, false eligibility/null average and a notice. The original stored assessment remains unchanged.
+
+Processing stages: queued → routing → checkpoints → weather → assessing → complete. Job statuses also include running, failed, superseded and cancelled. Complete may validly contain INCOMPLETE_DATA/NO_ELIGIBLE_ROUTE under actual forecast conditions; it is not a safety guarantee. PENDING denotes no completed assessment yet. There is no corridor job in this phase.
+
+ETags hash the entire owner-scoped analysis projection, including status/freshness, with `Cache-Control: private, no-cache` and `Vary: Cookie`. Authorization occurs before conditional evaluation. Polling does not prolong viewer activity. The frontend should poll every 15 seconds only while visible/active and separately send explicit heartbeat while viewed.
+
+Default policy: 15-minute periodic reassessment and routing reuse window, 60-second manual cooldown, 30-minute viewer expiry, 900-second renewable worker lease. Recently viewed active trips only are scheduled. Initial/new-revision routing is fetched once, candidate routing retained across weather retries, and a fresh same-revision published route is reused. Forecast caching remains Phase 3's policy. Stopped/revised/inactive work is checked before stages, before/after every forecast batch and at atomic publication. An already-running HTTP call cannot be recalled, but its results cannot publish after invalidation.
+
+Transient timeout/unavailability/busy/rate-limit failures allow at most three worker attempts with minimum 60-second delay and numeric Retry-After honored. Credentials, invalid requests and missing configuration are not automatically retried or periodically rescheduled until an owner action. Durable queued records are broker-redelivered at most five times with 60-second spacing; claim/token guards coalesce duplicate deliveries. Delivery exhaustion is visible as delivery_exhausted. One Beat scheduler performs recovery; web processes have no scheduler thread. Redis lock release/renew uses token comparison; PostgreSQL tokens, revision checks and a conditional unique constraint provide a second fence. Analysis publication and current-pointer/route-snapshot updates share one transaction.
+
+Creation does not yet accept idempotency keys: duplicate POSTs create separate trips; clients must submit once explicitly. PATCH is full replacement, not a partial merge. Stopped trips have no resume endpoint. Existing pre-Phase-5 route snapshots remain readable as geometry, but need a new queued refresh for durable assessed projections; migration expires historical viewer activity to prevent unsolicited scheduling.
+
+The sections below document historical field/rule semantics; their synchronous creation and current-cache calculation behavior are superseded by this section.
+
 
 Base prefix `/api/v1/`. Same-origin session cookies and CSRF are required; owner IDs are never accepted from clients.
 

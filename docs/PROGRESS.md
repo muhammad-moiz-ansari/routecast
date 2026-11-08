@@ -1,30 +1,32 @@
 # Progress
 
-Current phase: **Phase 4 complete — risk rules and route recommendation.**
-Completed implementation phases: 0–4. Next phase: 5, only upon explicit user request.
+Current phase: **Phase 5 complete — queued analysis and controlled refresh lifecycle.**
+Completed implementation phases: 0–5. Next phase: 6, only upon explicit user request.
 
-## Implemented behavior
+## Implementation
 
-Existing owner-scoped trips, stored routing snapshots, checkpoint geometry/ETAs and cached forecast matching remain in place. Phase 4 adds RiskRepo/Service and RecommendationRepo/Service with typed Pydantic contracts and explicit constructor composition. Versioned config/risk_rules.py defines the exact weather thresholds and cargo boundaries.
+PlanningRepo/Service coordinates staged routing → checkpoints → weather → assessment → atomic publication. RefreshRepo/Service coordinates coalesced manual/periodic requests, full input revision replacement, explicit viewer heartbeat, inactivity expiry and permanent stop. Celery tasks delegate to services; one Beat task coordinates scheduling/recovery every minute. No web/import-time background loop or provider calls.
 
-Checkpoint risks carry structured rule codes, observed normalized values, thresholds, units, cargo where relevant and explanations. Missing coverage preserves known hazards but never yields a fully assessed Low claim. Actual conservative endpoint interval mileage reconciles with route distance; weighted averages are computed only for fully assessed fresh routes without No Travel. Ineligible routes have null averages and separate eligibility reasons. Unknown has no numeric score.
+AnalysisRun captures input/revision/version, stage/status, attempts/dispatch timing, lease/fencing token, sanitized error, working routes and full completed assessment. Trip points to the current completed run. Conditional uniqueness plus trip row locking allows one active candidate; token-owned expiring Redis locks renew across stages and weather batches. Old revisions, stopped/inactive trips and expired tokens cannot publish. Candidate payload/current pointer/RouteSnapshot update in one transaction; failures preserve prior completed data.
 
-Ranking uses unrounded Severe miles, High miles, weighted average, duration and stable ID. Results support RECOMMENDED, NO_ELIGIBLE_ROUTE, INCOMPLETE_DATA and PENDING; explanations distinguish the winning metric and notices disclose unavailable alternatives. All alternatives stay inspectable. No selected route or stored route snapshot is modified.
+Initial creation now returns 202 and analysis identifier. Refresh coalesces, enforces 60-second cooldown and uses 15-minute route reuse/weather defaults; explicit activity expires after 30 minutes. Transient worker attempts capped at three; broker delivery attempts at five; invalid credentials/configuration/requests do not auto-retry. Candidate routes survive transient weather retries. Stopped work cannot be restarted by heartbeat. Live-test mode disables periodic scheduling.
 
 ## API changes
 
-Added GET /api/v1/trips/{id}/recommendation/, owner-scoped and cached-data only. Response includes analysis/rules versions, recommended/eligible ranked IDs, every route's risk summary, explanations and notices. No provider requests or refresh side effects. See API_CONTRACT.md and RISK_RULES.md.
+Added analysis GET with private ETags/304, heartbeat/refresh/stop POST and full-input PATCH. Existing recommendation/checkpoint/weather GETs read completed snapshots. Stale/input-mismatched recommendation projections withhold current selection/eligibility but expose the previous recommended ID and retained data. Prior route snapshots remain readable; historical trips need explicit activity/refresh for new durable assessment. See API_CONTRACT.md for all contract changes, status/version semantics and legacy compatibility.
 
 ## Verification
 
-37 new offline Phase 4 cases and 2 affected foundation cases pass across targeted executions; Django configuration and targeted lint pass. Tests cover all thresholds, exact load limits, missing/stale data, No Travel, mileage/averages, eligibility, each ranking priority, rounding independence, state/version handling, ownership, OpenAPI, no provider calls and unchanged snapshots. A new integration test's missing imports were fixed; only its failed check was repeated. See P4 records in VERIFICATION_LOG.md for commands/results/fingerprint.
+16 new fake-clock/offline lifecycle cases plus 2 affected foundation checks pass across targeted executions. Covers coalescing, worker/delivery retry bounds, token expiry, revision/stop cancellation, inactive viewer scheduling, stages, weather batch cancellation guards, atomic rollback/publication, cache-independent projections, stale display, owner/CSRF, ETags, cooldown and PATCH. Router shadowing on PATCH was found and corrected; failed/affected checks were selectively repeated. Django configuration, migration consistency and final lint pass.
 
-No ORM/migrations, dependencies or environment changes; successful unaffected Phase 0–3 evidence reused. External provider calls: zero. No live verification needed for deterministic rule logic; earlier provider live evidence remains pending.
+New 0002 migration applied to local PostgreSQL. Real Redis token/Lua smoke passed. Real PostgreSQL uniqueness + fenced publication + JSON roundtrip passed using offline providers and rolled-back synthetic data. External provider API calls: 0. Dependencies/lockfile/real environment unchanged; optional example settings added. Eight superseded synchronous/current-cache integration cases replaced by Phase 5 lifecycle coverage; unchanged provider/geometry/weather/rule evidence reused.
 
-## Limitations
+## Limitations / pending evidence
 
-Assessments are current-cache read projections; durable atomic assessed snapshot publication, retained completed analyses and background refresh consistency belong to Phase 5. Cache expiry/content can change a recommendation between reads. Known provider, geometry approximation, forecast horizon/freshness and anonymous-session limitations remain. No navigation/safety guarantee is made.
+Real Celery broker/worker/Beat end-to-end process execution remains unverified; no workers/Beat were started. Earlier live TomTom/Open-Meteo evidence remains pending. Worker and single-Beat operating commands are in README; starting workers executes queued provider work. Windows solo is for local development; use supported Linux workers for reliable task time limits.
 
-Distributed quota/coalescing, retry policy, idempotency and lifecycle orchestration remain future work. No frontend, corridor implementation, publishing or deployment was added.
+Coalescing is per trip; simultaneous different trips may still request the same provider location. Shared forecast cache and usage counters exist, but distributed provider-wide quota enforcement is not added. Durable delivery is bounded: exhausted jobs fail visibly and require later owner action. A provider request already in flight cannot be recalled; fences prevent stale publication/cache writes afterward. Analysis retention cleanup is not automated. POST creation still lacks idempotency keys; clients must avoid duplicate submissions. PATCH is full replacement; stop has no resume endpoint.
 
-Stopped after Phase 4. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 5 request.
+Previous forecast horizon, spherical route sampling, weather/risk approximation and anonymous-session recovery limits remain. No corridor dataset or frontend work added.
+
+Stopped after Phase 5. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 6 request.

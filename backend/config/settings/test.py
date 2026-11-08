@@ -9,3 +9,6 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_BROKER_URL = "memory://"
 CELERY_RESULT_BACKEND = "cache+memory://"
+
+CELERY_BEAT_SCHEDULE = {}
+ROUTECAST_LIVE_TEST_MODE = True

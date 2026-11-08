@@ -7,7 +7,7 @@ from .models import TripCreateRequest, TripResponse
 class TripRepo(ABC):
     @abstractmethod
     def create(self, owner_id: UUID, inputs: TripCreateRequest) -> TripResponse:
-        """Create an owner-scoped trip and persist its route options."""
+        """Create an owner-scoped trip and queue its initial assessment."""
 
     @abstractmethod
     def get(self, owner_id: UUID, trip_id: UUID) -> TripResponse:

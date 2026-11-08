@@ -36,7 +36,17 @@ uv run --no-sync ruff check .
 
 Tests block all socket connections, use SQLite and an in-memory cache, and inject readiness probes. They do not require Docker or API keys. PostgreSQL migrations are a separate local infrastructure check; do not represent SQLite evidence as PostgreSQL verification.
 
-Celery is configured but has no tasks or Beat schedules. On Windows, a later manual worker smoke can use `uv run --no-sync celery -A config.celery:app worker --pool=solo`; Linux workers are preferred for deployment. Do not start Beat for Phase 0.
+Celery now executes Phase 5 analysis jobs. Use separate terminals from backend after Docker is running:
+
+```powershell
+uv run --no-sync python manage.py runserver 127.0.0.1:8000
+# Second terminal: local Windows development worker
+uv run --no-sync celery -A config.celery:app worker --pool=solo --loglevel=info
+# Third terminal: exactly one scheduler
+uv run --no-sync celery -A config.celery:app beat --loglevel=info
+```
+
+Starting workers executes queued provider work; this is runtime usage, not an offline verification command. Windows solo is for local development; use a supported Linux worker environment for reliable soft/hard task time limits (configured 840/900 seconds). Beat runs one 60-second coordination task. No web-process background loop is started. Set ROUTECAST_LIVE_TEST_MODE=true in your existing backend/.env to disable background scheduling and Beat schedule; explicit queued trip analyses remain available. Do not overwrite existing environment files. Optional refresh/viewer/cooldown defaults are listed in backend/.env.example. HTTP client logging is capped at WARNING to avoid exposing credential-bearing provider URLs under Celery INFO logging.
 
 See [architecture](docs/ARCHITECTURE.md), [API contract](docs/API_CONTRACT.md), [decisions](docs/DECISIONS.md), and [progress](docs/PROGRESS.md). Secrets belong only in ignored environment files. No deployment is configured or authorized.
 
@@ -67,3 +77,11 @@ Read the verification ledger before running the new focused tests: `uv run --no-
 After weather prefetch, GET `/api/v1/trips/{id}/recommendation/` with the same owner session. This reads cached data only; it will not fetch weather or routes. It returns risk reasons/mileage, eligibility and a recommendation under the supplied rules, with incomplete/stale/blocked alternatives retained. Missing weather is visible and does not become Low risk. See docs/RISK_RULES.md for exact thresholds/load boundaries/ranking and docs/API_CONTRACT.md for result states.
 
 No migration, dependency installation or environment change is required. New focused tests are in tests/test_phase4.py; consult the ledger and reuse unaffected existing checks. There is no frontend or background refresh in this phase, and no live provider check was necessary.
+
+## Phase 5 use
+
+POST /api/v1/trips/ now returns 202 with trip and analysis identifiers. A worker retrieves routes, builds checkpoints, prefetches weather, assesses risk and atomically publishes a completed analysis. Poll GET /api/v1/trips/{id}/analysis/ with ETags; polling never calls providers or maintains activity. Send owner/CSRF-protected heartbeat POSTs while actively viewing. Coordinated refresh and stop POSTs and full-input PATCH are documented in docs/API_CONTRACT.md. Completed data stays visible during failed refreshes and is marked stale when expired or input-mismatched. Reading recommendation/checkpoints/weather no longer recomputes against the current cache.
+
+The new 0002 migration was applied to local PostgreSQL during implementation. Fresh checkouts still run the normal migrate setup. Historical trip viewer activity is expired by migration; a heartbeat/manual refresh is required to schedule old trips again. No new dependency installation is needed. Previous Phase 1–4 use sections are historical where they describe synchronous writes or direct weather acquisition.
+
+New fake-clock/offline lifecycle acceptance tests: tests/test_phase5.py. Read the verification ledger before rerunning successful checks. Real Redis lease scripts and PostgreSQL publication/uniqueness were checked locally using rolled-back synthetic data. A real Celery broker/worker/Beat end-to-end run remains pending; no worker was started and no live provider test was run by the agent.

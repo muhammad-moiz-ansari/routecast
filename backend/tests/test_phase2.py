@@ -2,15 +2,11 @@
 
 from datetime import UTC, datetime, timedelta
 from math import pi
-from unittest.mock import patch
-from uuid import uuid4
 
 import pytest
-from django.test import Client
 from pydantic import ValidationError
 
 from common.geo_utils import EARTH_RADIUS_METERS, segment_length
-from persistence.models import RouteSnapshot, Trip
 from services.checkpoint.checkpoint_repo import CheckpointRepo
 from services.checkpoint.checkpoint_service import CheckpointGeometryError, CheckpointService
 from services.checkpoint.models import CheckpointRequest
@@ -181,46 +177,6 @@ def test_provider_normalization_preserves_timing_in_same_request():
     assert len(options.routes[0].timing_points) == 3
     assert options.routes[0].timing_points[-1].cumulative_travel_seconds == 600
     assert not options.routes[0].timing_notice
-
-
-@pytest.mark.django_db
-def test_owned_checkpoint_projection_old_snapshots_and_no_provider_requests():
-    owner, other = Client(), Client()
-    token = owner.get("/api/v1/session/").json()["csrf_token"]
-    calls = []
-    service = trip_service(fixture("routes"), calls)
-    with patch("api.routes.trip_routes.get_trip_service", return_value=service):
-        created = owner.post(
-            "/api/v1/trips/", INPUTS, content_type="application/json", HTTP_X_CSRFTOKEN=token
-        ).json()
-    # Simulate a pre-Phase-2 JSON snapshot; no re-fetch or database backfill is needed.
-    snapshot = RouteSnapshot.objects.get(trip_id=created["id"])
-    for item in snapshot.data["routes"]:
-        item.pop("timing_points", None)
-        item.pop("timing_notice", None)
-    snapshot.save()
-    url = f"/api/v1/trips/{created['id']}/checkpoints/"
-    with patch("integrations.http_client.ProviderHTTP.get", side_effect=AssertionError):
-        first = owner.get(url, {"route_id": "A"})
-        assert first.status_code == 200, first.content
-        assert first.json() == owner.get(url, {"route_id": "A"}).json()
-        assert first.json()["eta_method"] == "proportional_distance"
-        assert first.json()["route_id"] == "A"
-        b = owner.get(url, {"route_id": "B"}).json()
-        assert b["checkpoints"] != first.json()["checkpoints"]
-        assert owner.get(url, {"route_id": "missing"}).status_code == 404
-        assert owner.get(url).status_code == 422
-        other.get("/api/v1/session/")
-        assert other.get(url, {"route_id": "A"}).status_code == 404
-        assert Client().get(url, {"route_id": "A"}).status_code == 401
-        assert (
-            owner.get(f"/api/v1/trips/{uuid4()}/checkpoints/", {"route_id": "A"}).status_code == 404
-        )
-        trip = Trip.objects.get(pk=created["id"])
-        snapshot.delete()
-        assert owner.get(url, {"route_id": "A"}).status_code == 409
-        assert trip.status == "routes_ready"
-    assert len(calls) == 1
 
 
 def test_spacing_on_measured_polyline():

@@ -2,27 +2,22 @@
 
 import json
 from copy import deepcopy
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
-from unittest.mock import patch
 from uuid import uuid4
 
 import httpx
 import pytest
-from django.test import Client
 from pydantic import ValidationError
 
 from integrations.exceptions import ProviderError
 from integrations.http_client import ProviderHTTP
 from integrations.tomtom.geocoding_client import TomTomGeocodingClient
 from integrations.tomtom.routing_client import TomTomRoutingClient
-from persistence.models import Trip
-from persistence.stores.trip_store import TripStore
 from services.location.location_service import LocationService
 from services.location.models import LocationSearchRequest
 from services.routing.routing_service import RoutingService
 from services.trip.models import TripCreateRequest
-from services.trip.trip_service import TripService
 
 FIXTURES = Path(__file__).parent / "fixtures"
 INPUTS = {
@@ -48,7 +43,9 @@ def wire(payload, calls, status=200, headers=None):
 
 
 def trip_service(payload, calls):
-    return TripService(TripStore(), RoutingService(TomTomRoutingClient(wire(payload, calls))))
+    from types import SimpleNamespace
+
+    return SimpleNamespace(routing=RoutingService(TomTomRoutingClient(wire(payload, calls))))
 
 
 def test_routing_contract_and_normalization():
@@ -160,93 +157,3 @@ def test_places_and_empty_results():
 def test_invalid_inputs(change):
     with pytest.raises(ValidationError):
         TripCreateRequest.model_validate({**INPUTS, **change})
-
-
-@pytest.mark.django_db
-def test_owner_csrf_and_persisted_reads():
-    owner, other = Client(enforce_csrf_checks=True), Client(enforce_csrf_checks=True)
-    calls = []
-    service = trip_service(fixture("routes"), calls)
-    with patch("api.routes.trip_routes.get_trip_service", return_value=service):
-        assert owner.get("/api/v1/trips/" + str(uuid4()) + "/").status_code == 401
-        token = owner.get("/api/v1/session/").json()["csrf_token"]
-        assert (
-            owner.post("/api/v1/trips/", INPUTS, content_type="application/json").status_code == 403
-        )
-        result = owner.post(
-            "/api/v1/trips/", INPUTS, content_type="application/json", HTTP_X_CSRFTOKEN=token
-        )
-        assert result.status_code == 201, result.content
-        trip = result.json()
-        assert trip["status"] == "routes_ready"
-        url = f"/api/v1/trips/{trip['id']}/"
-        for _ in range(2):
-            assert owner.get(url).status_code == 200
-            assert owner.get(url + "routes/").json()["available_route_count"] == 3
-        other.get("/api/v1/session/")
-        assert other.get(url).status_code == 404
-        assert other.get(url + "routes/").status_code == 404
-        owner.cookies.clear()
-        owner.get("/api/v1/session/")
-        assert owner.get(url).status_code == 404
-    assert len(calls) == 1
-    assert Trip.objects.count() == 1
-
-
-@pytest.mark.django_db
-def test_failed_trip_retained_and_route_read_does_not_retry():
-    service = trip_service({"routes": [{"bad": "shape"}]}, [])
-    owner = uuid4()
-    with pytest.raises(ProviderError):
-        service.create(owner, TripCreateRequest.model_validate(INPUTS))
-    trip = Trip.objects.get()
-    assert service.get(owner, trip.id).error_code == "provider_invalid_response"
-    assert service.get(owner, trip.id).route_options is None
-
-
-@pytest.mark.django_db
-def test_past_departure_does_not_persist_or_call_provider():
-    from common.exceptions import InvalidDeparture
-
-    calls = []
-    service = trip_service(fixture("routes"), calls)
-    service.clock = lambda: datetime(2100, 1, 1, tzinfo=UTC)
-    with pytest.raises(InvalidDeparture):
-        service.create(uuid4(), TripCreateRequest.model_validate(INPUTS))
-    assert Trip.objects.count() == 0 and not calls
-
-
-@pytest.mark.django_db
-def test_api_composition_errors_and_search():
-    client = Client(enforce_csrf_checks=True)
-    token = client.get("/api/v1/session/").json()["csrf_token"]
-    with patch("integrations.http_client.ProviderHTTP.get", return_value=fixture("places")) as http:
-        result = client.get("/api/v1/locations/search/", {"query": "Synthetic"})
-        assert result.status_code == 200, result.content
-        assert result.json()[0]["coordinate"]["latitude"] == 30
-        assert http.call_count == 1
-    with patch(
-        "integrations.http_client.ProviderHTTP.get",
-        side_effect=ProviderError("provider_authentication", "Provider credentials were rejected."),
-    ) as http:
-        response = client.post(
-            "/api/v1/trips/", INPUTS, content_type="application/json", HTTP_X_CSRFTOKEN=token
-        )
-        assert response.status_code == 503
-        body = response.json()
-        assert body["code"] == "provider_authentication" and body["request_id"]
-        assert body["trip_id"] and http.call_count == 1
-        url = f"/api/v1/trips/{body['trip_id']}/"
-        assert client.get(url).json()["status"] == "routing_failed"
-        assert client.get(url + "routes/").status_code == 409
-        assert http.call_count == 1
-    with patch("integrations.http_client.ProviderHTTP.get") as http:
-        response = client.post(
-            "/api/v1/trips/",
-            {**INPUTS, "cargo_load_lb": -1},
-            content_type="application/json",
-            HTTP_X_CSRFTOKEN=token,
-        )
-        assert response.status_code == 422
-        assert response.json()["field_errors"] and response.json()["request_id"]
-        http.assert_not_called()

@@ -23,17 +23,11 @@ def get_location_service():
 
 
 def get_trip_service():
-    """Compose the trip store and routing service explicitly."""
-    from django.conf import settings
-
-    from integrations.http_client import ProviderHTTP
-    from integrations.tomtom.routing_client import TomTomRoutingClient
+    """Compose owner-scoped storage and the queued planning service explicitly."""
     from persistence.stores.trip_store import TripStore
-    from services.routing.routing_service import RoutingService
     from services.trip.trip_service import TripService
 
-    routing = RoutingService(TomTomRoutingClient(ProviderHTTP(settings.TOMTOM_API_KEY)))
-    return TripService(TripStore(), routing)
+    return TripService(TripStore(), get_planning_service())
 
 
 def get_checkpoint_service():
@@ -63,3 +57,51 @@ def get_recommendation_service():
     from services.risk.risk_service import RiskService
 
     return RecommendationService(get_checkpoint_service(), get_weather_service(), RiskService())
+
+
+def get_planning_service():
+    """Compose the queued workflow and token-owned Redis locks without network I/O."""
+    from django.conf import settings
+    from redis import Redis
+
+    from cache.locks import RedisLocks
+    from integrations.http_client import ProviderHTTP
+    from integrations.tomtom.routing_client import TomTomRoutingClient
+    from persistence.stores.analysis_store import AnalysisStore
+    from persistence.stores.trip_store import TripStore
+    from services.planning.planning_service import PlanningService
+    from services.recommendation.recommendation_service import RecommendationService
+    from services.risk.risk_service import RiskService
+    from services.routing.routing_service import RoutingService
+
+    checkpoint = get_checkpoint_service()
+
+    def dispatch(run_id):
+        from tasks.planning_tasks import analyze
+
+        analyze.apply_async(args=[run_id], retry=False)
+
+    return PlanningService(
+        AnalysisStore(),
+        TripStore(),
+        RoutingService(TomTomRoutingClient(ProviderHTTP(settings.TOMTOM_API_KEY))),
+        checkpoint,
+        get_weather_service(),
+        lambda weather: RecommendationService(checkpoint, weather, RiskService()),
+        RedisLocks(Redis.from_url(settings.REDIS_URL, socket_connect_timeout=2, socket_timeout=2)),
+        dispatch,
+    )
+
+
+def get_refresh_service():
+    """Compose the owner-scoped lifecycle coordinator."""
+    from django.conf import settings
+
+    from persistence.stores.analysis_store import AnalysisStore
+    from services.refresh.refresh_service import RefreshService
+
+    return RefreshService(
+        AnalysisStore(),
+        get_planning_service(),
+        scheduling_enabled=not settings.ROUTECAST_LIVE_TEST_MODE,
+    )
