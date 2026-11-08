@@ -20,9 +20,11 @@ import {
 } from "../features/trip-planner/schemas";
 import { PlaceSearch } from "../features/trip-planner/components/PlaceSearch";
 import { departureInstant, systemZone } from "../utils/time";
-import { createTrip, readAnalysis, readRoutes } from "../api/trips";
+import { createTrip, readRoutes } from "../api/trips";
 import { ApiError, fixtureMode } from "../api/client";
 import { RouteComparison } from "../features/route-comparison/components/RouteComparison";
+import { useTripLifecycle } from "../features/trip-planner/hooks/useTripLifecycle";
+import { readCorridor } from "../api/corridor";
 const stages = [
   "queued",
   "routing",
@@ -42,7 +44,9 @@ const stageText: Record<string, string> = {
 export function App() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [visible, setVisible] = useState(!document.hidden);
+  const lifecycle = useTripLifecycle(id);
+  const analysis = lifecycle.query;
+  const visible = lifecycle.active;
   const [theme, setTheme] = useState(
     () => localStorage.getItem("routecast-theme") ?? "system",
   );
@@ -73,11 +77,6 @@ export function App() {
     localStorage.setItem("routecast-theme", theme);
     return () => media.removeEventListener("change", apply);
   }, [theme]);
-  useEffect(() => {
-    const change = () => setVisible(!document.hidden);
-    document.addEventListener("visibilitychange", change);
-    return () => document.removeEventListener("visibilitychange", change);
-  }, []);
   const mutation = useMutation({
     mutationFn: createTrip,
     onSuccess: (trip) => {
@@ -85,16 +84,21 @@ export function App() {
       navigate("/trips/" + trip.id);
     },
   });
-  const analysis = useQuery({
-    queryKey: ["analysis", id],
-    queryFn: ({ signal }) => readAnalysis(id!, signal),
-    enabled: !!id && visible,
+  const corridor = useQuery({
+    queryKey: ["corridor", id, analysis.data?.analysis_version],
+    queryFn: ({ signal }) => readCorridor(id!, signal),
+    enabled: (q) =>
+      !!id &&
+      visible &&
+      !!analysis.data?.data &&
+      (!lifecycle.stopped || !q.state.data),
     refetchInterval: (q) =>
       visible &&
+      !lifecycle.stopped &&
       !q.state.error &&
-      !["complete", "failed", "stopped", "cancelled", "superseded"].includes(
-        q.state.data?.status ?? "",
-      )
+      (!q.state.data ||
+        ["pending", "processing"].includes(q.state.data.status) ||
+        q.state.data.analysis_version !== analysis.data?.analysis_version)
         ? 15000
         : false,
   });
@@ -108,6 +112,46 @@ export function App() {
       !analysis.data.data &&
       ["checkpoints", "weather", "assessing"].includes(analysis.data.stage),
   });
+  const restored = useRef<string | null>(null);
+  useEffect(() => {
+    const inputs = analysis.data?.data?.inputs;
+    if (
+      !id ||
+      !inputs ||
+      submitted ||
+      restored.current === id ||
+      form.formState.isDirty
+    )
+      return;
+    restored.current = id;
+    const local = new Intl.DateTimeFormat("sv-SE", {
+      timeZone: inputs.timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    })
+      .format(new Date(inputs.departure_at))
+      .replace(" ", "T");
+    form.reset({
+      origin: {
+        id: "saved-origin",
+        label: `${inputs.origin.latitude}, ${inputs.origin.longitude}`,
+        coordinate: inputs.origin,
+      },
+      destination: {
+        id: "saved-destination",
+        label: `${inputs.destination.latitude}, ${inputs.destination.longitude}`,
+        coordinate: inputs.destination,
+      },
+      departure: local,
+      timezone: inputs.timezone,
+      cargo: String(inputs.cargo_load_lb),
+      spacing: String(inputs.checkpoint_spacing_miles) as "10" | "25" | "50",
+    });
+  }, [id, analysis.data?.data, submitted, form]);
   async function submit(v: PlannerValues) {
     if (sending.current) return;
     sending.current = true;
@@ -439,10 +483,78 @@ export function App() {
               <Clock3 size={15} /> Trip planning
             </span>
           </div>
+          {id && (
+            <div className="trip-controls" aria-label="Trip update controls">
+              <button
+                disabled={
+                  !visible ||
+                  lifecycle.stopped ||
+                  lifecycle.refresh.isPending ||
+                  lifecycle.stop.isPending ||
+                  lifecycle.cooldownSeconds > 0
+                }
+                onClick={() => lifecycle.refresh.mutate()}
+              >
+                {lifecycle.refresh.isPending
+                  ? "Requesting refresh…"
+                  : lifecycle.cooldownSeconds
+                    ? `Refresh available in ${lifecycle.cooldownSeconds}s`
+                    : "Refresh analysis"}
+              </button>
+              <button
+                disabled={
+                  !visible ||
+                  lifecycle.stopped ||
+                  lifecycle.stop.isPending ||
+                  lifecycle.refresh.isPending
+                }
+                onClick={() => lifecycle.stop.mutate()}
+              >
+                {lifecycle.stopped ? "Trip stopped" : "Stop updates"}
+              </button>
+              {analysis.error && (
+                <button onClick={() => analysis.refetch()} disabled={!visible}>
+                  Retry status read
+                </button>
+              )}
+              {corridor.error && (
+                <button onClick={() => corridor.refetch()} disabled={!visible}>
+                  Retry corridor read
+                </button>
+              )}
+              <span role="status">
+                {lifecycle.stopped
+                  ? "Updates stopped. Completed results remain available."
+                  : status?.retained_previous
+                    ? "Refreshing; previous completed analysis remains visible."
+                    : lifecycle.refresh.isSuccess
+                      ? status?.status === "complete"
+                        ? "Route comparison updated."
+                        : "Refresh requested. Watching analysis status."
+                      : "Analysis updates while this page is visible."}
+              </span>
+              {(lifecycle.refresh.error || lifecycle.stop.error) && (
+                <p role="alert">
+                  {(lifecycle.refresh.error ?? lifecycle.stop.error)?.message}
+                </p>
+              )}
+            </div>
+          )}
           {id && status && (status.data || pendingRoutes.data) ? (
             <RouteComparison
+              corridor={corridor.data}
+              corridorError={corridor.error?.message}
               key={id}
-              analysis={status}
+              analysis={
+                analysis.error
+                  ? {
+                      ...status,
+                      routing_stale: true,
+                      weather_stale: true,
+                      retained_previous: true,
+                    }
+                  : status
+              }
               pendingRoutes={pendingRoutes.data}
             />
           ) : id ? (

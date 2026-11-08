@@ -7,8 +7,9 @@ import {
   within,
 } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
-import type { Analysis } from "../api/contracts";
+import type { Analysis, CorridorProjection } from "../api/contracts";
 import stored from "./fixtures/comparison.json";
+import corridorRaw from "./fixtures/corridor.json";
 import { RouteComparison } from "../features/route-comparison/components/RouteComparison";
 import { currentRecommendation } from "../features/route-comparison/presentation";
 import {
@@ -273,4 +274,28 @@ it("keeps route identity stable when fewer alternatives remain", () => {
   expect(routeFeatures([r], r.id).features[0].properties!.color).toBe(
     "#7939ad",
   );
+});
+
+it("connects cached corridor frames to map layers and hides mismatched versions", async () => {
+  localStorage.clear();
+  const c = structuredClone(corridorRaw) as unknown as CorridorProjection;
+  const ui = render(<RouteComparison analysis={fixture()} corridor={c} />);
+  const map = await ready();
+  const source = map.getSource("corridor-field");
+  const first = source.setData.mock.lastCall[0];
+  expect(first.features.length).toBeGreaterThan(0);
+  fireEvent.change(screen.getByRole("slider"), { target: { value: "7" } });
+  expect(source.setData.mock.lastCall[0]).not.toEqual(first);
+  fireEvent.change(screen.getByLabelText("Weather layer"), {
+    target: { value: "risk" },
+  });
+  expect(JSON.parse(localStorage.getItem("routecast-display")!).layer).toBe(
+    "risk",
+  );
+  const wrong = structuredClone(c);
+  wrong.data!.analysis_version = 2;
+  ui.rerender(<RouteComparison analysis={fixture()} corridor={wrong} />);
+  expect(source.setData.mock.lastCall[0].features).toHaveLength(0);
+  expect(screen.getByRole("slider")).toBeDisabled();
+  expect(screen.getByText(/Mismatched weather is hidden/)).toBeVisible();
 });

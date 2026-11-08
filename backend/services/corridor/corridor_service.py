@@ -1,9 +1,12 @@
 from datetime import UTC, datetime, timedelta
+from types import SimpleNamespace
 
 from django.db import transaction
 
+from config.risk_rules import RULES_VERSION
 from integrations.exceptions import ProviderError
 from persistence.stores.analysis_store import LeaseLost
+from services.risk.risk_service import classify_checkpoint
 from services.routing.models import RouteOptions
 
 from .corridor_repo import CorridorRepo
@@ -148,11 +151,45 @@ class CorridorService(CorridorRepo):
     def read(self, owner_id, trip_id):
         """Read cached/database dataset for the current completed analysis; no fetch on GET."""
         trip, job = self.store.read(owner_id, trip_id)
+        source = (self.cache.get(str(job.id)) or job.data) if job else None
+        data = None
+        if source:
+            # Project historical scalar datasets too, without mutating the frozen snapshot.
+            data = dict(source)
+            names = ("wind_mph", "rain_inches_per_hour", "snow_inches_per_hour")
+            categories = []
+            for index, sample in enumerate(source["grid"]["samples"]):
+                row = []
+                for frame, timestamp in enumerate(source["timestamps"]):
+                    values = {name: source["values"][name][index][frame] for name in names}
+                    complete = all(
+                        values[n] is not None and not source["missing"][n][index][frame]
+                        for n in names
+                    )
+                    values = {
+                        n: None if source["missing"][n][index][frame] else v
+                        for n, v in values.items()
+                    }
+                    cp = SimpleNamespace(id=sample["id"], arrival_at=timestamp)
+                    weather = SimpleNamespace(
+                        **values,
+                        arrival_at=timestamp,
+                        coverage="complete" if complete else "incomplete",
+                        freshness="fresh",
+                    )
+                    row.append(
+                        classify_checkpoint(
+                            cp, weather, job.analysis.payload["inputs"]["cargo_load_lb"]
+                        ).category.value
+                    )
+                categories.append(row)
+            data["risk_categories"] = categories
+            data["rules_version"] = RULES_VERSION
         return {
             "status": job.status if job else "pending",
             "analysis_version": job.analysis.version if job else None,
             "error_code": job.error_code if job else None,
-            "data": (self.cache.get(str(job.id)) or job.data) if job else None,
+            "data": data,
             "stopped": not trip.active,
             "stale": bool(
                 job

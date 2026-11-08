@@ -56,3 +56,14 @@
 - Keep route identity independent from risk with local A/B/C label bitmaps, selection halo, dash patterns and checkpoint letters/icons. Text comparison/table carry equivalent essential data.
 - Initial or explicit camera fit only; refreshes/selection/theme changes preserve the camera. Stable IDs retain inspection independently from new recommendations.
 - Pure backend services generate stored synthetic comparison fixtures; no live-provider verification is necessary for Phase 8 visuals.
+
+
+## Phase 9
+
+- Keep combined risk authoritative in Python. Reuse the existing classifier for a read-only projection over frozen corridor scalars; no React classification or stored recommendation mutation.
+- Use disjoint nearest-sample cells with conservative spherical corridor containment. Sparse unpainted areas are explicit, and overlapping routes do not add hazard intensity. Polar samples beyond 85 degrees remain text-only.
+- Derive selected frame from absolute time on every render; replacement datasets keep valid timestamps and clamp out-of-range times to the nearest displayed hour.
+- Omit optional playback. Keyboard/time buttons switch cached frames instantly with no animation or autoplay, inherently preserving reduced-motion behavior.
+- Poll completed active trips to discover server reassessments, but poll corridor arrays only while pending or mismatched. Hide/cancel polling offline/in background and end it on stop. Heartbeats are owner activity, not provider requests.
+- Persist only theme/layer/overlay preferences. Restore completed snapshot inputs using coordinates; unsaved drafts and display time are not stored across reloads.
+- Use the existing 60-second manual refresh default and honor explicit backend Retry-After; never retry unsafe requests automatically. Fence late mutation responses by trip identity.

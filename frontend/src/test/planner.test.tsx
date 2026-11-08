@@ -39,6 +39,7 @@ beforeEach(() => {
     vi.fn(async (url, init = {}) => {
       const path = String(url);
       calls.push({ url: path, init });
+      if (path.includes("/heartbeat/")) return Response.json({ status: "ok" });
       if (path.includes("/session/"))
         return Response.json({ csrf_token: "offline-csrf" });
       if (path.includes("/locations/")) {
@@ -72,7 +73,9 @@ it("focuses an error summary without submitting unselected locations", async () 
   mount();
   await userEvent.click(screen.getByRole("button", { name: "Compare routes" }));
   await waitFor(() => expect(screen.getByRole("alert")).toHaveFocus());
-  expect(calls.filter((c) => c.init.method === "POST")).toHaveLength(0);
+  expect(
+    calls.filter((c) => c.init.method === "POST" && c.url.endsWith("/trips/")),
+  ).toHaveLength(0);
 });
 
 it("selects places by keyboard and submits exactly once in StrictMode", async () => {
@@ -97,7 +100,9 @@ it("selects places by keyboard and submits exactly once in StrictMode", async ()
   await screen.findByRole("heading", {
     name: "Checking weather at arrival times",
   });
-  const posts = calls.filter((c) => c.init.method === "POST");
+  const posts = calls.filter(
+    (c) => c.init.method === "POST" && c.url.endsWith("/trips/"),
+  );
   expect(posts).toHaveLength(1);
   expect(JSON.parse(String(posts[0].init.body))).toMatchObject({
     departure_at: "2099-11-09T07:00:00Z",
@@ -167,7 +172,9 @@ it("dismisses location suggestions with Escape without selecting them", async ()
   await user.keyboard("{Escape}");
   expect(input).toHaveAttribute("aria-expanded", "false");
   expect(input).toHaveValue("Albany");
-  expect(calls.filter((c) => c.init.method === "POST")).toHaveLength(0);
+  expect(
+    calls.filter((c) => c.init.method === "POST" && c.url.endsWith("/trips/")),
+  ).toHaveLength(0);
 });
 
 it("reports a place search failure without choosing a location", async () => {
@@ -234,7 +241,9 @@ it("keeps entered values and focuses the summary after a failed submission", asy
   expect(screen.getByRole("combobox", { name: "Origin" })).toHaveValue(
     "Albany region",
   );
-  expect(calls.filter((c) => c.init.method === "POST")).toHaveLength(1);
+  expect(
+    calls.filter((c) => c.init.method === "POST" && c.url.endsWith("/trips/")),
+  ).toHaveLength(1);
 });
 
 it("shows an empty search state without selecting a place", async () => {

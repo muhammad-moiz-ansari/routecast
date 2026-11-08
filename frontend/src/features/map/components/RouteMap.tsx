@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+import { corridorCells, fieldFeatures } from "../utils/corridorField";
 import { useEffect, useRef, useState } from "react";
 import maplibregl, {
   type GeoJSONSource,
@@ -10,6 +12,8 @@ import type {
   CheckpointRisk,
   RouteCandidate,
   RouteRiskSummary,
+  CorridorDataset,
+  ForecastLayer,
 } from "../../../api/contracts";
 import { fixtureMode } from "../../../api/client";
 import {
@@ -26,6 +30,10 @@ import {
   riskSymbols,
 } from "../../route-comparison/presentation";
 export interface MapProps {
+  corridor?: CorridorDataset;
+  forecastFrame?: number;
+  forecastLayer?: ForecastLayer;
+  showForecast?: boolean;
   routes: RouteCandidate[];
   selectedId: string | null;
   points: Checkpoint[];
@@ -73,6 +81,12 @@ function fit(map: GLMap, routes: RouteCandidate[]) {
 export default function RouteMap(props: MapProps) {
   const host = useRef<HTMLDivElement>(null);
   const mapRef = useRef<GLMap | null>(null);
+  const cells = useMemo(
+    () => (props.corridor ? corridorCells(props.corridor, props.routes) : []),
+    [props.corridor?.dataset_id, props.routes],
+  );
+  const cellsRef = useRef(cells);
+  cellsRef.current = cells;
   const latest = useRef(props);
   latest.current = props;
   const fitted = useRef(false);
@@ -108,6 +122,16 @@ export default function RouteMap(props: MapProps) {
     );
     (map.getSource("route-labels") as GeoJSONSource | undefined)?.setData(
       labelFeatures(p.routes),
+    );
+    (map.getSource("corridor-field") as GeoJSONSource | undefined)?.setData(
+      p.corridor && p.showForecast
+        ? fieldFeatures(
+            cellsRef.current,
+            p.corridor,
+            p.forecastLayer ?? "wind_mph",
+            p.forecastFrame ?? 0,
+          )
+        : { type: "FeatureCollection", features: [] },
     );
     if (map.getLayer("selected-point"))
       map.setFilter("selected-point", [
@@ -169,6 +193,27 @@ export default function RouteMap(props: MapProps) {
           if (!map.hasImage(c))
             map.addImage(c, ctx.getImageData(0, 0, 48, 48), { pixelRatio: 2 });
         }
+        map.addSource("corridor-field", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "corridor-field",
+          type: "fill",
+          source: "corridor-field",
+          paint: { "fill-color": ["get", "color"], "fill-opacity": 0.85 },
+        });
+        map.addLayer({
+          id: "corridor-missing",
+          type: "line",
+          source: "corridor-field",
+          filter: ["==", ["get", "missing"], true],
+          paint: {
+            "line-color": "#ffffff",
+            "line-width": 1,
+            "line-dasharray": [2, 2],
+          },
+        });
         map.addSource("routes", {
           type: "geojson",
           data: routeFeatures(
@@ -327,6 +372,10 @@ export default function RouteMap(props: MapProps) {
   useEffect(() => {
     if (mapRef.current?.isStyleLoaded()) update(mapRef.current);
   }, [
+    props.corridor,
+    props.forecastFrame,
+    props.forecastLayer,
+    props.showForecast,
     props.routes,
     props.selectedId,
     props.points,

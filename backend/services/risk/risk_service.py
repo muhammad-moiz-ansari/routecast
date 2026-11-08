@@ -29,6 +29,69 @@ def worst(categories):
     return R.UNKNOWN if hazard == R.LOW and R.UNKNOWN in categories else hazard
 
 
+def classify_checkpoint(cp, w, cargo_load_lb):
+    """Apply the shared weather/load rules at a checkpoint or a corridor sample instant."""
+    if w is not None and w.arrival_at != cp.arrival_at:
+        w = None
+    values = {name: getattr(w, name, None) for name in BOUNDS}
+    complete = bool(
+        w
+        and w.coverage == "complete"
+        and w.arrival_at == cp.arrival_at
+        and all(v is not None for v in values.values())
+    )
+    reasons = []
+    categories = []
+    for name, value in values.items():
+        if value is None:
+            continue
+        category, threshold = category_for(name, value)
+        categories.append(category)
+        reasons.append(
+            RiskReason(
+                code=f"{name}_{category.value}",
+                observed_value=value,
+                threshold=threshold,
+                units="mph" if name == "wind_mph" else "in/hour",
+                message=f"{name} {value} meets {threshold}: {category.value}.",
+            )
+        )
+    wind = values["wind_mph"]
+    override = None
+    if wind is not None:
+        # Cargo comparisons are strictly greater: exact 30k/40k do not qualify.
+        if 45 <= wind < 55 and cargo_load_lb > LOAD_NO_TRAVEL_LB:
+            override = (
+                R.NO_TRAVEL,
+                "wind_load_no_travel",
+                "45 <= wind < 55; cargo > 30000",
+            )
+        elif 35 <= wind < 45 and cargo_load_lb > LOAD_SEVERE_LB:
+            override = (R.SEVERE, "wind_load_severe", "35 <= wind < 45; cargo > 40000")
+    if override:
+        category, code, threshold = override
+        categories.append(category)
+        reasons.append(
+            RiskReason(
+                code=code,
+                observed_value=wind,
+                units="mph",
+                cargo_load_lb=cargo_load_lb,
+                threshold=threshold,
+                message=f"Cargo load override: {threshold} -> {category.value}.",
+            )
+        )
+    if not complete:
+        categories.append(R.UNKNOWN)
+    return CheckpointRisk(
+        checkpoint_id=cp.id,
+        category=worst(categories),
+        coverage_complete=complete,
+        fresh=bool(w and w.freshness == "fresh"),
+        reasons=reasons,
+    )
+
+
 class RiskService(RiskRepo):
     def assess(self, request: RiskRequest) -> RouteRiskSummary:
         """Preserve known hazards, exclude incomplete/stale routes, and reconcile actual miles."""
@@ -36,67 +99,7 @@ class RiskService(RiskRepo):
         risks = []
         for cp in request.route.checkpoints:
             w = weather.get((request.route.route_id, cp.id))
-            if w is not None and w.arrival_at != cp.arrival_at:
-                w = None
-            values = {name: getattr(w, name, None) for name in BOUNDS}
-            complete = bool(
-                w
-                and w.coverage == "complete"
-                and w.arrival_at == cp.arrival_at
-                and all(v is not None for v in values.values())
-            )
-            reasons = []
-            categories = []
-            for name, value in values.items():
-                if value is None:
-                    continue
-                category, threshold = category_for(name, value)
-                categories.append(category)
-                reasons.append(
-                    RiskReason(
-                        code=f"{name}_{category.value}",
-                        observed_value=value,
-                        threshold=threshold,
-                        units="mph" if name == "wind_mph" else "in/hour",
-                        message=f"{name} {value} meets {threshold}: {category.value}.",
-                    )
-                )
-            wind = values["wind_mph"]
-            override = None
-            if wind is not None:
-                # Cargo comparisons are strictly greater: exact 30k/40k do not qualify.
-                if 45 <= wind < 55 and request.cargo_load_lb > LOAD_NO_TRAVEL_LB:
-                    override = (
-                        R.NO_TRAVEL,
-                        "wind_load_no_travel",
-                        "45 <= wind < 55; cargo > 30000",
-                    )
-                elif 35 <= wind < 45 and request.cargo_load_lb > LOAD_SEVERE_LB:
-                    override = (R.SEVERE, "wind_load_severe", "35 <= wind < 45; cargo > 40000")
-            if override:
-                category, code, threshold = override
-                categories.append(category)
-                reasons.append(
-                    RiskReason(
-                        code=code,
-                        observed_value=wind,
-                        units="mph",
-                        cargo_load_lb=request.cargo_load_lb,
-                        threshold=threshold,
-                        message=f"Cargo load override: {threshold} -> {category.value}.",
-                    )
-                )
-            if not complete:
-                categories.append(R.UNKNOWN)
-            risks.append(
-                CheckpointRisk(
-                    checkpoint_id=cp.id,
-                    category=worst(categories),
-                    coverage_complete=complete,
-                    fresh=bool(w and w.freshness == "fresh"),
-                    reasons=reasons,
-                )
-            )
+            risks.append(classify_checkpoint(cp, w, request.cargo_load_lb))
         by_id = {c.checkpoint_id: c for c in risks}
         intervals = []
         miles = {c: 0.0 for c in R}

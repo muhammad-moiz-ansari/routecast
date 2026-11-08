@@ -1,6 +1,15 @@
+import {
+  ForecastTimeline,
+  loadPreferences,
+} from "../../weather-timeline/components/ForecastTimeline";
+import { aligned, frameIndex } from "../../weather-timeline/frame";
 import { routeIndex } from "../../map/utils/geometry";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import type { Analysis, RouteOptions } from "../../../api/contracts";
+import type {
+  Analysis,
+  RouteOptions,
+  CorridorProjection,
+} from "../../../api/contracts";
 import {
   atTime,
   currentRecommendation,
@@ -16,10 +25,30 @@ const RouteMap = lazy(() => import("../../map/components/RouteMap"));
 export function RouteComparison({
   analysis,
   pendingRoutes,
+  corridor,
+  corridorError,
 }: {
   analysis: Analysis;
   pendingRoutes?: RouteOptions;
+  corridor?: CorridorProjection;
+  corridorError?: string;
 }) {
+  const [preferences, setPreferences] = useState(loadPreferences);
+  const [absoluteTime, setAbsoluteTime] = useState<string | null>(null);
+  const synchronized = aligned(analysis, corridor)
+    ? {
+        ...corridor!,
+        stale:
+          corridor!.stale ||
+          analysis.retained_previous ||
+          analysis.weather_stale ||
+          !corridor!.data?.fetched_at ||
+          Date.now() - Date.parse(corridor!.data!.fetched_at!) > 900000,
+      }
+    : undefined;
+  useEffect(() => {
+    localStorage.setItem("routecast-display", JSON.stringify(preferences));
+  }, [preferences]);
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
     const update = () => setOnline(navigator.onLine);
@@ -255,6 +284,14 @@ export function RouteComparison({
             }
           >
             <RouteMap
+              corridor={synchronized?.data ?? undefined}
+              forecastFrame={
+                synchronized?.data
+                  ? frameIndex(synchronized.data.timestamps, absoluteTime)
+                  : 0
+              }
+              forecastLayer={preferences.layer}
+              showForecast={preferences.overlay}
               routes={routes}
               selectedId={selectedId}
               points={points}
@@ -265,6 +302,26 @@ export function RouteComparison({
               onSelectPoint={inspect}
             />
           </Suspense>
+          {corridorError && (
+            <p className="state-warning" role="alert">
+              Corridor read failed: {corridorError}. Loaded route results remain
+              available.
+            </p>
+          )}
+          {corridor?.data && !synchronized && (
+            <p className="state-warning">
+              Waiting for corridor data matching this analysis. Mismatched
+              weather is hidden.
+            </p>
+          )}
+          <ForecastTimeline
+            corridor={synchronized ?? (corridor?.data ? undefined : corridor)}
+            zone={zone}
+            preferences={preferences}
+            onPreferences={setPreferences}
+            absoluteTime={absoluteTime}
+            onTime={setAbsoluteTime}
+          />
           <a className="map-skip" href="#checkpoint-table">
             Skip map to checkpoint list
           </a>

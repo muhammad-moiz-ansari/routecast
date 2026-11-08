@@ -172,3 +172,43 @@ export interface AnalysisSnapshot {
   routing_fetched_at: string;
   weather_fetched_at: string | null;
 }
+
+export interface RefreshResult {
+  analysis_id: string | null;
+  coalesced: boolean;
+  retry_after_seconds: number | null;
+  stopped: boolean;
+}
+export type ScalarLayer =
+  "wind_mph" | "rain_inches_per_hour" | "snow_inches_per_hour";
+export type ForecastLayer = ScalarLayer | "risk";
+export interface CorridorDataset {
+  dataset_id: string;
+  analysis_version: number;
+  anchor_at: string;
+  fetched_at: string | null;
+  timestamps: string[];
+  grid: {
+    samples: { id: string; coordinate: Coordinate }[];
+    width_miles: number;
+    along_spacing_meters: number;
+    cross_spacing_meters: number;
+    sample_cap: number;
+    method: string;
+  };
+  values: Record<ScalarLayer, (number | null)[][]>;
+  missing: Record<ScalarLayer, boolean[][]>;
+  units: Record<ScalarLayer, string>;
+  coverage: string;
+  notices: string[];
+  risk_categories?: RiskCategory[][];
+  rules_version?: string;
+}
+export interface CorridorProjection {
+  status: string;
+  analysis_version: number | null;
+  error_code: string | null;
+  data: CorridorDataset | null;
+  stopped: boolean;
+  stale: boolean;
+}
