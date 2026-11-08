@@ -16,3 +16,5 @@ dist/
 frontend/coverage/
 
 frontend/.test-tmp/
+
+!.env.production.example

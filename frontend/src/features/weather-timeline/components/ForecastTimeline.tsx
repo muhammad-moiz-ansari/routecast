@@ -1,3 +1,4 @@
+import { WeatherAttribution } from "../../../components/ui/WeatherAttribution";
 import { useState } from "react";
 import type { CorridorProjection, ForecastLayer } from "../../../api/contracts";
 import {
@@ -228,6 +229,7 @@ export function ForecastTimeline({
           ))}
         </ul>
       )}
+      <WeatherAttribution />
     </section>
   );
 }

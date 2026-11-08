@@ -67,3 +67,13 @@
 - Poll completed active trips to discover server reassessments, but poll corridor arrays only while pending or mismatched. Hide/cancel polling offline/in background and end it on stop. Heartbeats are owner activity, not provider requests.
 - Persist only theme/layer/overlay preferences. Restore completed snapshot inputs using coordinates; unsaved drafts and display time are not stored across reloads.
 - Use the existing 60-second manual refresh default and honor explicit backend Retry-After; never retry unsafe requests automatically. Fence late mutation responses by trip identity.
+
+
+## Phase 10
+
+- Prepare a standalone production Compose file rather than merging development port exposure. A private loopback gateway sits behind user-supplied authenticated HTTPS ingress; only this gateway sets trusted proxy headers. API/data ports stay private.
+- Run Gunicorn (locked 26.2.0) and independent core/corridor Linux workers, with one persistent Beat. Migrations are explicit release steps, never container entrypoint side effects.
+- Fail closed on absent/development secrets or wildcard hosts; secure __Host- cookies, production docs disabled, one-hour host-only HSTS until hosted domain checks. Subdomain/preload deploy-check warnings remain deliberate and documented.
+- Keep release images nonroot/read-only and source allowlisted; mutable family image defaults must be replaced by approved immutable digest inventory for an actual release. Image/runtime checks remain pending without Docker.
+- Record accounting-only weather counters and missing global/provider-owner quota enforcement honestly. Aggregate gateway admission limits support controlled assessment, not unrestricted public deployment.
+- Add linked weather/source attribution and distribute resolved browser dependency licence texts. No proprietary visual assets or provider keys added to frontend.

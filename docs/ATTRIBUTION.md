@@ -1,0 +1,16 @@
+# Source attribution and distribution notices
+
+Reviewed 9 November 2026. This records the implemented sources and observed license metadata, not a legal certification or permission to deploy under an account's terms.
+
+| Source | Use and credit | Conditions / implementation |
+| --- | --- | --- |
+| [TomTom](https://www.tomtom.com/) | Place search and truck route geometry/timing | Server-side key; account coverage/usage/storage/attribution terms must be confirmed. Linked routing credit appears in the map legend. No roads, ETA savings or provider claims are invented. |
+| [Open-Meteo](https://open-meteo.com/) | Forecast values | Linked credit and [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) appear beside timeline/map and checkpoint details. Units are converted and risk/corridor representations derived by RouteCast. [Provider licence](https://open-meteo.com/en/licence) requires credit, licence link and change indication. Under [current terms](https://open-meteo.com/en/terms), the free API is noncommercial; paid/customer endpoint support is not implemented. A company/promotional deployment must resolve this separately. |
+| Chosen basemap/data provider | Optional style/tile/sprite/glyph sources | No default basemap or copied map imagery. Use licensed day/night styles and preserve source attribution in MapLibre's visible attribution control. Public map keys only; apply origin restrictions. |
+| [MapLibre GL JS](https://maplibre.org/) | Geographic renderer | Installed package metadata reports BSD-3-Clause. Full notice included with browser assets. MapLibre itself does not supply a map tile licence. |
+| React, React Router, TanStack Query, Radix, React Hook Form, Zod, Lucide, Temporal and transitive packages | UI, state, validation and icons | Resolved production dependency texts are distributed in /THIRD_PARTY_NOTICES.txt (71 installed production packages). System fonts are used; no remote font service or proprietary visual assets copied. |
+| Django, Django Ninja, Pydantic, Celery, Redis client, HTTPX, Psycopg, Gunicorn and Python dependencies | Backend runtime | Package notices remain in the installed distributions in the backend image. See pyproject.toml/uv.lock and each project's included metadata/licence. Redis server/PostgreSQL/Nginx/container images have separate distribution terms. |
+
+`npm run notices` generates browser notices from the locked installed production packages; `npm run build` checks the file for drift. Most packages include LICENSE/NOTICE files. murmurhash-js includes its MIT text in README.md. react-remove-scroll-bar 2.3.8 omits its full text from the npm archive: a copy of the upstream [LICENSE](https://raw.githubusercontent.com/theKashey/react-remove-scroll-bar/master/LICENSE), retrieved 9 November 2026, is retained in frontend/licenses and used only for that exact package version. Review this fallback when changing versions. No registry credential or private source was downloaded. Development/test tooling is excluded from browser notices.
+
+RouteCast's supplied weather/load assessment and ranking rules are documented in RISK_RULES.md; they are not provider endorsements or certified navigation guidance. Synthetic fixtures are labeled and development/test only. No proprietary branding, copied screenshots, external photos or generated image assets were added.

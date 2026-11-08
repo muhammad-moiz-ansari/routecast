@@ -1139,3 +1139,14 @@ h3 {
 .sampling-note {
   color: var(--text-muted);
 }
+
+.weather-attribution {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 16px;
+  color: var(--text-muted);
+}
+.weather-attribution a {
+  text-decoration: underline;
+}

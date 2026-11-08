@@ -1,3 +1,4 @@
+import { WeatherAttribution } from "../../../components/ui/WeatherAttribution";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import type { AnalysisSnapshot, Checkpoint } from "../../../api/contracts";
@@ -101,6 +102,7 @@ export function CheckpointDetails({
           ) : (
             <p>No applied rule details available.</p>
           )}
+          <WeatherAttribution />
           <Dialog.Close className="close" aria-label="Close checkpoint details">
             <X />
           </Dialog.Close>

@@ -1,28 +1,28 @@
 # Progress
 
-Current phase: **Phase 9 complete — cached forecast timeline and frontend refresh integration.**
-Completed implementation phases: 0–9. Next phase: 10, only upon explicit user request.
+Current phase: **Phase 10 implementation/release preparation complete.**
+Completed implementation phases: 0–10. No further phase is started or inferred; wait for explicit user instructions.
 
-## Implementation
+## Release package
 
-Added 49-hour cached corridor wind/rain/snow/combined-risk visualization, fixed legends, missing-data masks, readable timezone/timestamp, keyboard-native slider, first/previous/next-hour controls and a coordinate/value text alternative. Selected absolute time survives replacement datasets when valid, otherwise selects the nearest available boundary/frame. Layer/overlay preferences persist; optional playback is omitted. Frames switch without animation or autoplay, including reduced motion.
+Prepared standalone production Compose topology: private loopback Nginx static/API gateway, Gunicorn 26.2.0 locked backend image, PostgreSQL/Redis on an internal network, separate core/corridor Linux workers and one persistent Beat. Containers use nonroot application processes/read-only app filesystems; API readiness gates gateway startup. Sources are allowlisted/real environments excluded; migrations and service startup are explicit authorized release steps, never build/entrypoint side effects.
 
-Map uses a bounded shared lattice of disjoint nearest-sample cells with spherical corridor containment and conservative clipping. Overlapping routes cannot add intensities; gaps remain unpainted. Unknown/incomplete cells are marked and known hazards are retained. Samples beyond 85 degrees latitude have a visible text-only warning. Dataset/analysis/revision alignment prevents mixed-version overlays; frame/dataset changes never reset the map camera or select a different route.
+Production settings fail closed on weak/development secrets or wildcard/missing hosts, use secure __Host- session/CSRF cookies, controlled proxy HTTPS handling and clickjacking headers, and disable CDN-based API docs. One-hour host-only HSTS deliberately excludes subdomain/preload enrollment until hosted review. Same-origin Host/Origin/CSRF behavior is verified offline. Aggregate gateway admission limits are configured; they are not daily/provider-owner quota enforcement.
 
-Active visible/online trips poll analysis every 15 seconds, including after completion to discover backend scheduled reassessment. Corridor arrays poll only while pending/processing or version-mismatched. Owner heartbeats run on viewing and every 60 seconds with cached coalescing. Hidden/offline pages cancel obsolete reads/heartbeats. Explicit CSRF-protected refresh and stop controls honor cooldown, fence late responses after trip navigation, retain completed results and stop background traffic. Failed status reads retain results but withhold current recommendation claims; status/corridor GET-only retry is available. Completed snapshot inputs restore on reload without overwriting a dirty form.
-
-Combined corridor risk is an additive read-only backend projection over existing scalar datasets using captured cargo and the same extracted checkpoint classifier. Stored core recommendations/cache/frames remain unchanged. No new provider fetch, worker behavior, dependencies, environment values, models or migrations introduced. Existing architecture and concise decision comments retained.
+Rewrote historical README/provider guidance to match actual Phases 0–10 behavior. Added deployment/static-serving/backup/migration/rollback/process runbook, source attribution, known limitations, eight-minute company walkthrough and missing-live-evidence checklist. Linked weather/provider/licence credit appears beside map/timeline and checkpoint values. Browser distributions include 71 resolved production dependency notices with a build-time drift check.
 
 ## Verification
 
-13 unique new offline cases pass (11 frontend, 2 backend), with 24 affected prior cases passing across targeted runs. Final TypeScript/production build passes; production bundles exclude the new corridor fixtures. Ruff passes for changed backend modules/tests. Existing provider/cache/schema evidence reused without broad reruns; see P9 verification records for exact coverage and resolved failures.
+Eight new production configuration/readiness tests pass across targeted runs, plus affected existing local API docs/liveness and checkpoint-dialog cases. Production deploy check has no errors and only the two documented HSTS subdomain/preload warnings. Changed backend lint, offline uv lock consistency, frontend TypeScript/production build, 71 licence notices, production fixture exclusion, tracked-environment inventory and ignore checks pass. Production YAML parsed; private exposure, queues and readiness wiring reviewed statically. This is not Docker Compose/image/runtime execution evidence.
 
-Actual fixture browser review covered wind/combined-risk rendered cells, keyboard hour changes, 48→47 index preservation at an unchanged absolute timestamp after anchor advance, retained results through refresh, saved layer/overlay preferences after reload, stop with usable cached frames, 320px mobile/768px tablet/1440px desktop and day/night themes. Mobile/tablet document widths 305/753 respectively (scrollbar, no overflow). Temporary viewport reset and owned preview stopped. Provider, basemap and live backend API checks: zero.
+Actual fixture browser review confirmed new linked credits, visible keyboard focus, modal Escape/focus return and 320px reflow; prior broader UI/contrast/risk/cache/lifecycle evidence reused. Viewport reset and owned preview stopped. Routing/weather/basemap requests and live backend checks: zero. PyPI resolution, official documentation and one missing upstream MIT licence download were setup/reference traffic only. See P10 records for fingerprints, retest reasons and resolved failures.
 
-## Limitations
+## Remaining release gates and limits
 
-Real frontend/backend/broker/worker/provider end-to-end execution, hosted basemap assets and manual screen-reader/device/enlarged-text/zoom review remain pending. No full WCAG conformance claim. Existing MapLibre >500k advisory and Zod annotation notices remain nonfatal. Conservative sparse cells may leave visible gaps; polar samples beyond 85 degrees are text-only. Combined risk uses selected-frame values, independently of checkpoint ETA assessment.
+Docker unavailable here: image builds, Docker Compose CLI validation, Nginx image syntax, Linux Gunicorn/worker startup, hosted HTTPS/CSRF, backup/restore rehearsal and real broker/provider E2E remain pending. Image family defaults must be replaced with approved immutable digests for a chosen release. Manual screen-reader/device/enlarged-text/zoom review remains pending; no full WCAG claim. Existing MapLibre/Zod build notices remain nonfatal.
 
-Unsaved drafts, place labels absent from the stored contract, inspection selection and absolute display time are not persisted across full reload; completed inputs restore with coordinate labels. Optional playback was not added. Backend creation still lacks idempotency keys. No real environment/credentials, persisted trip data or workers changed.
+This prepares a controlled noncommercial assessment behind user-supplied authenticated HTTPS ingress, not unrestricted public/commercial service. Weather counts are accounting only; global daily cutoffs, shared TomTom accounting and per-owner quotas are absent. The implemented public Open-Meteo endpoint is noncommercial; paid/customer endpoint support is absent. Provider account/usage/storage/attribution terms must be confirmed. No real credentials were inspected or changed.
 
-Stopped after Phase 9. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 10 request.
+Sampling/ETA limitations, polar text-only corridor samples, anonymous session recovery, absent backend creation idempotency, unsaved draft/place-label/display-time persistence and omitted optional playback remain documented in KNOWN_LIMITATIONS.md. No changes to business rules, ORM models/migrations, actual persisted trips or worker scheduling behavior.
+
+Stopped after Phase 10. Nothing staged, committed, pushed, published or deployed. The user owns release authorization and all Git operations.

@@ -1,0 +1,93 @@
+# Standalone file: never combine with development compose.yaml (which publishes dependency ports).
+x-app: &app
+  image: routecast-backend:${RELEASE_TAG:-local}
+  build:
+    context: ./backend
+    args:
+      PYTHON_IMAGE: ${PYTHON_IMAGE:-python:3.12-slim-bookworm}
+  env_file: .env.production
+  environment:
+    DJANGO_SETTINGS_MODULE: config.settings.production
+    POSTGRES_HOST: postgres
+    POSTGRES_PORT: "5432"
+    REDIS_URL: redis://redis:6379/0
+    CELERY_BROKER_URL: redis://redis:6379/1
+    CELERY_RESULT_BACKEND: redis://redis:6379/2
+  depends_on:
+    postgres: {condition: service_healthy}
+    redis: {condition: service_healthy}
+  networks: [data, egress]
+  read_only: true
+  tmpfs: [/tmp]
+  restart: unless-stopped
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:17-alpine}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-routecast}
+      POSTGRES_USER: ${POSTGRES_USER:-routecast}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set the production database password}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    networks: [data]
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  redis:
+    image: ${REDIS_IMAGE:-redis:7.4-alpine}
+    command: [redis-server, --appendonly, "yes", --maxmemory-policy, noeviction]
+    volumes: [redis_data:/data]
+    networks: [data]
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  api:
+    <<: *app
+    networks: [data, egress, web]
+    healthcheck:
+      test: [CMD, python, config/healthcheck.py]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+  worker:
+    <<: *app
+    command: [celery, -A, "config.celery:app", worker, -Q, celery, --concurrency=2, --loglevel=info, --hostname=core@%h]
+    stop_grace_period: 16m
+  corridor-worker:
+    <<: *app
+    command: [celery, -A, "config.celery:app", worker, -Q, corridor, --concurrency=1, --loglevel=info, --hostname=corridor@%h]
+    stop_grace_period: 16m
+  beat:
+    <<: *app
+    command: [celery, -A, "config.celery:app", beat, --loglevel=info, --schedule=/state/beat-schedule]
+    volumes: [beat_data:/state]
+  gateway:
+    image: routecast-frontend:${RELEASE_TAG:-local}
+    build:
+      context: ./frontend
+      args:
+        NODE_IMAGE: ${NODE_IMAGE:-node:24-alpine}
+        NGINX_IMAGE: ${NGINX_IMAGE:-nginx:stable-alpine}
+        VITE_MAP_STYLE_DAY: ${VITE_MAP_STYLE_DAY:-}
+        VITE_MAP_STYLE_NIGHT: ${VITE_MAP_STYLE_NIGHT:-}
+    depends_on:
+      api: {condition: service_healthy}
+    ports: ["127.0.0.1:${GATEWAY_PORT:-8080}:8080"]
+    networks: [web]
+    read_only: true
+    tmpfs: [/tmp]
+    restart: unless-stopped
+networks:
+  data: {internal: true}
+  egress: {}
+  web: {}
+volumes:
+  postgres_data:
+  redis_data:
+  beat_data:

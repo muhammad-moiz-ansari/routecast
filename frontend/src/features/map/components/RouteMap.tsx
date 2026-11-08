@@ -1,3 +1,4 @@
+import { WeatherAttribution } from "../../../components/ui/WeatherAttribution";
 import { useMemo } from "react";
 import { corridorCells, fieldFeatures } from "../utils/corridorField";
 import { useEffect, useRef, useState } from "react";
@@ -425,7 +426,10 @@ export default function RouteMap(props: MapProps) {
             </span>
           ))}
         </div>
-        <small>MapLibre GL JS · Routing: TomTom · Weather: Open-Meteo</small>
+        <small>
+          MapLibre GL JS · Routing: <a href="https://www.tomtom.com/">TomTom</a>
+        </small>
+        <WeatherAttribution />
       </div>
     </div>
   );

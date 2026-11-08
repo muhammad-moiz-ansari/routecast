@@ -1,15 +1,16 @@
 # RouteCast
 
-Weather-aware truck route planning. Phase 2 builds on owner-scoped trips, place search and truck routes with distance checkpoints and arrival estimates. Weather assessment and frontend implementation remain later phases. The frontend specification applies to phases 7â€“9. No frontend has been scaffolded.
+Weather-aware truck trip planning with React/TypeScript, Django Ninja/Pydantic, PostgreSQL, Redis and Celery. Phases 0–10 are implemented. Release configuration and an eight-minute walkthrough are prepared; nothing has been deployed. See [progress](docs/PROGRESS.md) and the [verification ledger](docs/VERIFICATION_LOG.md) for actual evidence and pending runtime checks.
 
-## Windows local setup (PowerShell)
+Enter origin/destination, timezone-aware departure, cargo load in lb and checkpoint spacing (10/25/50 mi). The backend queues up to three distinct truck routes, estimates checkpoint arrivals, matches forecast intervals, applies weather/load rules and ranks eligible routes. The UI provides route inspection, accessible checkpoint details, cached 0–48-hour corridor layers, refresh/stop and stale/missing-data states. Forecast-hour selection does not change checkpoint-ETA recommendations.
 
-Install Python 3.12, uv, and Docker Desktop with the WSL 2 backend and Linux containers. Start Docker Desktop and confirm `docker version` can reach its engine. Run from the repository root:
+## Windows development setup
+
+Install Python 3.12, uv, a recent Vite-supported Node (24 used here), and Docker Desktop with WSL 2/Linux containers. Start Docker Desktop. From the root, copy examples only if destinations do not exist; keep database credentials aligned and never overwrite real environment files:
 
 ```powershell
 if (!(Test-Path .env)) { Copy-Item .env.example .env }
 if (!(Test-Path backend/.env)) { Copy-Item backend/.env.example backend/.env }
-# Keep the database credentials in both files aligned.
 docker compose up -d --wait
 Set-Location backend
 $env:UV_CACHE_DIR = Join-Path (Split-Path $PWD) '.uv-cache'
@@ -18,96 +19,42 @@ uv run --no-sync python manage.py migrate
 uv run --no-sync python manage.py runserver 127.0.0.1:8000
 ```
 
-Copy example files only if the destination does not already exist. Never overwrite existing credentials. PostgreSQL and Redis bind to loopback only. The example password is for local development. If ports conflict, change the root Compose ports and corresponding backend connection settings.
-
-Open [liveness](http://127.0.0.1:8000/api/v1/health/), [readiness](http://127.0.0.1:8000/api/v1/ready/), and [API documentation](http://127.0.0.1:8000/api/v1/docs). Readiness returns 503 when either local dependency is unavailable; liveness still returns 200. The docs UI uses Ninja's default CDN assets, so rendering it in a browser requires internet; its HTML and OpenAPI schema are available locally.
-
-To stop infrastructure without deleting data, run `docker compose stop` from the root. PostgreSQL data lives in a named volume. No providers or scheduled jobs start with the web application.
-
-## Offline verification
-
-Read [the verification ledger](docs/VERIFICATION_LOG.md) before running checks. From `backend`, after syncing dependencies:
+In a separate terminal, from frontend:
 
 ```powershell
-uv run --no-sync python manage.py check
-uv run --no-sync pytest
-uv run --no-sync ruff check .
+npm ci
+npm run dev
 ```
 
-Tests block all socket connections, use SQLite and an in-memory cache, and inject readiness probes. They do not require Docker or API keys. PostgreSQL migrations are a separate local infrastructure check; do not represent SQLite evidence as PostgreSQL verification.
+Open http://127.0.0.1:5173. Vite proxies /api to port 8000 with the original Host, preserving owner session/CSRF behavior. Local [health](http://127.0.0.1:8000/api/v1/health/), [readiness](http://127.0.0.1:8000/api/v1/ready/) and [API docs](http://127.0.0.1:8000/api/v1/docs) are available. Readiness checks only PostgreSQL/Redis; docs use external CDN resources locally and are disabled in production.
 
-Celery now executes Phase 5 analysis jobs. Use separate terminals from backend after Docker is running:
+For real analyses add the server-only TOMTOM_API_KEY in your existing backend/.env and start separate terminals from backend:
 
 ```powershell
-uv run --no-sync python manage.py runserver 127.0.0.1:8000
-# Second terminal: local Windows development worker
-uv run --no-sync celery -A config.celery:app worker --pool=solo --loglevel=info
-# Third terminal: exactly one scheduler
+uv run --no-sync celery -A config.celery:app worker -Q celery --pool=solo --loglevel=info
+uv run --no-sync celery -A config.celery:app worker -Q corridor --pool=solo --loglevel=info
+# Exactly one scheduler; omit it when periodic runtime work is not intended.
 uv run --no-sync celery -A config.celery:app beat --loglevel=info
 ```
 
-Starting workers executes queued provider work; this is runtime usage, not an offline verification command. Windows solo is for local development; use a supported Linux worker environment for reliable soft/hard task time limits (configured 840/900 seconds). Beat runs one 60-second coordination task. No web-process background loop is started. Set ROUTECAST_LIVE_TEST_MODE=true in your existing backend/.env to disable background scheduling and Beat schedule; explicit queued trip analyses remain available. Do not overwrite existing environment files. Optional refresh/viewer/cooldown defaults are listed in backend/.env.example. HTTP client logging is capped at WARNING to avoid exposing credential-bearing provider URLs under Celery INFO logging.
+Workers can execute queued provider work immediately. ROUTECAST_LIVE_TEST_MODE=true disables periodic scheduling but not explicit trip jobs. Windows solo is development-only; production uses Linux prefork for task time limits. The web process starts no scheduler/provider work by importing modules. Use `docker compose stop` to stop development infrastructure without deleting data.
 
-See [architecture](docs/ARCHITECTURE.md), [API contract](docs/API_CONTRACT.md), [decisions](docs/DECISIONS.md), and [progress](docs/PROGRESS.md). Secrets belong only in ignored environment files. No deployment is configured or authorized.
+## Offline preview and verification
 
-## Phase 1 use
+For UI-only demonstration, set VITE_USE_FIXTURES=true in the frontend shell before `npm run dev`; open /trips/preview-trip. This explicitly labeled synthetic preview requires no Django, worker or provider. Clear that variable before a normal production build. See [frontend setup](docs/FRONTEND_SETUP.md) for scenarios, keyboard controls, preferences and local test tooling.
 
-Apply the new domain migration with `uv run --no-sync python manage.py migrate` from backend (Docker services running). The migration was applied to local PostgreSQL during implementation. Add TOMTOM_API_KEY to your existing backend/.env only when enabling live routing/search; no provider keys are required for offline tests, and runtime has no synthetic fallback. See docs/PROVIDER_SETUP.md for provider configuration and pending live evidence.
+Read the ledger first and run only new/affected checks. Backend socket-blocked tests use SQLite/fakes; they are not PostgreSQL/broker/provider evidence. Examples from backend are `uv run --no-sync pytest tests/test_phase10.py` and `uv run --no-sync ruff check config/settings/production.py config/gunicorn.py api/app.py tests/test_phase10.py`. Frontend `npm run build` checks dependency notices, TypeScript and production output; focused Vitest cases are documented in the ledger. Do not reinstall dependencies or rerun successful provider checks merely for a demo or phase change.
 
-Bootstrap the session at GET /api/v1/session/, retain its cookies, then submit trip JSON to POST /api/v1/trips/ with the returned token in X-CSRFToken. Inspect your trip and stored routes using its UUID. See docs/API_CONTRACT.md for complete shapes/statuses. Phase 1 routes synchronously and returns 201; queued analysis belongs to Phase 5. There is no weather/risk recommendation yet.
+## Release preparation
 
-New focused offline checks: `uv run --no-sync pytest tests/test_phase1.py`. Read the ledger first and repeat only checks affected by your changes. Existing Phase 0 helper/Redis/readiness evidence remains reusable.
+[Deployment runbook](docs/DEPLOYMENT.md) covers the standalone compose.production.yaml, production secrets/hosts, immutable image inventory, private same-origin Nginx/Gunicorn, static SPA delivery, backup/migration order, separate workers, one Beat, rollback and HTTPS verification. Copy .env.production.example privately only when preparing an authorized release. The development Compose file publishes loopback dependency ports; never merge it into production. No static-only host can run this architecture, and no free always-on hosting claim is made.
 
-## Phase 2 use
+Docker/image/hosted smoke evidence remains pending in this environment. Release is prepared for a controlled noncommercial assessment behind authenticated HTTPS ingress. The existing public Open-Meteo adapter is not configured for commercial/customer endpoints. Aggregate gateway admission limiting and recorded weather usage are not daily provider/owner hard quotas; unrestricted public use needs further controls. See [provider setup](docs/PROVIDER_SETUP.md), [missing live checks](docs/LIVE_API_CHECKLIST.md) and [known limitations](docs/KNOWN_LIMITATIONS.md).
 
-After creating a trip, read `/api/v1/trips/{id}/checkpoints/?route_id=A` with the same session cookie. Use an actual available route ID from its route options. The trip's stored spacing controls sampling. The response includes endpoints, intervals, arrival timestamps, analysis version and an explicit ETA method/fallback notice. Reads use stored geometry and timing only, without provider requests. Older Phase 1 snapshots work without a migration or refresh.
+## Architecture and assessment rules
 
-New route fetches ask for maneuver timing in the same TomTom request. Checkpoint placement uses measured full-polyline geometry scaled to provider route distance; this approximation and limits are documented in docs/API_CONTRACT.md. Weather/risk assessment is not yet implemented.
+Django Ninja routes call injected services composed in api/dependencies.py. Each *_repo.py contains an ABC contract only; *_service.py inherits it, and service models.py contains Pydantic models. Django ORM queries live in persistence/stores. Core and corridor Celery jobs are separate, with leased/fenced, atomic publication and retained completed snapshots. React displays authoritative backend risk/ranking; it does not reimplement business decisions.
 
-New focused offline checks: `uv run --no-sync pytest tests/test_phase2.py`. Existing verification is recorded in docs/VERIFICATION_LOG.md; do not repeat successful unrelated checks or refresh routes merely to view checkpoints. Phase 2 requires no dependency installation, database migration or environment change.
+Routes use complete geometry with great-circle sampling scaled to provider distance; ETAs interpolate valid maneuver timing or use a labeled proportional fallback. Weather accumulations use their preceding-hour interval and wind uses conservative bracketing at ETA. Exact continuous thresholds, strict cargo overrides and worst-endpoint interval mileage feed Severe/High/average/time ranking. Unknown/stale/No Travel alternatives cannot establish eligibility. Corridor frames use disjoint, conservatively clipped nearest-sample cells rather than additive heat intensity.
 
-## Phase 3 use
-
-POST `/api/v1/trips/{id}/weather/prefetch/` with the existing owner session and CSRF token to explicitly fetch live Open-Meteo hourly series for route checkpoints. GET `/api/v1/trips/{id}/weather/` returns cached matching without provider calls. These are weather/coverage results, not risk classifications. See docs/API_CONTRACT.md for units, boundary semantics and freshness. No migration, package install or environment change is required. Offline tests use HTTPX fixtures, never production fixture fallback.
-
-Read the verification ledger before running the new focused tests: `uv run --no-sync pytest tests/test_phase3.py`. No live provider tests were run for Phase 3; provider contract evidence remains pending.
-
-## Phase 4 use
-
-After weather prefetch, GET `/api/v1/trips/{id}/recommendation/` with the same owner session. This reads cached data only; it will not fetch weather or routes. It returns risk reasons/mileage, eligibility and a recommendation under the supplied rules, with incomplete/stale/blocked alternatives retained. Missing weather is visible and does not become Low risk. See docs/RISK_RULES.md for exact thresholds/load boundaries/ranking and docs/API_CONTRACT.md for result states.
-
-No migration, dependency installation or environment change is required. New focused tests are in tests/test_phase4.py; consult the ledger and reuse unaffected existing checks. There is no frontend or background refresh in this phase, and no live provider check was necessary.
-
-## Phase 5 use
-
-POST /api/v1/trips/ now returns 202 with trip and analysis identifiers. A worker retrieves routes, builds checkpoints, prefetches weather, assesses risk and atomically publishes a completed analysis. Poll GET /api/v1/trips/{id}/analysis/ with ETags; polling never calls providers or maintains activity. Send owner/CSRF-protected heartbeat POSTs while actively viewing. Coordinated refresh and stop POSTs and full-input PATCH are documented in docs/API_CONTRACT.md. Completed data stays visible during failed refreshes and is marked stale when expired or input-mismatched. Reading recommendation/checkpoints/weather no longer recomputes against the current cache.
-
-The new 0002 migration was applied to local PostgreSQL during implementation. Fresh checkouts still run the normal migrate setup. Historical trip viewer activity is expired by migration; a heartbeat/manual refresh is required to schedule old trips again. No new dependency installation is needed. Previous Phase 1–4 use sections are historical where they describe synchronous writes or direct weather acquisition.
-
-New fake-clock/offline lifecycle acceptance tests: tests/test_phase5.py. Read the verification ledger before rerunning successful checks. Real Redis lease scripts and PostgreSQL publication/uniqueness were checked locally using rolled-back synthetic data. A real Celery broker/worker/Beat end-to-end run remains pending; no worker was started and no live provider test was run by the agent.
-
-## Phase 6 use
-
-GET `/api/v1/trips/{id}/corridor/` with the owner session returns independent corridor status and, when ready/partial, all 49 cached frames. Select slider hours locally from the arrays; GET and frame selection never fetch providers or change route recommendation. See docs/API_CONTRACT.md for indexing, missing masks, spatial approximation and clipping.
-
-The new 0003 corridor migration was applied to local PostgreSQL during implementation. Existing real .env files were not changed. Optional CORRIDOR_WIDTH_MILES defaults to 10 miles on each side; provider request budgets and terms still apply. Initial visualization spacing is 10 miles along/10 miles across and is coarsened along long routes to stay at most 100 locations.
-
-Corridor tasks use a separate `corridor` queue. Keep the core worker on `-Q celery` and start a separate corridor worker only when ready for runtime provider usage:
-
-```powershell
-uv run --no-sync celery -A config.celery:app worker -Q corridor --pool=solo --loglevel=info
-```
-
-Use the existing single Beat scheduler for bounded pending delivery recovery. As before, Windows solo is for local development; supported Linux workers provide reliable task time limits. No workers or Beat were started by the agent. Full broker/worker and live provider verification remain pending. Focused offline tests are in tests/test_phase6.py; read the ledger before repeating successful checks.
-
-## Phase 7 frontend
-
-The React planner now lives in frontend/. From that directory use `npm ci` then `npm run dev`; Vite serves the local planner and proxies /api to Django on port 8000. See [frontend setup](docs/FRONTEND_SETUP.md) for provider-free fixture mode, tests and browser checks. Browser environment variables never contain provider keys.
-
-Phase 7 includes accessible place search, timezone-aware departure validation, cargo/spacing controls, day/night preferences, protected explicit submission and queued-processing feedback. Route comparison/map/timeline remain later phases. Backend services and prior verification were reused unchanged. `npm run build` produces local assets only; no publication/deployment is configured or performed.
-
-
-Phase 8 adds route comparison, a MapLibre map and accessible checkpoint details. See docs/FRONTEND_SETUP.md for optional licensed day/night basemap configuration and offline comparison fixtures. Without configured style URLs, routes/checkpoints render in a clearly labeled geometry-only map. All risk and recommendation decisions come from the backend. Phase 9 adds the corridor timeline and frontend refresh integration.
-
-
-Phase 9 provides cached 0–48-hour wind/rain/snow/combined-risk layers, explicit refresh/stop, active-page polling and owner heartbeats. Timeline interaction makes no provider request and does not alter checkpoint ETA assessments. Use the labeled fixture mode for UI review; normal viewed-trip heartbeats enable the backend's existing scheduling policy. See docs/FRONTEND_SETUP.md and docs/VERIFICATION_LOG.md for behavior, targeted checks and pending live integration evidence.
+Read [architecture](docs/ARCHITECTURE.md), [risk rules](docs/RISK_RULES.md), [API contract](docs/API_CONTRACT.md), [decisions](docs/DECISIONS.md), [source attribution](docs/ATTRIBUTION.md) and the [eight-minute walkthrough](docs/WALKTHROUGH.md). Browser dependency notices ship at /THIRD_PARTY_NOTICES.txt. This is planning while stopped, not certified navigation/dispatch. Sampling, forecasts and arrival times have limitations; targeted accessibility checks do not certify WCAG compliance.

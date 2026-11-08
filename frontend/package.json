@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "tsc --noEmit && vite build",
-    "test": "vitest run"
+    "build": "npm run notices:check && tsc --noEmit && vite build",
+    "test": "vitest run",
+    "notices": "node scripts/generate-notices.mjs",
+    "notices:check": "node scripts/generate-notices.mjs --check"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.0",
