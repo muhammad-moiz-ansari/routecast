@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
       rollupOptions: {
         output: {
           manualChunks(id) {
+            if (id.includes("/maplibre-gl/")) return "map-engine";
             if (id.includes("@js-temporal") || id.includes("jsbi"))
               return "temporal";
             if (id.includes("/zod/")) return "validation";

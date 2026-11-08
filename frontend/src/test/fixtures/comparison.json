@@ -1,0 +1,1464 @@
+{
+  "trip_id": "preview-trip",
+  "input_revision": 1,
+  "analysis_id": "preview-analysis",
+  "analysis_version": 1,
+  "analysis_revision": 1,
+  "status": "complete",
+  "stage": "complete",
+  "stopped": false,
+  "error_code": null,
+  "completed_at": "2026-11-08T20:00:00Z",
+  "routing_stale": false,
+  "weather_stale": false,
+  "retained_previous": false,
+  "data": {
+    "inputs": {
+      "origin": {
+        "latitude": 30.0,
+        "longitude": 70.0
+      },
+      "destination": {
+        "latitude": 31.0,
+        "longitude": 71.0
+      },
+      "departure_at": "2026-11-09T08:00:00Z",
+      "timezone": "Asia/Karachi",
+      "cargo_load_lb": 42000.0,
+      "checkpoint_spacing_miles": 25
+    },
+    "routes": {
+      "provider": "tomtom",
+      "fetched_at": "2026-11-08T20:00:00Z",
+      "analysis_version": 1,
+      "available_route_count": 3,
+      "routes": [
+        {
+          "id": "A",
+          "label": "Route A",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                70.0,
+                30.0
+              ],
+              [
+                70.3,
+                30.3
+              ],
+              [
+                70.6,
+                30.7
+              ],
+              [
+                71.0,
+                31.0
+              ]
+            ]
+          },
+          "distance_meters": 160934.4,
+          "duration_seconds": 10800.0,
+          "arrival_at": "2026-11-09T11:00:00Z",
+          "timing_points": [],
+          "timing_notice": "ETA uses proportional distance; driving conditions may vary."
+        },
+        {
+          "id": "B",
+          "label": "Route B",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                70.0,
+                30.0
+              ],
+              [
+                70.44,
+                30.3
+              ],
+              [
+                70.72,
+                30.7
+              ],
+              [
+                71.0,
+                31.0
+              ]
+            ]
+          },
+          "distance_meters": 177027.84,
+          "duration_seconds": 14400.0,
+          "arrival_at": "2026-11-09T12:00:00Z",
+          "timing_points": [],
+          "timing_notice": "ETA uses proportional distance; driving conditions may vary."
+        },
+        {
+          "id": "C",
+          "label": "Route C",
+          "geometry": {
+            "type": "LineString",
+            "coordinates": [
+              [
+                70.0,
+                30.0
+              ],
+              [
+                70.58,
+                30.3
+              ],
+              [
+                70.83999999999999,
+                30.7
+              ],
+              [
+                71.0,
+                31.0
+              ]
+            ]
+          },
+          "distance_meters": 193121.28,
+          "duration_seconds": 18000.0,
+          "arrival_at": "2026-11-09T13:00:00Z",
+          "timing_points": [],
+          "timing_notice": "ETA uses proportional distance; driving conditions may vary."
+        }
+      ],
+      "notices": [
+        "Synthetic assessment for interface verification; not live weather."
+      ]
+    },
+    "checkpoints": {
+      "A": {
+        "route_id": "A",
+        "analysis_version": 1,
+        "spacing_miles": 25,
+        "route_distance_meters": 160934.4,
+        "polyline_length_meters": 147761.13921997818,
+        "distance_method": "provider_distance_scaled_polyline",
+        "eta_method": "proportional_distance",
+        "timing_notice": "ETA uses proportional distance; driving conditions may vary.",
+        "checkpoints": [
+          {
+            "id": "A-0000",
+            "coordinate": {
+              "latitude": 30.0,
+              "longitude": 70.0
+            },
+            "distance_meters": 0.0,
+            "distance_miles": 0.0,
+            "cumulative_travel_seconds": 0.0,
+            "arrival_at": "2026-11-09T08:00:00Z"
+          },
+          {
+            "id": "A-0001",
+            "coordinate": {
+              "latitude": 30.25133813693127,
+              "longitude": 70.25116734352419
+            },
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0,
+            "cumulative_travel_seconds": 2700.0,
+            "arrival_at": "2026-11-09T08:45:00Z"
+          },
+          {
+            "id": "A-0002",
+            "coordinate": {
+              "latitude": 30.525022948257547,
+              "longitude": 70.46840000991651
+            },
+            "distance_meters": 80467.2,
+            "distance_miles": 50.0,
+            "cumulative_travel_seconds": 5400.0,
+            "arrival_at": "2026-11-09T09:30:00Z"
+          },
+          {
+            "id": "A-0003",
+            "coordinate": {
+              "latitude": 30.781556136480464,
+              "longitude": 70.70833251621792
+            },
+            "distance_meters": 120700.79999999999,
+            "distance_miles": 74.99999999999999,
+            "cumulative_travel_seconds": 8099.999999999999,
+            "arrival_at": "2026-11-09T10:15:00Z"
+          },
+          {
+            "id": "A-0004",
+            "coordinate": {
+              "latitude": 31.0,
+              "longitude": 71.0
+            },
+            "distance_meters": 160934.4,
+            "distance_miles": 100.0,
+            "cumulative_travel_seconds": 10800.0,
+            "arrival_at": "2026-11-09T11:00:00Z"
+          }
+        ],
+        "intervals": [
+          {
+            "start_checkpoint_id": "A-0000",
+            "end_checkpoint_id": "A-0001",
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0
+          },
+          {
+            "start_checkpoint_id": "A-0001",
+            "end_checkpoint_id": "A-0002",
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0
+          },
+          {
+            "start_checkpoint_id": "A-0002",
+            "end_checkpoint_id": "A-0003",
+            "distance_meters": 40233.59999999999,
+            "distance_miles": 24.999999999999993
+          },
+          {
+            "start_checkpoint_id": "A-0003",
+            "end_checkpoint_id": "A-0004",
+            "distance_meters": 40233.600000000006,
+            "distance_miles": 25.000000000000004
+          }
+        ]
+      },
+      "B": {
+        "route_id": "B",
+        "analysis_version": 1,
+        "spacing_miles": 25,
+        "route_distance_meters": 177027.84,
+        "polyline_length_meters": 148564.3935636972,
+        "distance_method": "provider_distance_scaled_polyline",
+        "eta_method": "proportional_distance",
+        "timing_notice": "ETA uses proportional distance; driving conditions may vary.",
+        "checkpoints": [
+          {
+            "id": "B-0000",
+            "coordinate": {
+              "latitude": 30.0,
+              "longitude": 70.0
+            },
+            "distance_meters": 0.0,
+            "distance_miles": 0.0,
+            "cumulative_travel_seconds": 0.0,
+            "arrival_at": "2026-11-09T08:00:00Z"
+          },
+          {
+            "id": "B-0001",
+            "coordinate": {
+              "latitude": 30.188184023925714,
+              "longitude": 70.27543803494451
+            },
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0,
+            "cumulative_travel_seconds": 3272.727272727273,
+            "arrival_at": "2026-11-09T08:54:32.727273Z"
+          },
+          {
+            "id": "B-0002",
+            "coordinate": {
+              "latitude": 30.405198920552863,
+              "longitude": 70.51337603424219
+            },
+            "distance_meters": 80467.2,
+            "distance_miles": 50.0,
+            "cumulative_travel_seconds": 6545.454545454546,
+            "arrival_at": "2026-11-09T09:49:05.454545Z"
+          },
+          {
+            "id": "B-0003",
+            "coordinate": {
+              "latitude": 30.665183937276407,
+              "longitude": 70.69552020500468
+            },
+            "distance_meters": 120700.79999999999,
+            "distance_miles": 74.99999999999999,
+            "cumulative_travel_seconds": 9818.181818181816,
+            "arrival_at": "2026-11-09T10:43:38.181818Z"
+          },
+          {
+            "id": "B-0004",
+            "coordinate": {
+              "latitude": 30.905279192539133,
+              "longitude": 70.91134363946661
+            },
+            "distance_meters": 160934.4,
+            "distance_miles": 100.0,
+            "cumulative_travel_seconds": 13090.909090909092,
+            "arrival_at": "2026-11-09T11:38:10.909091Z"
+          },
+          {
+            "id": "B-0005",
+            "coordinate": {
+              "latitude": 31.0,
+              "longitude": 71.0
+            },
+            "distance_meters": 177027.84,
+            "distance_miles": 110.0,
+            "cumulative_travel_seconds": 14400.0,
+            "arrival_at": "2026-11-09T12:00:00Z"
+          }
+        ],
+        "intervals": [
+          {
+            "start_checkpoint_id": "B-0000",
+            "end_checkpoint_id": "B-0001",
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0
+          },
+          {
+            "start_checkpoint_id": "B-0001",
+            "end_checkpoint_id": "B-0002",
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0
+          },
+          {
+            "start_checkpoint_id": "B-0002",
+            "end_checkpoint_id": "B-0003",
+            "distance_meters": 40233.59999999999,
+            "distance_miles": 24.999999999999993
+          },
+          {
+            "start_checkpoint_id": "B-0003",
+            "end_checkpoint_id": "B-0004",
+            "distance_meters": 40233.600000000006,
+            "distance_miles": 25.000000000000004
+          },
+          {
+            "start_checkpoint_id": "B-0004",
+            "end_checkpoint_id": "B-0005",
+            "distance_meters": 16093.440000000002,
+            "distance_miles": 10.000000000000002
+          }
+        ]
+      },
+      "C": {
+        "route_id": "C",
+        "analysis_version": 1,
+        "spacing_miles": 25,
+        "route_distance_meters": 193121.28,
+        "polyline_length_meters": 152651.0484298032,
+        "distance_method": "provider_distance_scaled_polyline",
+        "eta_method": "proportional_distance",
+        "timing_notice": "ETA uses proportional distance; driving conditions may vary.",
+        "checkpoints": [
+          {
+            "id": "C-0000",
+            "coordinate": {
+              "latitude": 30.0,
+              "longitude": 70.0
+            },
+            "distance_meters": 0.0,
+            "distance_miles": 0.0,
+            "cumulative_travel_seconds": 0.0,
+            "arrival_at": "2026-11-09T08:00:00Z"
+          },
+          {
+            "id": "C-0001",
+            "coordinate": {
+              "latitude": 30.147135800544273,
+              "longitude": 70.28340583304487
+            },
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0,
+            "cumulative_travel_seconds": 3750.0,
+            "arrival_at": "2026-11-09T09:02:30Z"
+          },
+          {
+            "id": "C-0002",
+            "coordinate": {
+              "latitude": 30.293660983975695,
+              "longitude": 70.56765653556012
+            },
+            "distance_meters": 80467.2,
+            "distance_miles": 50.0,
+            "cumulative_travel_seconds": 7500.0,
+            "arrival_at": "2026-11-09T10:05:00Z"
+          },
+          {
+            "id": "C-0003",
+            "coordinate": {
+              "latitude": 30.538777719959697,
+              "longitude": 70.73490766056537
+            },
+            "distance_meters": 120700.79999999999,
+            "distance_miles": 74.99999999999999,
+            "cumulative_travel_seconds": 11250.0,
+            "arrival_at": "2026-11-09T11:07:30Z"
+          },
+          {
+            "id": "C-0004",
+            "coordinate": {
+              "latitude": 30.791987213513867,
+              "longitude": 70.88894245588281
+            },
+            "distance_meters": 160934.4,
+            "distance_miles": 100.0,
+            "cumulative_travel_seconds": 15000.0,
+            "arrival_at": "2026-11-09T12:10:00Z"
+          },
+          {
+            "id": "C-0005",
+            "coordinate": {
+              "latitude": 31.0,
+              "longitude": 71.0
+            },
+            "distance_meters": 193121.28,
+            "distance_miles": 120.0,
+            "cumulative_travel_seconds": 18000.0,
+            "arrival_at": "2026-11-09T13:00:00Z"
+          }
+        ],
+        "intervals": [
+          {
+            "start_checkpoint_id": "C-0000",
+            "end_checkpoint_id": "C-0001",
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0
+          },
+          {
+            "start_checkpoint_id": "C-0001",
+            "end_checkpoint_id": "C-0002",
+            "distance_meters": 40233.6,
+            "distance_miles": 25.0
+          },
+          {
+            "start_checkpoint_id": "C-0002",
+            "end_checkpoint_id": "C-0003",
+            "distance_meters": 40233.59999999999,
+            "distance_miles": 24.999999999999993
+          },
+          {
+            "start_checkpoint_id": "C-0003",
+            "end_checkpoint_id": "C-0004",
+            "distance_meters": 40233.600000000006,
+            "distance_miles": 25.000000000000004
+          },
+          {
+            "start_checkpoint_id": "C-0004",
+            "end_checkpoint_id": "C-0005",
+            "distance_meters": 32186.880000000005,
+            "distance_miles": 20.000000000000004
+          }
+        ]
+      }
+    },
+    "weather": {
+      "analysis_versions": {
+        "A": 1,
+        "B": 1,
+        "C": 1
+      },
+      "checkpoints": [
+        {
+          "route_id": "A",
+          "checkpoint_id": "A-0000",
+          "arrival_at": "2026-11-09T08:00:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T07:00:00Z",
+          "interval_end": "2026-11-09T08:00:00Z",
+          "wind_times": [
+            "2026-11-09T08:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "A",
+          "checkpoint_id": "A-0001",
+          "arrival_at": "2026-11-09T08:45:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T08:00:00Z",
+          "interval_end": "2026-11-09T09:00:00Z",
+          "wind_times": [
+            "2026-11-09T08:00:00Z",
+            "2026-11-09T09:00:00Z"
+          ],
+          "wind_mph": 60.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "A",
+          "checkpoint_id": "A-0002",
+          "arrival_at": "2026-11-09T09:30:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T09:00:00Z",
+          "interval_end": "2026-11-09T10:00:00Z",
+          "wind_times": [
+            "2026-11-09T09:00:00Z",
+            "2026-11-09T10:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "A",
+          "checkpoint_id": "A-0003",
+          "arrival_at": "2026-11-09T10:15:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T10:00:00Z",
+          "interval_end": "2026-11-09T11:00:00Z",
+          "wind_times": [
+            "2026-11-09T10:00:00Z",
+            "2026-11-09T11:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "A",
+          "checkpoint_id": "A-0004",
+          "arrival_at": "2026-11-09T11:00:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T10:00:00Z",
+          "interval_end": "2026-11-09T11:00:00Z",
+          "wind_times": [
+            "2026-11-09T11:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "B",
+          "checkpoint_id": "B-0000",
+          "arrival_at": "2026-11-09T08:00:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T07:00:00Z",
+          "interval_end": "2026-11-09T08:00:00Z",
+          "wind_times": [
+            "2026-11-09T08:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "B",
+          "checkpoint_id": "B-0001",
+          "arrival_at": "2026-11-09T08:54:32.727273Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T08:00:00Z",
+          "interval_end": "2026-11-09T09:00:00Z",
+          "wind_times": [
+            "2026-11-09T08:00:00Z",
+            "2026-11-09T09:00:00Z"
+          ],
+          "wind_mph": 37.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "B",
+          "checkpoint_id": "B-0002",
+          "arrival_at": "2026-11-09T09:49:05.454545Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T09:00:00Z",
+          "interval_end": "2026-11-09T10:00:00Z",
+          "wind_times": [
+            "2026-11-09T09:00:00Z",
+            "2026-11-09T10:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "B",
+          "checkpoint_id": "B-0003",
+          "arrival_at": "2026-11-09T10:43:38.181818Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T10:00:00Z",
+          "interval_end": "2026-11-09T11:00:00Z",
+          "wind_times": [
+            "2026-11-09T10:00:00Z",
+            "2026-11-09T11:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "B",
+          "checkpoint_id": "B-0004",
+          "arrival_at": "2026-11-09T11:38:10.909091Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T11:00:00Z",
+          "interval_end": "2026-11-09T12:00:00Z",
+          "wind_times": [
+            "2026-11-09T11:00:00Z",
+            "2026-11-09T12:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "B",
+          "checkpoint_id": "B-0005",
+          "arrival_at": "2026-11-09T12:00:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T11:00:00Z",
+          "interval_end": "2026-11-09T12:00:00Z",
+          "wind_times": [
+            "2026-11-09T12:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "C",
+          "checkpoint_id": "C-0000",
+          "arrival_at": "2026-11-09T08:00:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T07:00:00Z",
+          "interval_end": "2026-11-09T08:00:00Z",
+          "wind_times": [
+            "2026-11-09T08:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "C",
+          "checkpoint_id": "C-0001",
+          "arrival_at": "2026-11-09T09:02:30Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T09:00:00Z",
+          "interval_end": "2026-11-09T10:00:00Z",
+          "wind_times": [
+            "2026-11-09T09:00:00Z",
+            "2026-11-09T10:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "C",
+          "checkpoint_id": "C-0002",
+          "arrival_at": "2026-11-09T10:05:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T10:00:00Z",
+          "interval_end": "2026-11-09T11:00:00Z",
+          "wind_times": [
+            "2026-11-09T10:00:00Z",
+            "2026-11-09T11:00:00Z"
+          ],
+          "wind_mph": null,
+          "rain_inches_per_hour": null,
+          "snow_inches_per_hour": null,
+          "coverage": "incomplete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "C",
+          "checkpoint_id": "C-0003",
+          "arrival_at": "2026-11-09T11:07:30Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T11:00:00Z",
+          "interval_end": "2026-11-09T12:00:00Z",
+          "wind_times": [
+            "2026-11-09T11:00:00Z",
+            "2026-11-09T12:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "C",
+          "checkpoint_id": "C-0004",
+          "arrival_at": "2026-11-09T12:10:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T12:00:00Z",
+          "interval_end": "2026-11-09T13:00:00Z",
+          "wind_times": [
+            "2026-11-09T12:00:00Z",
+            "2026-11-09T13:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        },
+        {
+          "route_id": "C",
+          "checkpoint_id": "C-0005",
+          "arrival_at": "2026-11-09T13:00:00Z",
+          "fetched_at": "2026-11-08T20:00:00Z",
+          "interval_start": "2026-11-09T12:00:00Z",
+          "interval_end": "2026-11-09T13:00:00Z",
+          "wind_times": [
+            "2026-11-09T13:00:00Z"
+          ],
+          "wind_mph": 18.0,
+          "rain_inches_per_hour": 0.0,
+          "snow_inches_per_hour": 0.0,
+          "coverage": "complete",
+          "freshness": "fresh"
+        }
+      ],
+      "provider_requests": 0,
+      "unique_locations_requested": 0,
+      "estimated_usage_units": 0
+    },
+    "recommendation": {
+      "stale": false,
+      "retained_previous": false,
+      "previous_recommended_route_id": null,
+      "state": "RECOMMENDED",
+      "analysis_version": 1,
+      "rules_version": "2026-11-08.v1",
+      "recommended_route_id": "B",
+      "ranked_route_ids": [
+        "B"
+      ],
+      "routes": [
+        {
+          "route_id": "A",
+          "analysis_version": 1,
+          "rules_version": "2026-11-08.v1",
+          "duration_seconds": 10800.0,
+          "total_miles": 100.0,
+          "checkpoints": [
+            {
+              "checkpoint_id": "A-0000",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "A-0001",
+              "category": "no_travel",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_no_travel",
+                  "observed_value": 60.0,
+                  "threshold": ">= 55",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 60.0 meets >= 55: no_travel."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "A-0002",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "A-0003",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "A-0004",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            }
+          ],
+          "intervals": [
+            {
+              "start_checkpoint_id": "A-0000",
+              "end_checkpoint_id": "A-0001",
+              "distance_miles": 25.0,
+              "category": "no_travel",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "A-0001",
+              "end_checkpoint_id": "A-0002",
+              "distance_miles": 25.0,
+              "category": "no_travel",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "A-0002",
+              "end_checkpoint_id": "A-0003",
+              "distance_miles": 24.999999999999993,
+              "category": "low",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "A-0003",
+              "end_checkpoint_id": "A-0004",
+              "distance_miles": 25.000000000000004,
+              "category": "low",
+              "coverage_complete": true
+            }
+          ],
+          "miles_by_category": {
+            "low": 50.0,
+            "moderate": 0.0,
+            "high": 0.0,
+            "severe": 0.0,
+            "no_travel": 50.0,
+            "unknown": 0.0
+          },
+          "unassessed_miles": 0.0,
+          "average_risk": null,
+          "eligible": false,
+          "eligibility_reasons": [
+            "no_travel"
+          ]
+        },
+        {
+          "route_id": "B",
+          "analysis_version": 1,
+          "rules_version": "2026-11-08.v1",
+          "duration_seconds": 14400.0,
+          "total_miles": 110.0,
+          "checkpoints": [
+            {
+              "checkpoint_id": "B-0000",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "B-0001",
+              "category": "severe",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_high",
+                  "observed_value": 37.0,
+                  "threshold": ">= 35 and < 45",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 37.0 meets >= 35 and < 45: high."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                },
+                {
+                  "code": "wind_load_severe",
+                  "observed_value": 37.0,
+                  "threshold": "35 <= wind < 45; cargo > 40000",
+                  "units": "mph",
+                  "cargo_load_lb": 42000.0,
+                  "message": "Cargo load override: 35 <= wind < 45; cargo > 40000 -> severe."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "B-0002",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "B-0003",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "B-0004",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "B-0005",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            }
+          ],
+          "intervals": [
+            {
+              "start_checkpoint_id": "B-0000",
+              "end_checkpoint_id": "B-0001",
+              "distance_miles": 25.0,
+              "category": "severe",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "B-0001",
+              "end_checkpoint_id": "B-0002",
+              "distance_miles": 25.0,
+              "category": "severe",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "B-0002",
+              "end_checkpoint_id": "B-0003",
+              "distance_miles": 24.999999999999993,
+              "category": "low",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "B-0003",
+              "end_checkpoint_id": "B-0004",
+              "distance_miles": 25.000000000000004,
+              "category": "low",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "B-0004",
+              "end_checkpoint_id": "B-0005",
+              "distance_miles": 10.000000000000002,
+              "category": "low",
+              "coverage_complete": true
+            }
+          ],
+          "miles_by_category": {
+            "low": 60.0,
+            "moderate": 0.0,
+            "high": 0.0,
+            "severe": 50.0,
+            "no_travel": 0.0,
+            "unknown": 0.0
+          },
+          "unassessed_miles": 0.0,
+          "average_risk": 1.3636363636363635,
+          "eligible": true,
+          "eligibility_reasons": []
+        },
+        {
+          "route_id": "C",
+          "analysis_version": 1,
+          "rules_version": "2026-11-08.v1",
+          "duration_seconds": 18000.0,
+          "total_miles": 120.0,
+          "checkpoints": [
+            {
+              "checkpoint_id": "C-0000",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "C-0001",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "C-0002",
+              "category": "unknown",
+              "coverage_complete": false,
+              "fresh": true,
+              "reasons": []
+            },
+            {
+              "checkpoint_id": "C-0003",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "C-0004",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            },
+            {
+              "checkpoint_id": "C-0005",
+              "category": "low",
+              "coverage_complete": true,
+              "fresh": true,
+              "reasons": [
+                {
+                  "code": "wind_mph_low",
+                  "observed_value": 18.0,
+                  "threshold": "< 25",
+                  "units": "mph",
+                  "cargo_load_lb": null,
+                  "message": "wind_mph 18.0 meets < 25: low."
+                },
+                {
+                  "code": "rain_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.1",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "rain_inches_per_hour 0.0 meets < 0.1: low."
+                },
+                {
+                  "code": "snow_inches_per_hour_low",
+                  "observed_value": 0.0,
+                  "threshold": "< 0.5",
+                  "units": "in/hour",
+                  "cargo_load_lb": null,
+                  "message": "snow_inches_per_hour 0.0 meets < 0.5: low."
+                }
+              ]
+            }
+          ],
+          "intervals": [
+            {
+              "start_checkpoint_id": "C-0000",
+              "end_checkpoint_id": "C-0001",
+              "distance_miles": 25.0,
+              "category": "low",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "C-0001",
+              "end_checkpoint_id": "C-0002",
+              "distance_miles": 25.0,
+              "category": "unknown",
+              "coverage_complete": false
+            },
+            {
+              "start_checkpoint_id": "C-0002",
+              "end_checkpoint_id": "C-0003",
+              "distance_miles": 24.999999999999993,
+              "category": "unknown",
+              "coverage_complete": false
+            },
+            {
+              "start_checkpoint_id": "C-0003",
+              "end_checkpoint_id": "C-0004",
+              "distance_miles": 25.000000000000004,
+              "category": "low",
+              "coverage_complete": true
+            },
+            {
+              "start_checkpoint_id": "C-0004",
+              "end_checkpoint_id": "C-0005",
+              "distance_miles": 20.000000000000004,
+              "category": "low",
+              "coverage_complete": true
+            }
+          ],
+          "miles_by_category": {
+            "low": 70.0,
+            "moderate": 0.0,
+            "high": 0.0,
+            "severe": 0.0,
+            "no_travel": 0.0,
+            "unknown": 49.99999999999999
+          },
+          "unassessed_miles": 49.99999999999999,
+          "average_risk": null,
+          "eligible": false,
+          "eligibility_reasons": [
+            "incomplete_forecast"
+          ]
+        }
+      ],
+      "explanation": {
+        "code": "only_eligible_route",
+        "message": "Only one route is fully assessed and eligible under the supplied rules."
+      },
+      "notices": [
+        "Some alternatives are unassessed or stale; comparison covers fully assessed eligible routes only."
+      ]
+    },
+    "routing_fetched_at": "2026-11-08T20:00:00+00:00",
+    "weather_fetched_at": "2026-11-08T20:00:00+00:00"
+  },
+  "retry_after_seconds": null
+}

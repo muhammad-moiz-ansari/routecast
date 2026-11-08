@@ -1,26 +1,26 @@
 # Progress
 
-Current phase: **Phase 7 complete — frontend foundation and trip planner.**
-Completed implementation phases: 0–7. Next phase: 8, only upon explicit user request.
+Current phase: **Phase 8 complete — route comparison and interactive map.**
+Completed implementation phases: 0–8. Next phase: 9, only upon explicit user request.
 
 ## Implementation
 
-Created React/TypeScript/Vite frontend with bounded dependencies and package-lock.json; React Router, TanStack Query, React Hook Form/Zod, Temporal, Radix Dialog and Lucide. Graphite header, warm workspace, blue actions, system/day/night preferences, persistent theme, CSS tokens and responsive planner follow the companion design. System sans avoids remote font requests.
+Added MapLibre GL JS and exact package-lock resolutions; geographic rendering and pure geometry helpers live under features/map, comparison/details under features/route-comparison. Typed frozen backend snapshot contracts cover route/checkpoint/weather/risk/recommendation data. No risk scoring or ranking moved into React. Working geometry can appear while weather is pending through one read-only routes query per candidate; frozen completed data takes precedence.
 
-Trip form provides labeled explicit-select autocomplete with debounce/cancellation, keyboard Up/Down/Enter/Escape, empty/loading/error states, swap, local date/time plus IANA zone, cargo pounds and default 25-mile segmented 10/25/50 radios. Time conversion rejects DST ambiguity/gaps rather than shifting departure. Client validation and server field messages retain entered values and focus the error summary.
+Route rows show identity, distance/duration/arrival timezone, Severe/High miles, labeled risk distributions, coverage, notices, eligibility and backend recommendation explanation. Current recommendation is withheld on stale/retained/revised/offline views; historical data remains inspectable. Inspection is independent of recommendation and survives updates; a disappeared ID is explained. Blocked routes remain inspectable and are never made eligible by selecting them.
 
-Typed API client shares anonymous session bootstrap, sends same-origin cookies/CSRF, and never creates trips from mount effects. Submission is guarded against duplicates and retries; accepted inputs stay visible until explicit Plan another trip. Queued stage feedback reads backend status without invented percentages. Basic visible-only status polling stops on terminal status/errors; full refresh/heartbeat/version synchronization remains Phase 9 scope.
+Map renders available geometries with stable A/B/C identity labels, selection casing, blocked/unassessed dash treatment, selected-route checkpoint risk symbols, clustering, large hit targets and explicit Fit routes. Initial fit only; selection/updates/theme changes preserve camera. Licensed day/night style URLs are configurable with source attribution, but no default provider is silently contacted. Missing configuration uses a clearly labeled geometry-only background. Fixtures always force the local style. Map failure leaves the textual route/checkpoint alternative usable.
 
-Opt-in development fixture mode is always labeled synthetic, contacts no backend/providers, and is forbidden in production builds. Normal bundles exclude fixture data. Backend implementation/configuration remains unchanged.
+Checkpoint table/details show ETA, timezone, distance, matched forecast intervals/wind sample times, units, cargo/load rules, fetch time/freshness and missing-data warnings. Escape, visible close controls and focus return are supported. Mobile Planner/Routes/Map navigation keeps state mounted; tables stack on mobile/tablet. System/day/night foundation retained.
 
 ## Verification
 
-16 unique new offline UI/schema tests pass across targeted runs. TypeScript/production build and production fixture rejection checks pass. Actual CUA browser review covered desktop/tablet/320px mobile and both themes, keyboard selection/error focus and complete synthetic submission. Implemented contrast pairs meet targeted text/control thresholds. See P7 records in VERIFICATION_LOG.md for fingerprints, retest reasons and resolved failures. No previous backend/provider checks were repeated. Routing/weather API calls: zero.
+11 new unique offline cases pass across targeted runs. Stored fixtures are generated/validated using the existing backend's pure checkpoint/risk/ranking services with no providers/database. Final TypeScript/production build passes; fixture data is excluded. Actual browser review covered mobile 320, tablet 768 and desktop 1280/1440/1600, both themes, selection from list/map, checkpoint details, keyboard/Escape, partial/stale/no-eligible states. Twelve new risk text contrast pairs pass (minimum 6.80:1). No broad prior successful checks repeated; see P8 verification records for failures resolved and retest reasons. Provider and basemap API/asset calls: zero. Temporary viewport reset and preview stopped.
 
 ## Limitations
 
-Phase 7 supplies planning and processing feedback only. Route comparison, map/checkpoint inspection and corridor timeline belong to Phases 8/9; no fake live results shown. Direct trip URLs show processing status, but page-reload draft restoration and full heartbeat/refresh lifecycle remain future work. Backend POST still lacks idempotency; uncertain network outcomes require care before explicit resubmission.
+No hosted basemap is chosen/configured or live-verified; optional public day/night style URLs and their license/attribution must be supplied for geographic street context. Geometry-only mode remains usable. MapLibre's lazy engine chunk emits the >500k build advisory; existing Zod annotation notices remain nonfatal.
 
-Real frontend/backend/worker/provider end-to-end integration, live provider evidence, manual screen-reader/device/enlarged-text tests remain pending. Targeted contrast/keyboard checks do not certify WCAG compliance. Temporary fixture preview was stopped. No real environment/credentials, worker processes or backend data changed.
+Real frontend/backend/worker/provider E2E, manual screen-reader/device/enlarged-text/zoom review and full WCAG conformance remain unverified. Prior live provider/worker limitations remain pending. Corridor timeline, heartbeat/refresh/version synchronization and full reload restoration are Phase 9 work; not implemented here. Backend still has no creation idempotency key. No real environment/credentials or backend implementation/data changed.
 
-Stopped after Phase 7. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 8 request.
+Stopped after Phase 8. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 9 request.

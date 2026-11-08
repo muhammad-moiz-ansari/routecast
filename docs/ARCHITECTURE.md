@@ -65,3 +65,10 @@ frontend/src/app owns router/providers/shell; src/api contains typed backend con
 A shared session-bootstrap promise prevents parallel place searches from racing anonymous ownership. Requests use same-origin cookies; unsafe writes include CSRF headers. Trips are created only by form submission; synchronous and submitted-state guards prevent duplicate POSTs, retries are disabled, and navigation preserves the mounted planner. Search cancels obsolete requests, requires explicit selection and retains visible field errors. Temporal disambiguation=reject avoids silently moving a departure through DST gaps/overlaps.
 
 Development fixtures are explicitly gated by DEV and an opt-in flag; production builds reject the flag and tree-shake the fixture module. UI review never starts a backend/provider workflow. Phase 8/9 visualization/lifecycle features and complete API response shapes will be added as needed rather than unused scaffolding now.
+
+
+## Phase 8 frontend projections
+
+api/contracts.ts now types the frozen planning snapshot using the existing Python model fields. route-comparison/components renders backend route/risk/forecast projections; presentation.ts only formats units/time and gates current claims by server freshness/revision/eligibility flags. It never computes authoritative risk or ranks routes. MapLibre rendering lives in features/map/components with pure GeoJSON/bounds helpers in features/map/utils. Browser state owns only the inspected route/checkpoint and mobile view. The comparison is keyed by trip, not analysis version; updates do not remount the map or silently follow a changed recommendation. Route sources are updated in place, initial fit is guarded, theme styles rebuild layers without camera fitting, and hidden panels resize through ResizeObserver.
+
+The basic Phase 7 status query feeds frozen results. A separate owner-scoped read-only routes query exposes working geometry while initial weather is pending; completed snapshots take precedence atomically. No additional weather fetch, live provider call, refresh/heartbeat orchestration or corridor timeline is introduced. All backend source/settings remain unchanged.

@@ -46,3 +46,13 @@
 - Vite dev proxy preserves original Host for same-origin Django CSRF validation. Backend authentication/configuration remains unchanged.
 - Keep planner mounted across root/trip URLs, lock accepted submission until explicit Plan another trip, never POST from effects or automatically retry. Only color-theme preference persists; location drafts are not stored beyond page lifetime.
 - Opt-in dev fixture mode is persistently labeled and rejected for production builds; normal production bundles exclude synthetic fixtures. Map/risk comparison/timeline deferred to Phases 8/9.
+
+
+## Phase 8
+
+- Keep risk ranking/interval mileage in backend projections. Inspection never overrides recommendation eligibility.
+- Gate current recommendation by outer stale/retained/revision flags and owner-browser online status; keep historical details visible.
+- Configurable licensed day/night MapLibre style URLs, with no unsolicited tile-provider default. Local geometry-only rendering is explicit; fixture mode cannot request basemap assets.
+- Keep route identity independent from risk with local A/B/C label bitmaps, selection halo, dash patterns and checkpoint letters/icons. Text comparison/table carry equivalent essential data.
+- Initial or explicit camera fit only; refreshes/selection/theme changes preserve the camera. Stable IDs retain inspection independently from new recommendations.
+- Pure backend services generate stored synthetic comparison fixtures; no live-provider verification is necessary for Phase 8 visuals.

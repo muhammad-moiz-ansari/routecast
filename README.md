@@ -105,3 +105,6 @@ Use the existing single Beat scheduler for bounded pending delivery recovery. As
 The React planner now lives in frontend/. From that directory use `npm ci` then `npm run dev`; Vite serves the local planner and proxies /api to Django on port 8000. See [frontend setup](docs/FRONTEND_SETUP.md) for provider-free fixture mode, tests and browser checks. Browser environment variables never contain provider keys.
 
 Phase 7 includes accessible place search, timezone-aware departure validation, cargo/spacing controls, day/night preferences, protected explicit submission and queued-processing feedback. Route comparison/map/timeline remain later phases. Backend services and prior verification were reused unchanged. `npm run build` produces local assets only; no publication/deployment is configured or performed.
+
+
+Phase 8 adds route comparison, a MapLibre map and accessible checkpoint details. See docs/FRONTEND_SETUP.md for optional licensed day/night basemap configuration and offline comparison fixtures. Without configured style URLs, routes/checkpoints render in a clearly labeled geometry-only map. All risk and recommendation decisions come from the backend. Corridor timeline and full frontend refresh integration remain Phase 9.

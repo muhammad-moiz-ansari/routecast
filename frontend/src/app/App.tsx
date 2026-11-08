@@ -20,8 +20,9 @@ import {
 } from "../features/trip-planner/schemas";
 import { PlaceSearch } from "../features/trip-planner/components/PlaceSearch";
 import { departureInstant, systemZone } from "../utils/time";
-import { createTrip, readAnalysis } from "../api/trips";
+import { createTrip, readAnalysis, readRoutes } from "../api/trips";
 import { ApiError, fixtureMode } from "../api/client";
+import { RouteComparison } from "../features/route-comparison/components/RouteComparison";
 const stages = [
   "queued",
   "routing",
@@ -96,6 +97,16 @@ export function App() {
       )
         ? 15000
         : false,
+  });
+  const pendingRoutes = useQuery({
+    queryKey: ["pending-routes", id, analysis.data?.analysis_id],
+    queryFn: ({ signal }) => readRoutes(id!, signal),
+    enabled:
+      !!id &&
+      visible &&
+      !!analysis.data &&
+      !analysis.data.data &&
+      ["checkpoints", "weather", "assessing"].includes(analysis.data.stage),
   });
   async function submit(v: PlannerValues) {
     if (sending.current) return;
@@ -413,7 +424,13 @@ export function App() {
           </form>
         </section>
         <section className="result-workspace" aria-labelledby="workspace-title">
-          <div className="workspace-heading">
+          <div
+            className={
+              status?.data || pendingRoutes.data
+                ? "workspace-heading sr-only"
+                : "workspace-heading"
+            }
+          >
             <div>
               <span className="eyebrow">Weather-aware routing</span>
               <h2 id="workspace-title">A clearer view of the road ahead.</h2>
@@ -422,7 +439,13 @@ export function App() {
               <Clock3 size={15} /> Trip planning
             </span>
           </div>
-          {id ? (
+          {id && status && (status.data || pendingRoutes.data) ? (
+            <RouteComparison
+              key={id}
+              analysis={status}
+              pendingRoutes={pendingRoutes.data}
+            />
+          ) : id ? (
             <div className="processing" aria-live="polite">
               <div className="workspace-icon">
                 <Route size={34} />
