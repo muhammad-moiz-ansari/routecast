@@ -91,3 +91,21 @@ Code/fixture fingerprint `189f76c49aaffb4e49968ab9fc4386fbb30cbfa3d3553ed2db7245
 Totals: 18 new Phase 3 cases plus 2 affected existing cases passed across two targeted executions. Existing pytest socket blocking remained enabled; HTTPX MockTransport fixtures supplied synthetic provider arrays. Successful unrelated Phase 0–2 tests and PostgreSQL migration evidence were reused. No migrations, infrastructure restarts, package installation or prior provider checks repeated. No Git mutation, frontend, publishing or deployment.
 
 Known limits: provider-backed runtime/cache freshness is implemented but live provider validation remains pending. Fixed public endpoint, per-process concurrency and daily shared usage counters do not implement distributed coalescing or enforce provider quotas. Retained stale cache survives failed prefetch and is available via GET; no background retry/job is started.
+
+
+## Phase 4 — 2026-11-08
+
+Code/fixture fingerprint `3d2d3ce2b3d15297ad035076a8468ada2a9d0d6fdfffff39b49a8ed8f2b34d2a`: SHA-256 of sorted backend Python/JSON path + LF + bytes + LF, excluding .venv and __pycache__. Rules version 2026-11-08.v1. Dependencies, lockfile, environment, provider adapters and ORM/migrations unchanged. External provider requests **0**, locations **0**, estimated usage units **0**.
+
+| Check ID | Behavior | Mode/result | Evidence | Retest trigger |
+| --- | --- | --- | --- | --- |
+| P4-RULES | Weather/load boundaries and combination | Offline/PASS | Each of 12 weather boundaries checked immediately below/at/above with nextafter; strict 30k/40k cargo limits, exact rain=1/snow=3, wind >=55, known hazards with missing values, Unknown, stale coverage and invalid NaN tested. | Rule constants/classification/input changes |
+| P4-MILEAGE | Conservative endpoint assignment, partial intervals, weighted average | Offline/PASS | Actual 63-mile route intervals 25/25/13 yield Moderate 25 and High 38 miles; average (25+38×2)/63; total reconciles. Unknown/incomplete routes have null average and explicit unassessed miles. | Interval aggregation or checkpoint contract changes |
+| P4-RANK | Eligibility, lexicographic order and explanations | Offline/PASS | Slower route wins on Severe miles; remaining High/average/time priorities; stable ID tie-break; sub-display-precision values not rounded. All blocked/empty/stale/incomplete cases and eligible-plus-unassessed notice covered. | Eligibility, ranking or explanation changes |
+| P4-API | Owner enforcement, provider-free projection and unchanged snapshots | Offline/PASS | Missing/foreign sessions rejected; missing cached weather returns INCOMPLETE_DATA; repeated reads deterministic; provider methods fail if invoked. Complete cached-data case recommends A and confirms snapshot/status unchanged. Pending/failed routing, analysis mismatch rejection and wrong-ETA weather exclusion also tested. | API/service/composition/cache contracts change |
+| P4-FOUNDATION | Import/docs/configuration regression | Offline/PASS | Two existing relevant foundation tests pass with sockets blocked; expanded OpenAPI present; Django check has no issues. | API imports/registration/settings change |
+| P4-LINT | New/changed source style | Offline/PASS | Formatting/import cleanup and targeted Ruff check pass; initial long string fixed. | Source changes |
+
+Execution: initial targeted run **37 passed, 20 deselected** (35 new Phase 4 cases + 2 affected foundation cases). Two additional tests ran: pending/version case passed; complete-cache integration initially failed due to missing imports in the test itself. Imports corrected, only that failed test rerun, **1 passed**. All **37 unique new cases + 2 foundation cases** now pass. No previously successful cases repeated. Existing pytest-socket blocks external requests throughout; synthetic/mock data only.
+
+Reused unaffected Phase 0–3 verification for units/time, routing/geometry, forecasting/unit normalization/matching, usage accounting, migrations, Redis and provider adapters. No live provider, infrastructure or dependency setup checks repeated. Existing live provider evidence remains pending; this pure rules/ranking phase requires no new live evidence. No migration, frontend, background job, Git mutation, publishing or deployment.

@@ -55,3 +55,11 @@ def get_weather_service():
     return WeatherService(
         OpenMeteoClient(), ForecastCache(cache), lambda n: record_weather_usage(cache, n)
     )
+
+
+def get_recommendation_service():
+    """Compose cached weather, checkpoint and risk interfaces; constructing them performs no I/O."""
+    from services.recommendation.recommendation_service import RecommendationService
+    from services.risk.risk_service import RiskService
+
+    return RecommendationService(get_checkpoint_service(), get_weather_service(), RiskService())

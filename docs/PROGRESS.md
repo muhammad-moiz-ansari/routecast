@@ -1,38 +1,30 @@
 # Progress
 
-Current phase: **Phase 3 complete — weather integration, prefetch and matching.**
-Completed implementation phases: 0, 1, 2 and 3. Next phase: 4, only upon explicit user request.
+Current phase: **Phase 4 complete — risk rules and route recommendation.**
+Completed implementation phases: 0–4. Next phase: 5, only upon explicit user request.
 
-## Current implementation
+## Implemented behavior
 
-Existing owner-scoped trips, location search, truck route snapshots and idle infrastructure remain in place. Phase 2 adds CheckpointRepo/CheckpointService/Pydantic models, full-polyline sampling at saved 10/25/50-mile spacing, origin/destination inclusion, final partial intervals, route-specific stable checkpoint IDs and cumulative ETA calculation. No checkpoint ORM scaffold, migration, dependency or environment change was needed.
+Existing owner-scoped trips, stored routing snapshots, checkpoint geometry/ETAs and cached forecast matching remain in place. Phase 4 adds RiskRepo/Service and RecommendationRepo/Service with typed Pydantic contracts and explicit constructor composition. Versioned config/risk_rules.py defines the exact weather thresholds and cargo boundaries.
 
-The existing routing call now asks for coded maneuver timing. Valid provider offsets/elapsed times are normalized to route totals and interpolated by span. Missing or inconsistent timings use explicit proportional_distance fallback. Old route snapshot JSON without timing remains readable without re-fetch/backfill. Checkpoint projection uses owned stored route geometry/timing only and never calls providers.
+Checkpoint risks carry structured rule codes, observed normalized values, thresholds, units, cargo where relevant and explanations. Missing coverage preserves known hazards but never yields a fully assessed Low claim. Actual conservative endpoint interval mileage reconciles with route distance; weighted averages are computed only for fully assessed fresh routes without No Travel. Ineligible routes have null averages and separate eligibility reasons. Unknown has no numeric score.
+
+Ranking uses unrounded Severe miles, High miles, weighted average, duration and stable ID. Results support RECOMMENDED, NO_ELIGIBLE_ROUTE, INCOMPLETE_DATA and PENDING; explanations distinguish the winning metric and notices disclose unavailable alternatives. All alternatives stay inspectable. No selected route or stored route snapshot is modified.
 
 ## API changes
 
-Added GET /api/v1/trips/{id}/checkpoints/?route_id=A. Requires owner session; saved trip spacing applies. Returns route/analysis identifiers, checkpoint coordinates/distances/UTC arrival times, actual interval lengths, eta_method, timing_notice and distance-method metadata. Optional normalized timing_points/timing_notice are added to route snapshots. See API_CONTRACT.md.
+Added GET /api/v1/trips/{id}/recommendation/, owner-scoped and cached-data only. Response includes analysis/rules versions, recommended/eligible ranked IDs, every route's risk summary, explanations and notices. No provider requests or refresh side effects. See API_CONTRACT.md and RISK_RULES.md.
 
 ## Verification
 
-P2-CHECKPOINTS through P2-LINT in VERIFICATION_LOG.md: 44 tests passed once (35 new, 9 affected regressions), 39 unrelated cases deselected. Django check and targeted lint passed. Coverage includes short/exact/partial spacing cases, route-specific geometry, repeated vertices/dateline, interval reconciliation, monotonic distance/time, exact destination duration, provider interpolation/fallback, schema/interface checks, old snapshots, ownership, OpenAPI and provider-free repeated reads. No failed checks remain.
+37 new offline Phase 4 cases and 2 affected foundation cases pass across targeted executions; Django configuration and targeted lint pass. Tests cover all thresholds, exact load limits, missing/stale data, No Travel, mileage/averages, eligibility, each ranking priority, rounding independence, state/version handling, ownership, OpenAPI, no provider calls and unchanged snapshots. A new integration test's missing imports were fixed; only its failed check was repeated. See P4 records in VERIFICATION_LOG.md for commands/results/fingerprint.
 
-Dependencies/lockfile and ORM/migrations unchanged; prior PostgreSQL migration, provider-error, unit/time and readiness evidence reused. No external provider calls: 0 requests, 0 locations, 0 estimated usage units. Public guidance docs consulted only. Existing user-reported Phase 0 Docker setup and independently observed Phase 1 PostgreSQL migration evidence remain recorded without repeating those checks.
+No ORM/migrations, dependencies or environment changes; successful unaffected Phase 0–3 evidence reused. External provider calls: zero. No live verification needed for deterministic rule logic; earlier provider live evidence remains pending.
 
-## Limitations and pending live evidence
+## Limitations
 
-Provider search/routing/maneuver timing remains unverified live. Guidance is optional; proportional fallback is honest and not traffic-precise. Arrival times remain estimates based on planned departure and supplied route duration, without GPS tracking.
+Assessments are current-cache read projections; durable atomic assessed snapshot publication, retained completed analyses and background refresh consistency belong to Phase 5. Cache expiry/content can change a recommendation between reads. Known provider, geometry approximation, forecast horizon/freshness and anonymous-session limitations remain. No navigation/safety guarantee is made.
 
-Placement uses mean-radius spherical full-polyline chainage scaled to provider road distance so offsets, spacing and interval totals agree. This is an exposed approximation, not an ellipsoidal survey or evidence of conditions between checkpoints. Degenerate geometry, ambiguous antipodal interpolation, arrival overflow and more than 10,000 intervals fail explicitly. Checkpoints are deterministic read projections; assessed checkpoint snapshot persistence belongs to later analysis work.
+Distributed quota/coalescing, retry policy, idempotency and lifecycle orchestration remain future work. No frontend, corridor implementation, publishing or deployment was added.
 
-Previous Phase 1 limitations remain: no idempotency keys, per-process rather than distributed provider capacity accounting, numeric-only Retry-After, and no anonymous-session recovery. Risk, refresh/background orchestration and frontend are not implemented yet.
-
-Stopped after Phase 3. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 4 request.
-
-## Phase 3 implementation and verification
-
-Added WeatherRepo/Service/Pydantic contracts, Open-Meteo adapter, exact-coordinate forecast cache and shared daily request/location/estimated-unit accounting. Owner/CSRF-protected POST weather/prefetch retrieves all route checkpoint locations in deduplicated batches; GET weather only reads/matches cached series. Metric/unit metadata is inspected; rain+showers and snowfall depth normalized; missing data/horizon gaps remain explicit. Hourly accumulation uses (t-1h,t] and interior wind uses the larger bracket. Freshness is separate from coverage. Request max horizon covers route ETAs when available and the future 48-hour visualization window without silently extrapolating unavailable dates.
-
-18 new offline tests and 2 affected foundation tests passed across targeted runs; Django check and targeted lint passed. Zero external provider calls. No ORM/migration, dependency or environment changes required. Prior unaffected evidence reused. Live Open-Meteo evidence remains pending, along with earlier live TomTom evidence. No risk/recommendation implementation added.
-
-Additional limits: explicit synchronous prefetch until Phase 5 orchestration; no distributed request coalescing/quota enforcement; fixed public provider endpoint; estimated location usage units are not billing guarantees. Cache retention 24h, freshness 15min; stale data is labeled. Full forecast absence/partial values remain unavailable/incomplete rather than clear weather. Provider model grid resolution limits location precision.
+Stopped after Phase 4. Nothing staged, committed, pushed, published or deployed. Wait for the user's Phase 5 request.

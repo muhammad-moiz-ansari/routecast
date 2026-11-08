@@ -1,4 +1,4 @@
-# API contract — Phase 3
+# API contract — Phase 4
 
 Base prefix `/api/v1/`. Same-origin session cookies and CSRF are required; owner IDs are never accepted from clients.
 
@@ -76,3 +76,13 @@ Series are keyed by exact requested coordinate (no coarse rounding), shared acro
 Cache freshness is 15 minutes; normalized series are retained 24 hours so GET can truthfully display stale data. Explicit prefetch replaces missing/stale series in batches of up to 50 exact locations; fresh series are reused even if an ETA is outside their returned horizon (no futile repeat fetch). Provider failures propagate sanitized errors; previously cached series remain available to subsequent GETs. No fixture fallback exists.
 
 Usage counts are recorded before each HTTP attempt, including failures, in shared daily Redis request/location/estimated-unit counters. Estimated units use one per location as an application estimate, not a billing guarantee. HTTP is bounded to two in-flight requests per process, 3-second connection and 20-second read/write/pool limits, with no redirects/retries. Distributed coalescing, quota enforcement and background scheduling remain Phase 5 work; concurrent explicit prefetch operations can duplicate requests.
+
+## Phase 4 recommendation
+
+GET `/api/v1/trips/{id}/recommendation/` requires the trip's owner session. It reads stored routes, generates the same checkpoints and matches cached forecasts with fetch=False. It performs no provider calls, updates, selection changes or refresh scheduling. Missing session returns 401, foreign/missing trip 404, inconsistent/unsampleable inputs 409 with a sanitized assessment_unavailable error.
+
+The 200 result carries `state`, `analysis_version`, `rules_version`, nullable `recommended_route_id`, eligible `ranked_route_ids`, all route summaries, structured `explanation` (code/message) and comparison `notices`. Routing still in progress yields PENDING; routes absent after failure yields NO_ELIGIBLE_ROUTE. Cached weather missing/stale with no eligible route yields INCOMPLETE_DATA. All No Travel alternatives yield NO_ELIGIBLE_ROUTE. Eligible routes can be recommended while unavailable alternatives are explicitly disclosed.
+
+Each RouteRiskSummary includes route/version/duration/distance, checkpoint risks with structured observation/threshold/load reasons, conservative interval risks with actual miles, `miles_by_category`, overlapping `unassessed_miles`, nullable `average_risk`, `eligible` and separate `eligibility_reasons`. Coverage and freshness booleans remain explicit at each checkpoint. Ineligible routes never receive a zero average as a substitute for unknown data. Phase 3's 15-minute cache freshness policy is reused.
+
+See RISK_RULES.md for exact boundary definitions and ranking. Rules do not execute in React. Responses currently represent a deterministic projection of the cache state read for this request; durable atomic assessed snapshots and background consistency remain Phase 5 work. Repeated reads with unchanged input/cache are deterministic, but changing cache freshness or content may change the recommendation without altering the stored route geometry or selected route.

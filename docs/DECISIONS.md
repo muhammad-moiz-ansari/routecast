@@ -24,3 +24,7 @@
 - Normalize hourly accumulations on (t-1h,t]; exact-hour wind uses one sample, interior-hour wind the larger bracketing value. Missing variables stay null; actual timestamp coverage controls availability.
 - Request the public provider's 16-day maximum plus one past day; retain exact-coordinate normalized series 24h, mark fresh for 15min, and reuse for changed ETAs. No extra request to chase out-of-horizon ETAs.
 - Share daily attempted request/location/estimated-unit counters in Redis. Estimated units are not a provider billing claim. Distributed locks/coalescing/quota enforcement and paid endpoint configuration are not implemented in this phase.
+
+- 2026-11-08, Phase 4: risk rules version 2026-11-08.v1 implements continuous weather thresholds, strict cargo >30k/>40k overrides, and unrounded lexicographic ranking.
+- Missing coverage preserves known hazards, while otherwise Unknown stays unscored. Separate unassessed mileage can overlap category mileage and never participates as zero risk. Stale/incomplete routes are ineligible, averages null.
+- Recommendation GET is an owner-scoped cached-data projection, preserving all alternatives and existing route snapshots. Durable assessed snapshot publication is deferred to Phase 5's consistency lifecycle; do not claim projection results are immutable historical assessments.

@@ -61,3 +61,9 @@ New focused offline checks: `uv run --no-sync pytest tests/test_phase2.py`. Exis
 POST `/api/v1/trips/{id}/weather/prefetch/` with the existing owner session and CSRF token to explicitly fetch live Open-Meteo hourly series for route checkpoints. GET `/api/v1/trips/{id}/weather/` returns cached matching without provider calls. These are weather/coverage results, not risk classifications. See docs/API_CONTRACT.md for units, boundary semantics and freshness. No migration, package install or environment change is required. Offline tests use HTTPX fixtures, never production fixture fallback.
 
 Read the verification ledger before running the new focused tests: `uv run --no-sync pytest tests/test_phase3.py`. No live provider tests were run for Phase 3; provider contract evidence remains pending.
+
+## Phase 4 use
+
+After weather prefetch, GET `/api/v1/trips/{id}/recommendation/` with the same owner session. This reads cached data only; it will not fetch weather or routes. It returns risk reasons/mileage, eligibility and a recommendation under the supplied rules, with incomplete/stale/blocked alternatives retained. Missing weather is visible and does not become Low risk. See docs/RISK_RULES.md for exact thresholds/load boundaries/ranking and docs/API_CONTRACT.md for result states.
+
+No migration, dependency installation or environment change is required. New focused tests are in tests/test_phase4.py; consult the ledger and reuse unaffected existing checks. There is no frontend or background refresh in this phase, and no live provider check was necessary.
