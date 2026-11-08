@@ -1,6 +1,6 @@
 # RouteCast
 
-Weather-aware truck route planning. Phase 0 provides backend infrastructure only; it does not yet plan trips or fetch forecasts. The frontend specification applies to phases 7–9. No frontend has been scaffolded.
+Weather-aware truck route planning. Phase 1 adds anonymous owner-scoped trips, place search and truck route options. Weather assessment and frontend implementation remain later phases. The frontend specification applies to phases 7â€“9. No frontend has been scaffolded.
 
 ## Windows local setup (PowerShell)
 
@@ -39,3 +39,11 @@ Tests block all socket connections, use SQLite and an in-memory cache, and injec
 Celery is configured but has no tasks or Beat schedules. On Windows, a later manual worker smoke can use `uv run --no-sync celery -A config.celery:app worker --pool=solo`; Linux workers are preferred for deployment. Do not start Beat for Phase 0.
 
 See [architecture](docs/ARCHITECTURE.md), [API contract](docs/API_CONTRACT.md), [decisions](docs/DECISIONS.md), and [progress](docs/PROGRESS.md). Secrets belong only in ignored environment files. No deployment is configured or authorized.
+
+## Phase 1 use
+
+Apply the new domain migration with `uv run --no-sync python manage.py migrate` from backend (Docker services running). The migration was applied to local PostgreSQL during implementation. Add TOMTOM_API_KEY to your existing backend/.env only when enabling live routing/search; no provider keys are required for offline tests, and runtime has no synthetic fallback. See docs/PROVIDER_SETUP.md for provider configuration and pending live evidence.
+
+Bootstrap the session at GET /api/v1/session/, retain its cookies, then submit trip JSON to POST /api/v1/trips/ with the returned token in X-CSRFToken. Inspect your trip and stored routes using its UUID. See docs/API_CONTRACT.md for complete shapes/statuses. Phase 1 routes synchronously and returns 201; queued analysis belongs to Phase 5. There is no weather/risk recommendation yet.
+
+New focused offline checks: `uv run --no-sync pytest tests/test_phase1.py`. Read the ledger first and repeat only checks affected by your changes. Existing Phase 0 helper/Redis/readiness evidence remains reusable.

@@ -63,3 +63,5 @@ LANGUAGE_CODE = "en-us"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
+
+TOMTOM_API_KEY = os.environ.get("TOMTOM_API_KEY", "")

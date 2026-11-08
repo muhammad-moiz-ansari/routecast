@@ -7,3 +7,10 @@
 - Celery entry point is `config.celery:app`; no package-level auto-import, task scheduling or provider requests.
 - Root .env configures Compose; backend/.env configures Django. Existing environment variables take precedence. Align database credentials manually; examples never include provider keys.
 - User prohibits staging/committing; lockfiles are generated and left unstaged despite the plan's wording about committing them.
+
+- 2026-11-08, Phase 1: synchronous routing and 201 creation until queued planning is implemented in Phase 5. Do not pretend a job was enqueued.
+- Anonymous ownership uses server-side session owner UUIDs; bootstrap GET /session/ returns CSRF token; protected POST uses Django Ninja cookie-auth CSRF checks.
+- Trip inputs and bounded normalized route snapshots use PostgreSQL JSON fields; snapshots publish atomically after provider I/O. Raw provider payloads are not retained.
+- TripStore owns the initial trip/snapshot persistence together to keep publication atomic; no unused separate route store is scaffolded.
+- No fabricated truck dimensions/gross weight. Idempotency keys, distributed quota accounting and retries remain later work; clients must submit once explicitly.
+- Plans were found/read in the parent directory after being moved outside the repository. They were not recreated or changed.

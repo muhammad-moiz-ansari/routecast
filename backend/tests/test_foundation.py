@@ -39,7 +39,7 @@ def test_liveness_and_documentation(client):
     assert response.json() == {"status": "ok"}
     assert client.get("/api/v1/docs").status_code == 200
     schema = client.get("/api/v1/openapi.json").json()
-    assert set(schema["paths"]) == {"/api/v1/health/", "/api/v1/ready/"}
+    assert {"/api/v1/health/", "/api/v1/ready/", "/api/v1/trips/"} <= set(schema["paths"])
 
 
 @pytest.mark.parametrize(

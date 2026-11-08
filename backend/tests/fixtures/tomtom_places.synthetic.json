@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "id": "synthetic-place",
+      "address": {
+        "freeformAddress": "Synthetic test place"
+      },
+      "position": {
+        "lat": 30,
+        "lon": 70
+      }
+    }
+  ]
+}

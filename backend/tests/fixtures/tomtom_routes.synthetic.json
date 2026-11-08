@@ -1,0 +1,76 @@
+{
+  "routes": [
+    {
+      "summary": {
+        "lengthInMeters": 10000,
+        "travelTimeInSeconds": 600
+      },
+      "legs": [
+        {
+          "points": [
+            {
+              "latitude": 30,
+              "longitude": 70
+            },
+            {
+              "latitude": 30.5,
+              "longitude": 70.4
+            },
+            {
+              "latitude": 31,
+              "longitude": 71
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lengthInMeters": 10100.0,
+        "travelTimeInSeconds": 610.0
+      },
+      "legs": [
+        {
+          "points": [
+            {
+              "latitude": 30,
+              "longitude": 70
+            },
+            {
+              "latitude": 30.6,
+              "longitude": 70.4
+            },
+            {
+              "latitude": 31,
+              "longitude": 71
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "summary": {
+        "lengthInMeters": 10200.0,
+        "travelTimeInSeconds": 620.0
+      },
+      "legs": [
+        {
+          "points": [
+            {
+              "latitude": 30,
+              "longitude": 70
+            },
+            {
+              "latitude": 30.7,
+              "longitude": 70.4
+            },
+            {
+              "latitude": 31,
+              "longitude": 71
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
