@@ -1,4 +1,4 @@
-import {ThemeProvider} from "../app/ThemeProvider";
+import { ThemeProvider } from "../app/ThemeProvider";
 import { StrictMode } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
@@ -22,11 +22,13 @@ function mount() {
           })
         }
       >
-        <ThemeProvider><MemoryRouter>
-          <Routes>
-            <Route path="/:mode?/:id?" element={<App />} />
-          </Routes>
-        </MemoryRouter></ThemeProvider>
+        <ThemeProvider>
+          <MemoryRouter>
+            <Routes>
+              <Route path="/:mode?/:id?" element={<App />} />
+            </Routes>
+          </MemoryRouter>
+        </ThemeProvider>
       </QueryClientProvider>
     </StrictMode>,
   );
@@ -93,8 +95,10 @@ it("selects places by keyboard and submits exactly once in StrictMode", async ()
   await screen.findByRole("option", { name: "Boston region" });
   await user.keyboard("{ArrowDown}{Enter}");
   await user.type(screen.getByLabelText("Cargo load"), "42000");
+  await user.click(screen.getByRole("button", { name: /Timezone ·/ }));
   await user.clear(screen.getByLabelText("Timezone"));
   await user.type(screen.getByLabelText("Timezone"), "Asia/Karachi");
+  await user.click(screen.getByRole("button", { name: "Use timezone" }));
   const departure = screen.getByLabelText("Departure date & time");
   await user.type(departure, "2099-11-09T12:00");
   await user.dblClick(screen.getByRole("button", { name: "Compare routes" }));
@@ -129,7 +133,9 @@ it("closes methodology on Escape and restores focus", async () => {
 
 it("persists explicit theme preference", async () => {
   mount();
-  await userEvent.click(screen.getByRole("button", { name: "Switch to dark mode" }));
+  await userEvent.click(
+    screen.getByRole("button", { name: "Switch to dark mode" }),
+  );
   expect(document.documentElement.dataset.theme).toBe("night");
   expect(localStorage.getItem("routecast-theme")).toBe("night");
 });
@@ -283,4 +289,26 @@ it("cancels an obsolete place request when the input changes", async () => {
   await waitFor(() => expect(signal).toBeDefined());
   await userEvent.clear(input);
   expect(signal?.aborted).toBe(true);
+});
+it("cancels a timezone search without changing the trip and applies an explicit choice", async () => {
+  mount();
+  const user = userEvent.setup();
+  const trigger = screen.getByRole("button", { name: /Timezone ·/ });
+  const original = trigger.textContent;
+  await user.click(trigger);
+  await user.clear(screen.getByLabelText("Timezone"));
+  await user.type(screen.getByLabelText("Timezone"), "London");
+  await user.keyboard("{Escape}");
+  expect(trigger).toHaveTextContent(original!);
+  expect(trigger).toHaveFocus();
+  await user.click(trigger);
+  await user.clear(screen.getByLabelText("Timezone"));
+  await user.type(screen.getByLabelText("Timezone"), "London");
+  await user.click(
+    screen.getByRole("button", { name: "Europe/London" }),
+  );
+  expect(trigger).toHaveTextContent("Europe/London");
+  expect(
+    calls.filter((c) => c.init.method === "POST" && c.url.endsWith("/trips/")),
+  ).toHaveLength(0);
 });

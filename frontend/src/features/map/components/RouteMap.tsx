@@ -30,6 +30,9 @@ import {
   riskOrder,
   riskSymbols,
 } from "../../route-comparison/presentation";
+import { riskColors as colors } from "../../route-comparison/riskPalette";
+import { RiskBadge } from "../../route-comparison/components/RiskBadge";
+import { LocateFixed, Layers } from "lucide-react";
 export interface MapProps {
   corridor?: CorridorDataset;
   forecastFrame?: number;
@@ -44,14 +47,6 @@ export interface MapProps {
   onSelectRoute: (id: string) => void;
   onSelectPoint: (id: string) => void;
 }
-const colors = {
-  low: "#17633b",
-  moderate: "#825100",
-  high: "#a5430a",
-  severe: "#b91c1c",
-  no_travel: "#592c75",
-  unknown: "#52636c",
-};
 function styleForTheme(): string | StyleSpecification {
   const night = document.documentElement.dataset.theme === "night";
   const url = night
@@ -70,7 +65,7 @@ function styleForTheme(): string | StyleSpecification {
           {
             id: "background",
             type: "background",
-            paint: { "background-color": night ? "#182b35" : "#e9eeec" },
+            paint: { "background-color": night ? "#0e2135" : "#e7eef6" },
           },
         ],
       };
@@ -93,6 +88,19 @@ export default function RouteMap(props: MapProps) {
   const fitted = useRef(false);
   const [failed, setFailed] = useState(false);
   const [tileError, setTileError] = useState(false);
+  const [legendOpen, setLegendOpen] = useState(false);
+  const legendTrigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!legendOpen) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== "Escape" || document.querySelector('[role="dialog"]'))
+        return;
+      setLegendOpen(false);
+      legendTrigger.current?.focus();
+    };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
+  }, [legendOpen]);
   function update(map: GLMap) {
     const p = latest.current;
     for (const [index, route] of p.routes.entries()) {
@@ -101,10 +109,12 @@ export default function RouteMap(props: MapProps) {
       canvas.width = canvas.height = 64;
       const ctx = canvas.getContext("2d")!;
       ctx.fillStyle = routeColors[routeIndex(route.id, index)];
-      ctx.fillRect(0, 0, 64, 64);
+      ctx.beginPath();
+      ctx.arc(32, 32, 28, 0, Math.PI * 2);
+      ctx.fill();
       ctx.strokeStyle = "#fff";
       ctx.lineWidth = 5;
-      ctx.strokeRect(0, 0, 64, 64);
+      ctx.stroke();
       ctx.fillStyle = "#fff";
       ctx.font = "bold 36px Arial";
       ctx.textAlign = "center";
@@ -134,6 +144,20 @@ export default function RouteMap(props: MapProps) {
           )
         : { type: "FeatureCollection", features: [] },
     );
+    const selected = p.routes.find((r) => r.id === p.selectedId);
+    (map.getSource("endpoints") as GeoJSONSource | undefined)?.setData({
+      type: "FeatureCollection",
+      features: selected
+        ? [
+            selected.geometry.coordinates[0],
+            selected.geometry.coordinates.at(-1)!,
+          ].map((coordinates, i) => ({
+            type: "Feature",
+            properties: { icon: i ? "destination-label" : "origin-label" },
+            geometry: { type: "Point", coordinates },
+          }))
+        : [],
+    });
     if (map.getLayer("selected-point"))
       map.setFilter("selected-point", [
         "==",
@@ -165,7 +189,7 @@ export default function RouteMap(props: MapProps) {
       .getCanvas()
       .setAttribute(
         "aria-label",
-        "Route comparison map. Use arrow keys to pan; plus and minus to zoom. A checkpoint list follows.",
+        "Route comparison map. Use arrow keys to pan; plus and minus to zoom. Use Checkpoint list for a text alternative.",
       );
     map.addControl(
       new maplibregl.NavigationControl({ showCompass: false }),
@@ -237,7 +261,12 @@ export default function RouteMap(props: MapProps) {
           type: "line",
           source: "routes",
           paint: {
-            "line-color": ["get", "color"],
+            "line-color": [
+              "case",
+              ["get", "selected"],
+              "#2563eb",
+              ["get", "color"],
+            ],
             "line-width": ["case", ["get", "selected"], 6, 3],
           },
         });
@@ -281,6 +310,43 @@ export default function RouteMap(props: MapProps) {
             "line-color": "#000000",
             "line-opacity": 0,
             "line-width": 24,
+          },
+        });
+        for (const [icon, label] of [
+          ["origin-label", "Origin"],
+          ["destination-label", "Destination"],
+        ]) {
+          const canvas = document.createElement("canvas");
+          canvas.width = 200;
+          canvas.height = 56;
+          const ctx = canvas.getContext("2d")!;
+          ctx.fillStyle = "#10213a";
+          ctx.fillRect(0, 0, 200, 56);
+          ctx.strokeStyle = "#85b2ff";
+          ctx.lineWidth = 3;
+          ctx.strokeRect(1, 1, 198, 54);
+          ctx.fillStyle = "#fff";
+          ctx.font = "600 23px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(label, 100, 28);
+          if (!map.hasImage(icon))
+            map.addImage(icon, ctx.getImageData(0, 0, 200, 56), {
+              pixelRatio: 2,
+            });
+        }
+        map.addSource("endpoints", {
+          type: "geojson",
+          data: { type: "FeatureCollection", features: [] },
+        });
+        map.addLayer({
+          id: "endpoints",
+          type: "symbol",
+          source: "endpoints",
+          layout: {
+            "icon-image": ["get", "icon"],
+            "icon-offset": [0, -26],
+            "icon-allow-overlap": true,
           },
         });
         map.addSource("points", {
@@ -328,6 +394,7 @@ export default function RouteMap(props: MapProps) {
           filter: ["!", ["has", "point_count"]],
           layout: { "icon-image": ["get", "icon"], "icon-allow-overlap": true },
         });
+        map.moveLayer("endpoints");
         update(map);
       } catch {
         setFailed(true);
@@ -390,42 +457,80 @@ export default function RouteMap(props: MapProps) {
     ) && !fixtureMode;
   return (
     <div className="map-region" role="region" aria-label="Route map">
-      <div className="map-toolbar">
-        <strong>Route overview</strong>
-        <button
-          onClick={() => {
-            if (mapRef.current) fit(mapRef.current, latest.current.routes);
-          }}
-          disabled={failed}
-        >
-          Fit routes
-        </button>
-      </div>
-      <p className="map-status">
-        {failed
-          ? "Map unavailable. Use the route comparison and checkpoint list below."
-          : tileError
-            ? "Map rendering or basemap failed. Route data and text remain available."
-            : !configured
-              ? "Geometry-only view · No basemap configured or requested"
-              : "Basemap and route geometry"}
-      </p>
-      <div ref={host} className={`map-canvas ${failed ? "map-hidden" : ""}`} />
-      <div className="map-legend">
-        <p>
-          Route identity: A blue · B violet · C teal. Wide halo = selected.
-          Select a line to inspect. White dashes = unassessed; dark dashes =
-          blocked.
-        </p>
-        <p>Checkpoint symbols (cluster circles expand on click):</p>
-        <div>
-          {riskOrder.map((c) => (
-            <span key={c}>
-              <b className={`risk-badge risk-${c}`}>{riskSymbols[c]}</b>{" "}
-              {riskLabels[c]}
-            </span>
-          ))}
+      <div className="map-stage">
+        <div className="map-toolbar">
+          <strong>Route overview</strong>
+          <button
+            onClick={() => {
+              if (mapRef.current) fit(mapRef.current, latest.current.routes);
+            }}
+            disabled={failed}
+            aria-label="Fit routes"
+          >
+            <LocateFixed size={18} />
+            <span>Fit routes</span>
+          </button>
         </div>
+        <p className="map-status" role={failed ? "alert" : undefined}>
+          {failed
+            ? "Map unavailable. Use the route comparison and checkpoint list."
+            : tileError
+              ? "Map rendering or basemap failed. Text remains available."
+              : !configured
+                ? "Geometry-only view · Basemap not configured"
+                : "Basemap and route geometry"}
+        </p>
+        <div
+          ref={host}
+          className={`map-canvas ${failed ? "map-hidden" : ""}`}
+        />
+        <button
+          className="map-legend-toggle"
+          ref={legendTrigger}
+          aria-label="Map legend"
+          aria-expanded={legendOpen}
+          aria-controls="map-legend"
+          onClick={() => setLegendOpen(!legendOpen)}
+        >
+          <Layers size={18} />
+        </button>
+        {legendOpen && (
+          <div
+            className="map-legend"
+            id="map-legend"
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setLegendOpen(false);
+                legendTrigger.current?.focus();
+              }
+            }}
+          >
+            <strong>Routes & checkpoints</strong>
+            <p>
+              Selected route: blue with wide casing. Alternatives retain A/B/C
+              identity. White dashes: unassessed; dark dashes: blocked.
+            </p>
+            <div>
+              {riskOrder.map((c) => (
+                <RiskBadge key={c} category={c} />
+              ))}
+            </div>
+            <p>
+              Origin and destination labels mark the selected trip endpoints.
+              Cluster circles expand on click.
+            </p>
+            <button
+              onClick={() => {
+                setLegendOpen(false);
+                legendTrigger.current?.focus();
+              }}
+            >
+              Close legend
+            </button>
+          </div>
+        )}
+      </div>
+      <div className="map-credits">
         <small>
           MapLibre GL JS · Routing: <a href="https://www.tomtom.com/">TomTom</a>
         </small>

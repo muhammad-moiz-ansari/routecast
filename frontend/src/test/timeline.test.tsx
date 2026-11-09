@@ -40,9 +40,13 @@ it("moves cached hours/layers without HTTP and preserves an absolute timestamp a
   fireEvent.change(screen.getByLabelText("Weather layer"), {
     target: { value: "risk" },
   });
+  fireEvent.click(screen.getByRole("button", { name: "Forecast details" }));
   expect(
     screen.getByText(/Combined risk uses the assessed cargo/),
   ).toBeVisible();
+  fireEvent.click(
+    screen.getByRole("button", { name: "Close forecast details" }),
+  );
   const b = fixture();
   b.data!.dataset_id = "new";
   b.data!.timestamps = b.data!.timestamps.map((t) =>
@@ -55,7 +59,11 @@ it("moves cached hours/layers without HTTP and preserves an absolute timestamp a
   );
   fireEvent.click(screen.getByRole("button", { name: "Next hour" }));
   expect(screen.getByRole("slider")).toHaveValue("12");
+  fireEvent.click(screen.getByRole("button", { name: "Forecast details" }));
   fireEvent.click(screen.getByRole("button", { name: "First hour" }));
+  fireEvent.click(
+    screen.getByRole("button", { name: "Close forecast details" }),
+  );
   expect(screen.getByRole("button", { name: "Previous hour" })).toBeDisabled();
   expect(request).not.toHaveBeenCalled();
   expect(
@@ -66,15 +74,19 @@ it("keeps a truthful missing/partial state and provides sample text with fixed l
   localStorage.clear();
   render(<Harness projection={fixture()} />);
   const legend = screen.getByLabelText("Wind fixed legend").textContent;
+  fireEvent.click(screen.getByRole("button", { name: "Forecast details" }));
   fireEvent.click(
     screen.getByRole("button", { name: "Forecast sample values" }),
   );
   expect(screen.getByText(/cell-000.*incomplete forecast/)).toHaveTextContent(
     "Unavailable",
   );
+  expect(screen.getByText(/Forecast time is independent/)).toBeVisible();
+  fireEvent.click(
+    screen.getByRole("button", { name: "Close forecast details" }),
+  );
   fireEvent.click(screen.getByRole("button", { name: "Next hour" }));
   expect(screen.getByLabelText("Wind fixed legend").textContent).toBe(legend);
-  expect(screen.getByText(/Forecast time is independent/)).toBeVisible();
 });
 it("rejects invalid persisted preferences and gates dataset/revision mismatches", () => {
   localStorage.setItem(

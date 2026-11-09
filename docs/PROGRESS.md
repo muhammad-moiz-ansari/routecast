@@ -27,7 +27,9 @@ Sampling/ETA limitations, polar text-only corridor samples, anonymous session re
 
 Stopped after Phase 10. Nothing staged, committed, pushed, published or deployed. The user owns release authorization and all Git operations.
 
-## Separate UI redesign — UI-1
+## Separate UI redesign
+
+Latest update, 9 November 2026: **UI-2 complete**, including shared specular planner CTAs, extracted planner presentation, scrollable route sidebar beside the map, forecast dock, checkpoint drawer/list, searchable timezone choice and responsive panel navigation. [UI redesign progress](UI_REDESIGN_PROGRESS.md) and UI2 verification entries record the evidence and limitations. UI-3 remains unstarted; the existing weather-cell renderer is retained. Zero live provider calls; no Git or deployment actions. Stopped after UI-2.
 
 9 November 2026 follow-up: refined enabled-button hover/focus feedback, meaningful authored workflow/forecast illustrations, holo card treatment, smooth FAQ opening/closing and anchor scrolling. Durable future-phase preferences are in docs/UI_INTERACTION_GUIDELINES.md and linked from the handoff. See UI1-POLISH verification entries. UI-2/UI-3 remain unstarted.
 

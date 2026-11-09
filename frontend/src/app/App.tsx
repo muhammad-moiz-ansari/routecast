@@ -1,24 +1,19 @@
-import { ThemeToggle } from "../components/ui/ThemeToggle";
+import { PlannerWelcome } from "../features/trip-planner/components/PlannerWelcome";
+import { PlannerSidebar } from "../features/trip-planner/components/PlannerSidebar";
+import { PlannerHeader } from "../components/layout/PlannerHeader";
+import { TripForm } from "../features/trip-planner/components/TripForm";
+import { TripSummary } from "../features/trip-planner/components/TripSummary";
+import "../styles/planner.css";
 import { useEffect, useRef, useState } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import * as Dialog from "@radix-ui/react-dialog";
-import {
-  ArrowRight,
-  ArrowDownUp,
-  Route,
-  HelpCircle,
-  X,
-  Clock3,
-  MapPin,
-} from "lucide-react";
+import { Route, Clock3, MapPin } from "lucide-react";
 import {
   plannerSchema,
   type PlannerValues,
 } from "../features/trip-planner/schemas";
-import { PlaceSearch } from "../features/trip-planner/components/PlaceSearch";
 import { departureInstant, systemZone } from "../utils/time";
 import { createTrip, readRoutes } from "../api/trips";
 import { ApiError, fixtureMode } from "../api/client";
@@ -51,6 +46,18 @@ export function App() {
   const [busy, setBusy] = useState(false);
   const sending = useRef(false);
   const [submitted, setSubmitted] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [sidebar, setSidebar] = useState<HTMLDivElement | null>(null);
+  const [panelView, setPanelView] = useState<
+    "trip" | "routes" | "checkpoints" | "map"
+  >(id ? "routes" : "trip");
+  const [expanded, setExpanded] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  // Sidebar view changes reset only its scroll; map/cached time and form state stay mounted.
+  useEffect(() => {
+    const pane = sidebar?.closest(".planner-panel");
+    if (pane) pane.scrollTop = 0;
+  }, [panelView, sidebar]);
   const form = useForm<PlannerValues>({
     resolver: zodResolver(plannerSchema),
     shouldFocusError: false,
@@ -67,6 +74,8 @@ export function App() {
     mutationFn: createTrip,
     onSuccess: (trip) => {
       setSubmitted(true);
+      setEditing(false);
+      setPanelView("routes");
       navigate("/trips/" + trip.id);
     },
   });
@@ -173,291 +182,71 @@ export function App() {
       setBusy(false);
     }
   }
-  const errors = form.formState.errors;
-  const errorList = Object.entries(errors).map(([key, v]) => ({
-    key,
-    message: v.message,
-  }));
   const status = analysis.data;
   const issue = mutation.error ?? analysis.error;
-  const comparing =
-    busy ||
-    (submitted &&
-      !["complete", "failed", "stopped", "cancelled", "superseded"].includes(
-        status?.status ?? "",
-      ));
+  const editTrip = () => {
+    restored.current = id ?? null;
+    sending.current = false;
+    setSubmitted(false);
+    mutation.reset();
+    setEditing(true);
+    setPanelView("trip");
+    navigate("/plan");
+  };
   return (
-    <>
+    <div
+      className={`planner-app ${fixtureMode ? "has-fixtures" : ""}`}
+      data-has-trip={!!id}
+      data-view={panelView}
+      data-expanded={expanded}
+      data-collapsed={collapsed}
+    >
       <a className="skip" href="#planner">
         Skip to trip planner
       </a>
-      <header className="shell">
-        <a className="brand" href="/" aria-label="RouteCast home">
-          <Route size={26} />
-          <span>RouteCast</span>
-        </a>
-        <span className="page-label">Trip planner</span>
-        <div className="header-actions">
-          <ThemeToggle />
-          <Dialog.Root>
-            <Dialog.Trigger className="help" aria-label="Methodology">
-              <HelpCircle size={18} />
-              <span>Methodology</span>
-            </Dialog.Trigger>
-            <Dialog.Portal>
-              <Dialog.Overlay className="overlay" />
-              <Dialog.Content className="dialog">
-                <Dialog.Title>How RouteCast compares routes</Dialog.Title>
-                <Dialog.Description>
-                  Plan and check information while stopped. RouteCast is a
-                  planning assessment, not a certified navigation system.
-                </Dialog.Description>
-                <p>
-                  The backend requests up to three distinct truck routes,
-                  estimates checkpoint arrivals, then matches forecasts to those
-                  times. Fewer routes and missing forecasts are reported
-                  explicitly.
-                </p>
-                <p>
-                  Eligible routes are ranked by Severe miles, High miles,
-                  average risk, then travel time. Cargo load is separate from
-                  gross vehicle weight and dimensions.
-                </p>
-                <Dialog.Close className="close" aria-label="Close methodology">
-                  <X />
-                </Dialog.Close>
-              </Dialog.Content>
-            </Dialog.Portal>
-          </Dialog.Root>
-        </div>
-      </header>
-      {fixtureMode && (
-        <div className="fixture-banner" role="note">
-          Development preview · Synthetic locations and responses · No live
-          route or weather data
-        </div>
-      )}
+      <PlannerHeader
+        collapsed={collapsed}
+        onTogglePanel={() => setCollapsed(!collapsed)}
+      />
+      <nav className="workspace-nav" aria-label="Workspace views">
+        {(["trip", "routes", "checkpoints", "map"] as const).map((v) => (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={panelView === v}
+            disabled={!id && v !== "trip"}
+            onClick={() => {
+              setPanelView(v);
+              setCollapsed(false);
+            }}
+          >
+            {v[0].toUpperCase() + v.slice(1)}
+          </button>
+        ))}
+      </nav>
       <main className="workspace">
-        <section
-          className="planner-panel"
-          id="planner"
-          aria-labelledby="planner-title"
+        <PlannerSidebar
+          hasTrip={!!id}
+          expanded={expanded}
+          onExpand={() => setExpanded(!expanded)}
         >
-          <div className="panel-heading">
-            <span className="eyebrow">Plan ahead</span>
-            <h1 id="planner-title">Where are you headed?</h1>
-            <p>Compare the weather along your route.</p>
-          </div>
-          <form
-            noValidate
-            onSubmit={form.handleSubmit(submit, () =>
-              setTimeout(() => summary.current?.focus(), 0),
-            )}
-          >
-            {(errorList.length > 0 || issue) && (
-              <div
-                className="error-summary"
-                tabIndex={-1}
-                ref={summary}
-                role="alert"
-              >
-                <strong>
-                  {issue
-                    ? "Request needs attention"
-                    : "Check your trip details"}
-                </strong>
-                {issue && (
-                  <p>
-                    {issue.message}
-                    {issue instanceof ApiError &&
-                    issue.detail.retry_after_seconds
-                      ? ` Wait ${issue.detail.retry_after_seconds} seconds before trying again.`
-                      : ""}
-                  </p>
-                )}
-                <ul>
-                  {errorList.map((e) => (
-                    <li key={e.key}>{e.message}</li>
-                  ))}
-                </ul>
-                <p>Your entered values have been kept.</p>
-              </div>
-            )}
-            <Controller
-              control={form.control}
-              name="origin"
-              render={({ field }) => (
-                <PlaceSearch
-                  label="Origin"
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={errors.origin?.message}
-                  disabled={busy || submitted}
-                />
-              )}
+          <div hidden={!!id && !editing}>
+            <div className="panel-heading">
+              <span className="eyebrow">TRIP DETAILS</span>
+              <h2 id="trip-form-title">Plan your route</h2>
+              <p>Compare forecasts along the road ahead.</p>
+            </div>
+            <TripForm
+              form={form}
+              busy={busy}
+              submitted={submitted || !!id}
+              issue={issue}
+              summary={summary}
+              submit={submit}
+              onNewTrip={editTrip}
             />
-            <div className="swap-row">
-              <span className="connector" />
-              <button
-                className="swap"
-                type="button"
-                disabled={busy || submitted}
-                onClick={() => {
-                  const a = form.getValues("origin");
-                  form.setValue("origin", form.getValues("destination"));
-                  form.setValue("destination", a);
-                }}
-              >
-                <ArrowDownUp size={16} /> Swap locations
-              </button>
-            </div>
-            <Controller
-              control={form.control}
-              name="destination"
-              render={({ field }) => (
-                <PlaceSearch
-                  label="Destination"
-                  value={field.value}
-                  onChange={field.onChange}
-                  error={errors.destination?.message}
-                  disabled={busy || submitted}
-                />
-              )}
-            />
-            <div className="form-divider" />
-            <div className="field">
-              <label htmlFor="departure">Departure date & time</label>
-              <input
-                id="departure"
-                type="datetime-local"
-                {...form.register("departure")}
-                disabled={busy || submitted}
-                aria-invalid={!!errors.departure}
-                aria-describedby="departure-note departure-error"
-              />
-              <small id="departure-note">
-                Local time in the timezone below.
-              </small>
-              {errors.departure && (
-                <span id="departure-error" className="error-text">
-                  {errors.departure.message}
-                </span>
-              )}
-            </div>
-            <div className="field">
-              <label htmlFor="timezone">Timezone</label>
-              <input
-                id="timezone"
-                list="timezones"
-                {...form.register("timezone")}
-                disabled={busy || submitted}
-                aria-invalid={!!errors.timezone}
-                aria-describedby="timezone-note timezone-error"
-              />
-              <datalist id="timezones">
-                {[
-                  "UTC",
-                  "Asia/Karachi",
-                  "America/New_York",
-                  "America/Chicago",
-                  "America/Denver",
-                  "America/Los_Angeles",
-                  "Europe/London",
-                ].map((z) => (
-                  <option key={z} value={z} />
-                ))}
-              </datalist>
-              <small id="timezone-note">
-                IANA name, for example Asia/Karachi.
-              </small>
-              {errors.timezone && (
-                <span id="timezone-error" className="error-text">
-                  {errors.timezone.message}
-                </span>
-              )}
-            </div>
-            <div className="field">
-              <label htmlFor="cargo">Cargo load</label>
-              <div className="input-suffix">
-                <input
-                  id="cargo"
-                  inputMode="decimal"
-                  {...form.register("cargo")}
-                  disabled={busy || submitted}
-                  placeholder="e.g. 30000"
-                  aria-invalid={!!errors.cargo}
-                  aria-describedby="cargo-note cargo-error"
-                />
-                <span>lb</span>
-              </div>
-              <small id="cargo-note">Used for the weather/load rules.</small>
-              {errors.cargo && (
-                <span className="error-text" id="cargo-error">
-                  {errors.cargo.message}
-                </span>
-              )}
-            </div>
-            <fieldset className="spacing" disabled={busy || submitted}>
-              <legend>Checkpoint spacing</legend>
-              <div className="segments">
-                {["10", "25", "50"].map((s) => (
-                  <label key={s}>
-                    <input
-                      type="radio"
-                      value={s}
-                      {...form.register("spacing")}
-                    />
-                    <span>{s} mi</span>
-                  </label>
-                ))}
-              </div>
-              <small>
-                Smaller spacing samples more locations and may take longer.
-              </small>
-            </fieldset>
-            <button
-              className="primary"
-              disabled={busy || submitted}
-              type="submit"
-            >
-              {busy ? "Comparing routes…" : "Compare routes"}
-              <ArrowRight size={19} />
-            </button>
-            {submitted && (
-              <button
-                type="button"
-                className="another"
-                onClick={() => {
-                  sending.current = false;
-                  setSubmitted(false);
-                  mutation.reset();
-                  navigate("/plan");
-                }}
-              >
-                Plan another trip
-              </button>
-            )}
-            <p className="privacy-note">
-              No account needed. Trip access stays in this browser session.
-            </p>
-          </form>
-        </section>
-        <section className="result-workspace" aria-labelledby="workspace-title">
-          <div
-            className={
-              status?.data || pendingRoutes.data
-                ? "workspace-heading sr-only"
-                : "workspace-heading"
-            }
-          >
-            <div>
-              <span className="eyebrow">Weather-aware routing</span>
-              <h2 id="workspace-title">A clearer view of the road ahead.</h2>
-            </div>
-            <span className="workspace-tag">
-              <Clock3 size={15} /> Trip planning
-            </span>
           </div>
+          {id && <TripSummary values={form.watch()} onEdit={editTrip} />}
           {id && (
             <div className="trip-controls" aria-label="Trip update controls">
               <button
@@ -515,8 +304,39 @@ export function App() {
               )}
             </div>
           )}
+          {id && !status?.data && !pendingRoutes.data && (
+            <div className="processing-inline">
+              <strong>
+                {analysis.error
+                  ? "Unable to read analysis"
+                  : status?.status === "failed"
+                    ? "Analysis could not finish"
+                    : status?.stopped
+                      ? "Trip stopped"
+                      : stageText[status?.stage ?? "queued"]}
+              </strong>
+              <p>
+                Your trip is saved. Processing stages update as results become
+                available.
+              </p>
+            </div>
+          )}
+          <div
+            ref={setSidebar}
+            className="route-slot"
+            hidden={panelView === "trip"}
+          />
+        </PlannerSidebar>
+        <section className="result-workspace" aria-labelledby="workspace-title">
+          <h2 id="workspace-title" className="sr-only">
+            Route planning workspace
+          </h2>
+
           {id && status && (status.data || pendingRoutes.data) ? (
             <RouteComparison
+              sidebar={sidebar}
+              panelView={panelView}
+              onPanelView={setPanelView}
               corridor={corridor.data}
               corridorError={corridor.error?.message}
               key={id}
@@ -584,40 +404,7 @@ export function App() {
               )}
             </div>
           ) : (
-            <div className="empty-workspace">
-              <div className="route-sketch" aria-hidden="true">
-                <svg viewBox="0 0 420 190">
-                  <path d="M36 145 C100 145 65 47 156 47 S235 143 309 113 S355 42 390 45" />
-                  <circle cx="36" cy="145" r="9" />
-                  <circle cx="390" cy="45" r="9" />
-                </svg>
-                <span className="sketch-a">A</span>
-                <span className="sketch-b">B</span>
-              </div>
-              <span className="eyebrow">Start with your trip</span>
-              <h3>
-                Your route comparison
-                <br />
-                starts here.
-              </h3>
-              <p>
-                Enter your origin, destination and departure.
-                <br />
-                RouteCast will check weather at estimated arrival times along
-                available routes.
-              </p>
-              <div className="empty-facts">
-                <span>
-                  <MapPin size={17} /> Choose exact locations
-                </span>
-                <span>
-                  <Clock3 size={17} /> Set your departure time
-                </span>
-                <span>
-                  <Route size={17} /> Compare available options
-                </span>
-              </div>
-            </div>
+            <PlannerWelcome />
           )}
           <footer className="workspace-footer">
             <span>Plan and review while stopped.</span>
@@ -625,6 +412,6 @@ export function App() {
           </footer>
         </section>
       </main>
-    </>
+    </div>
   );
 }

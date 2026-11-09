@@ -26,6 +26,7 @@ vi.mock("maplibre-gl", () => {
     fitBounds = vi.fn();
     remove = vi.fn();
     resize = vi.fn();
+    moveLayer = vi.fn();
     setFilter = vi.fn();
     jumpTo = vi.fn();
     getZoom = () => 5;
@@ -118,7 +119,9 @@ it("synchronizes list/map inspection without changing backend recommendation or 
     screen.getByRole("button", { name: "Inspect route B" }),
   ).toHaveAttribute("aria-pressed", "true");
   fireEvent.click(screen.getByRole("button", { name: "Inspect route A" }));
+  fireEvent.click(screen.getByRole("button", { name: "Checkpoint list" }));
   expect(screen.getByText("Route A checkpoints")).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Routes" }));
   expect(
     map
       .getSource("routes")
@@ -179,6 +182,7 @@ it("keeps checkpoint data and dialog usable when WebGL fails; missing values sta
   render(<RouteComparison analysis={fixture()} />);
   await screen.findByText(/Map unavailable/);
   fireEvent.click(screen.getByRole("button", { name: "Inspect route C" }));
+  fireEvent.click(screen.getByRole("button", { name: "Checkpoint list" }));
   const trigger = screen.getByRole("button", {
     name: "Inspect checkpoint C-0002",
   });
@@ -248,13 +252,13 @@ it("keeps GeoJSON longitude first and fits a dateline crossing without a global 
 it("reuses sprites across theme changes and preserves the camera", async () => {
   render(<RouteComparison analysis={fixture()} />);
   const map = await ready();
-  expect(map.addImage).toHaveBeenCalledTimes(9);
+  expect(map.addImage).toHaveBeenCalledTimes(11);
   await act(async () => {
     document.documentElement.dataset.theme =
       document.documentElement.dataset.theme === "night" ? "day" : "night";
   });
   await waitFor(() => expect(map.setStyle).toHaveBeenCalled());
-  expect(map.addImage).toHaveBeenCalledTimes(9);
+  expect(map.addImage).toHaveBeenCalledTimes(11);
   expect(map.fitBounds).toHaveBeenCalledTimes(1);
   expect(screen.queryByText(/Map unavailable/)).not.toBeInTheDocument();
 });
@@ -265,6 +269,7 @@ it("withholds current claims while offline and keeps known text visible", async 
   fireEvent(window, new Event("offline"));
   expect(screen.getByRole("alert")).toHaveTextContent("Browser offline");
   expect(screen.getByText("Current recommendation withheld")).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Checkpoint list" }));
   expect(
     screen.getByRole("button", { name: "Inspect checkpoint B-0001" }),
   ).toBeEnabled();
@@ -298,4 +303,52 @@ it("connects cached corridor frames to map layers and hides mismatched versions"
   expect(source.setData.mock.lastCall[0].features).toHaveLength(0);
   expect(screen.getByRole("slider")).toBeDisabled();
   expect(screen.getByText(/Mismatched weather is hidden/)).toBeVisible();
+});
+it("keeps one map, inspection and absolute forecast time while moving the sidebar between panels", async () => {
+  localStorage.clear();
+  const side = document.createElement("div");
+  document.body.appendChild(side);
+  const analysis = fixture();
+  const corridor = structuredClone(
+    corridorRaw,
+  ) as unknown as CorridorProjection;
+  const ui = render(
+    <RouteComparison
+      analysis={analysis}
+      corridor={corridor}
+      sidebar={side}
+      panelView="routes"
+    />,
+  );
+  const map = await ready();
+  fireEvent.click(screen.getByRole("button", { name: "Inspect route C" }));
+  fireEvent.change(screen.getByRole("slider"), { target: { value: "7" } });
+  const chosen = screen.getByRole("slider").getAttribute("aria-valuetext");
+  ui.rerender(
+    <RouteComparison
+      analysis={analysis}
+      corridor={corridor}
+      sidebar={side}
+      panelView="checkpoints"
+    />,
+  );
+  expect(
+    screen.getByRole("button", { name: "Inspect checkpoint C-0002" }),
+  ).toBeVisible();
+  expect(screen.getByRole("slider")).toHaveAttribute("aria-valuetext", chosen);
+  ui.rerender(
+    <RouteComparison
+      analysis={analysis}
+      corridor={corridor}
+      sidebar={side}
+      panelView="routes"
+    />,
+  );
+  expect(
+    screen.getByRole("button", { name: "Inspect route C" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  expect(harness.maps).toHaveLength(1);
+  expect(map.fitBounds).toHaveBeenCalledTimes(1);
+  ui.unmount();
+  side.remove();
 });

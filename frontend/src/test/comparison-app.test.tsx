@@ -1,4 +1,4 @@
-import {ThemeProvider} from "../app/ThemeProvider";
+import { ThemeProvider } from "../app/ThemeProvider";
 import {
   act,
   render,
@@ -65,11 +65,13 @@ it("integrates working routes then a completed snapshot without any trip POST or
   });
   render(
     <QueryClientProvider client={client}>
-      <ThemeProvider><MemoryRouter initialEntries={["/trips/preview-trip"]}>
-        <Routes>
-          <Route path="/:mode?/:id?" element={<App />} />
-        </Routes>
-      </MemoryRouter></ThemeProvider>
+      <ThemeProvider>
+        <MemoryRouter initialEntries={["/trips/preview-trip"]}>
+          <Routes>
+            <Route path="/:mode?/:id?" element={<App />} />
+          </Routes>
+        </MemoryRouter>
+      </ThemeProvider>
     </QueryClientProvider>,
   );
   await waitFor(
@@ -85,9 +87,8 @@ it("integrates working routes then a completed snapshot without any trip POST or
   await act(async () => {
     await client.invalidateQueries({ queryKey: ["analysis", "preview-trip"] });
   });
-  expect(
-    await screen.findByText("Route B · Recommended under the supplied rules"),
-  ).toBeVisible();
+  expect(await screen.findByText("Route B recommended")).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Checkpoint list" }));
   expect(
     screen.getByRole("button", { name: "Inspect checkpoint A-0001" }),
   ).toBeEnabled();
@@ -95,6 +96,9 @@ it("integrates working routes then a completed snapshot without any trip POST or
   expect(calls.filter((p) => p.includes("/routes/"))).toHaveLength(1);
   expect(await screen.findByRole("slider")).toBeEnabled();
   expect(screen.getByLabelText("Cargo load")).toHaveValue("42000");
+  fireEvent.click(
+    screen.getAllByRole("button", { name: "Routes" }).at(-1)!,
+  );
   failure = true;
   await act(async () => {
     await client.invalidateQueries({ queryKey: ["analysis", "preview-trip"] });
@@ -102,13 +106,21 @@ it("integrates working routes then a completed snapshot without any trip POST or
   expect(
     await screen.findByText("Current recommendation withheld"),
   ).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Checkpoint list" }));
   expect(
     screen.getByRole("button", { name: "Inspect checkpoint A-0001" }),
   ).toBeEnabled();
+  fireEvent.click(
+    screen.getAllByRole("button", { name: "Routes" }).at(-1)!,
+  );
   failure = false;
   fireEvent.click(screen.getByRole("button", { name: "Retry status read" }));
+  expect(await screen.findByText("Route B recommended")).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Edit trip" }));
+  expect(screen.getByLabelText("Cargo load")).toBeEnabled();
+  expect(screen.getByLabelText("Cargo load")).toHaveValue("42000");
   expect(
-    await screen.findByText("Route B · Recommended under the supplied rules"),
-  ).toBeVisible();
+    screen.getByRole("heading", { name: "Plan your route" }),
+  ).toHaveTextContent("Plan your route");
   client.clear();
 });

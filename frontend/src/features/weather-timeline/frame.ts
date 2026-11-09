@@ -17,14 +17,8 @@ export const scalarColors = [
   "#b04f14",
   "#a62c47",
 ];
-export const riskColors = {
-  low: "#17633b",
-  moderate: "#825100",
-  high: "#a5430a",
-  severe: "#b91c1c",
-  no_travel: "#592c75",
-  unknown: "#52636c",
-};
+export { riskColors } from "../route-comparison/riskPalette";
+
 export const limits = {
   wind_mph: [25, 35, 45, 55],
   rain_inches_per_hour: [0.1, 0.25, 0.5, 1],

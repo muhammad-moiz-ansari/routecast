@@ -1,0 +1,1959 @@
+/* UI-2: stable viewport workspace. Responsive views change presentation, not query ownership. */
+[hidden] {
+  display: none !important;
+}
+.planner-app {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--canvas);
+  --sidebar-size: 400px;
+}
+.planner-app .shell {
+  height: 64px;
+  min-height: 64px;
+  padding: 0 24px;
+  background: var(--surface);
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  gap: 24px;
+}
+.planner-app .brand {
+  font-size: 21px;
+}
+.planner-app .page-label {
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+.planner-app .help {
+  color: var(--text);
+  min-height: 44px;
+  padding: 0 10px;
+  border-radius: 10px;
+}
+.planner-app .header-actions {
+  gap: 12px;
+}
+.planner-app .fixture-banner {
+  flex-shrink: 0;
+  font-size: 11px;
+  padding: 4px 16px;
+  line-height: 1.4;
+  background: var(--primary-soft);
+  border-bottom: 1px solid var(--border);
+}
+.planner-app .workspace {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: var(--sidebar-size) minmax(0, 1fr);
+  gap: 16px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.planner-app .planner-panel {
+  padding: 22px 20px;
+  overflow: auto;
+  min-height: 0;
+  background: var(--surface);
+  border: 0;
+  border-right: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: none;
+}
+.planner-app .panel-heading {
+  margin-bottom: 22px;
+}
+.planner-app .panel-heading h2 {
+  font-size: 26px;
+  letter-spacing: -1px;
+  line-height: 1.2;
+  margin: 10px 0;
+}
+.planner-app .panel-heading p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.planner-app .field {
+  margin: 0 0 16px;
+}
+.planner-app .field label,
+.planner-app .spacing legend {
+  font-size: 14px;
+  font-weight: 600;
+}
+.planner-app
+  input:not([type="radio"]):not([type="checkbox"]):not([type="range"]),
+.planner-app select {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  border-radius: 10px;
+  background: var(--canvas);
+  border: 1px solid var(--control-border);
+  color: var(--text);
+  padding: 10px 12px;
+}
+.planner-app .input-icon input {
+  padding-left: 40px !important;
+}
+.planner-app .input-icon svg {
+  color: var(--primary);
+}
+.planner-app .field small,
+.planner-app fieldset small {
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+.planner-app .swap-row {
+  height: 28px;
+  margin: -10px 0 4px;
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+.planner-app .connector {
+  border-color: var(--primary);
+  height: 22px;
+  position: absolute;
+  left: 20px;
+  top: 0;
+}
+.planner-app .swap {
+  min-height: 28px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: var(--primary);
+  border: 0;
+  background: var(--surface);
+  position: relative;
+}
+.planner-app .form-divider {
+  margin: 20px 0;
+  border-color: var(--border);
+}
+.planner-app .input-suffix input {
+  padding-right: 42px !important;
+}
+.planner-app .spacing {
+  margin: 18px 0;
+  border: 0;
+  padding: 0;
+}
+.planner-app .segments {
+  margin: 8px 0;
+  display: flex;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.planner-app .segments label {
+  flex: 1;
+  position: relative;
+}
+.planner-app .segments span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 46px;
+  padding: 8px;
+  font-size: 14px;
+}
+.planner-app .segments input:checked + span {
+  background: var(--primary-soft);
+  color: var(--primary);
+  box-shadow: inset 0 -2px var(--primary);
+}
+.planner-app .primary {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  width: 100%;
+  margin: 8px 0 0;
+  padding: 12px;
+  min-height: 50px;
+  background: var(--primary);
+  color: var(--on-primary);
+  border-radius: 10px;
+  font-size: 14px;
+}
+.planner-app .primary:disabled {
+  opacity: 0.65;
+}
+.planner-app .privacy-note {
+  font-size: 11px;
+  line-height: 1.5;
+  margin: 12px 0 0;
+  color: var(--text-muted);
+}
+.timezone-choice {
+  margin: -4px 0 18px;
+}
+.timezone-chip {
+  min-height: 40px;
+  font-size: 12px;
+  padding: 6px 8px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: var(--border);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.timezone-dialog input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  background: var(--canvas);
+  color: var(--text);
+  font: inherit;
+  margin: 8px 0;
+}
+.timezone-results {
+  display: grid;
+  max-height: 240px;
+  overflow: auto;
+  gap: 4px;
+}
+.timezone-results button {
+  justify-content: flex-start;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.timezone-done {
+  margin-top: 14px;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.planner-app .result-workspace {
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--canvas);
+  border: 0;
+}
+.planner-app .workspace-heading {
+  padding: 24px 30px 0;
+  flex-shrink: 0;
+}
+.planner-app .workspace-heading h2 {
+  font-size: 24px;
+  line-height: 1.25;
+  max-width: 480px;
+  margin: 8px 0;
+}
+.planner-app .workspace-tag {
+  display: none;
+}
+.planner-app .empty-workspace,
+.planner-app .processing {
+  margin: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    var(--primary-soft),
+    transparent 65%
+  );
+}
+.planner-app .empty-workspace h3 {
+  font-size: 32px;
+  line-height: 1.15;
+  margin: 18px 0;
+  letter-spacing: -1px;
+}
+.planner-app .empty-workspace p,
+.planner-app .processing p {
+  max-width: 470px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.planner-app .route-sketch {
+  max-width: 380px;
+  width: 90%;
+  height: auto;
+  min-height: 150px;
+}
+.planner-app .empty-facts {
+  font-size: 12px;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.planner-app .workspace-footer {
+  padding: 6px 16px;
+  font-size: 10px;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  margin: 0;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.trip-summary {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.summary-top button {
+  min-height: 36px;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+.trip-summary h2 {
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  margin: 14px 0 18px;
+}
+.summary-journey {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 8px 10px;
+  font-size: 14px;
+  align-items: center;
+  overflow-wrap: anywhere;
+}
+.summary-journey > span {
+  grid-column: 2;
+  font-size: 12px;
+  color: var(--primary);
+}
+.summary-journey svg {
+  color: var(--primary);
+}
+.trip-summary p {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 0 0;
+  overflow-wrap: anywhere;
+}
+.planner-app .trip-controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 0 0 16px;
+  margin: 0;
+  border: 0;
+}
+.planner-app .trip-controls button {
+  font-size: 11px;
+  min-height: 40px;
+  padding: 7px 9px;
+  flex: 1;
+}
+.planner-app .trip-controls > span,
+.planner-app .trip-controls p {
+  font-size: 11px;
+  line-height: 1.5;
+  width: 100%;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+.assessment-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.assessment-tabs button {
+  flex: 1;
+  min-height: 42px;
+  padding: 6px;
+  font-size: 12px;
+}
+.assessment-tabs button[aria-pressed="true"] {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.planner-app .comparison-heading h2 {
+  font-size: 20px;
+  margin: 8px 0;
+  letter-spacing: -0.5px;
+}
+.planner-app .comparison-heading p {
+  font-size: 12px;
+  margin: 0 0 12px;
+  color: var(--text-muted);
+}
+.planner-app .recommendation-summary {
+  padding: 14px;
+  border-left: 3px solid var(--primary);
+  background: var(--primary-soft);
+  border-radius: 10px;
+  font-size: 13px;
+  margin: 12px 0;
+}
+.planner-app .recommendation-summary p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 8px 0 0;
+}
+.assessment-metadata {
+  font-size: 12px;
+  margin: 12px 0;
+  color: var(--text-muted);
+}
+.assessment-metadata summary {
+  cursor: pointer;
+  min-height: 36px;
+  display: list-item;
+  padding: 6px 0;
+}
+.assessment-metadata p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.planner-app .state-warning {
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 9px 10px;
+  margin: 8px 0;
+  background: var(--surface-muted);
+  border-left: 2px solid var(--control-border);
+}
+.planner-app .route-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.planner-app .route-card {
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+.planner-app .route-card.selected {
+  border: 2px solid var(--primary);
+  padding: 15px;
+  background: var(--primary-soft);
+}
+.planner-app .route-card-top {
+  gap: 10px;
+  align-items: center;
+}
+.planner-app .route-card h3 {
+  font-size: 17px;
+  margin: 0;
+}
+.planner-app .route-identity {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+.planner-app .route-badges {
+  gap: 5px;
+  margin: 8px 0;
+}
+.planner-app .route-badges span {
+  font-size: 10px;
+  padding: 3px 6px;
+}
+.planner-app .route-card p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 8px 0;
+}
+.planner-app .route-card .route-metrics {
+  font-size: 21px !important;
+  line-height: 1.25;
+  font-weight: 700;
+  margin: 12px 0 6px;
+}
+.planner-app .arrival-time {
+  color: var(--text-muted);
+}
+.planner-app .risk-strip {
+  min-height: 6px;
+  height: 7px;
+  border: 0;
+  border-radius: 3px;
+  margin: 10px 0;
+}
+.planner-app .coverage-note {
+  background: none;
+  padding: 0;
+  border: 0;
+}
+.planner-app .route-card > button {
+  width: 100%;
+  min-height: 42px;
+  font-size: 12px;
+  background: var(--surface);
+  margin-top: 4px;
+}
+.planner-app .route-card > button[aria-pressed="true"] {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.risk-badge {
+  background: var(--risk-bg);
+  color: var(--risk-fg);
+}
+:root[data-theme="night"] .risk-badge {
+  background: var(--risk-night-bg);
+  color: var(--risk-night-fg);
+}
+.planner-app .comparison {
+  margin: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.planner-app .map-and-details {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  gap: 0;
+}
+.map-skip {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 12;
+  transform: translateY(-200%);
+  padding: 10px;
+  background: var(--surface);
+  border-radius: 8px;
+}
+.map-skip:focus {
+  transform: none;
+}
+.planner-app .map-region {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  border: 0;
+  border-radius: 0;
+  overflow: hidden;
+  background: var(--surface-muted);
+}
+.planner-app .map-stage {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+}
+.planner-app .map-canvas {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  min-height: 0;
+}
+.planner-app .map-toolbar {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 12px;
+  padding: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: none;
+  background: none;
+  border: 0;
+}
+.planner-app .map-toolbar strong {
+  background: var(--surface);
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 12px;
+}
+.planner-app .map-toolbar button {
+  pointer-events: auto;
+  min-height: 44px;
+  font-size: 11px;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 3px 12px #09132118;
+}
+.planner-app .map-status {
+  position: absolute;
+  top: 55px;
+  left: 16px;
+  max-width: calc(100% - 110px);
+  z-index: 2;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 5px 8px;
+  font-size: 10px;
+  line-height: 1.4;
+  margin: 0;
+  pointer-events: none;
+}
+.planner-app .maplibregl-ctrl-top-right {
+  top: 64px;
+  right: 8px;
+}
+.planner-app .maplibregl-ctrl-group button {
+  width: 44px;
+  height: 44px;
+}
+.map-legend-toggle {
+  position: absolute;
+  z-index: 3;
+  top: 168px;
+  right: 12px;
+  min-height: 44px;
+  width: 44px;
+  padding: 8px;
+  background: var(--surface);
+}
+.planner-app .map-legend {
+  position: absolute;
+  z-index: 4;
+  top: 12px;
+  right: 68px;
+  width: min(300px, calc(100% - 90px));
+  max-height: calc(100% - 24px);
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--control-border);
+  box-shadow: 0 8px 28px #09132133;
+  border-radius: 14px;
+  padding: 18px;
+  font-size: 12px;
+}
+.planner-app .map-legend p {
+  font-size: 12px;
+  line-height: 1.6;
+}
+.planner-app .map-legend > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.map-credits {
+  padding: 5px 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  font-size: 10px;
+  line-height: 1.4;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 12px;
+}
+.map-credits small,
+.map-credits .weather-attribution {
+  font-size: 10px;
+  margin: 0;
+  padding: 0;
+}
+.planner-app .forecast-timeline {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 12px;
+}
+.planner-app .timeline-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+  min-width: 0;
+}
+.planner-app .timeline-heading h3 {
+  font-size: 13px;
+  margin: 4px 0;
+  line-height: 1.35;
+}
+.planner-app .timeline-heading .eyebrow {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.planner-app .timeline-controls {
+  display: flex;
+  gap: 3px;
+  margin: 0;
+}
+.planner-app .timeline-controls button {
+  width: 36px;
+  min-height: 44px;
+  padding: 4px;
+}
+.timeline-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.layer-segments {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  overflow: hidden;
+}
+.layer-segments button {
+  min-height: 42px;
+  padding: 6px 9px;
+  font-size: 11px;
+  border-radius: 0;
+  border: 0;
+}
+.layer-segments [aria-pressed="true"] {
+  background: var(--primary-soft);
+  color: var(--primary);
+  box-shadow: inset 0 -2px var(--primary);
+}
+.compact-layer {
+  display: none;
+}
+.overlay-switch {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 5px;
+  font-size: 11px;
+}
+.overlay-switch input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--primary);
+}
+.forecast-details-button {
+  width: 40px;
+  min-height: 44px;
+  padding: 6px;
+}
+.forecast-details-button > span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.planner-app #forecast-hour {
+  grid-column: 1/-1;
+  width: 100%;
+  min-height: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.hour-ticks {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: -8px;
+}
+.timeline-bottom {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 5px;
+}
+.planner-app .scalar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 10px;
+  margin: 0;
+}
+.planner-app .scalar-legend > span {
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.planner-app .scalar-legend b {
+  width: 10px;
+  height: 7px;
+  display: inline-block;
+}
+.coverage-status {
+  font-size: 10px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.forecast-help {
+  grid-column: 1/-1;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin: 4px 0 0;
+}
+.forecast-mobile-toggle {
+  display: none;
+}
+.forecast-dialog {
+  max-width: 660px;
+}
+.forecast-dialog p,
+.forecast-dialog .sample-values {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.forecast-dialog .sample-values {
+  max-height: 250px;
+  overflow: auto;
+  padding-left: 20px;
+}
+.checkpoint-section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.checkpoint-section h3 {
+  font-size: 18px;
+  margin: 10px 0;
+}
+.checkpoint-section > p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.checkpoint-section table,
+.checkpoint-section tbody,
+.checkpoint-section tr,
+.checkpoint-section td,
+.checkpoint-section th {
+  display: block;
+  width: auto;
+  min-width: 0;
+}
+.checkpoint-section thead {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.checkpoint-section tr {
+  border: 1px solid var(--border);
+  background: var(--canvas);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 12px 0;
+}
+.checkpoint-section :is(td, th) {
+  border: 0;
+  padding: 4px 0;
+  font-size: 12px;
+  text-align: left;
+}
+.checkpoint-section td button {
+  width: 100%;
+  min-height: 44px;
+  font-size: 12px;
+}
+.checkpoint-section th small {
+  display: inline;
+  margin-left: 10px;
+  font-weight: 400;
+}
+.checkpoint-dialog {
+  position: fixed;
+  left: auto;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  transform: none;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: min(440px, 100vw);
+  border-radius: 18px 0 0 18px;
+  padding: 30px 26px;
+  animation: drawer-enter 160ms ease-out;
+}
+.checkpoint-dialog .detail-grid {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+.checkpoint-dialog .detail-grid dt {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-top: 12px;
+}
+.checkpoint-dialog .detail-grid dd {
+  font-size: 14px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@keyframes drawer-enter {
+  from {
+    opacity: 0.6;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.planner-app[data-collapsed="true"] .workspace {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+.planner-app[data-collapsed="true"] .planner-panel {
+  visibility: hidden;
+  padding: 0;
+}
+.workspace-nav,
+.sheet-controls {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .planner-app {
+    --sidebar-size: 340px;
+  }
+  .planner-app .planner-panel {
+    padding: 18px 16px;
+  }
+  .planner-app .forecast-timeline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .planner-app .timeline-heading {
+    width: 100%;
+  }
+  .timeline-tools {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .timeline-bottom,
+  .hour-ticks,
+  .forecast-help {
+    width: 100%;
+  }
+  .timeline-bottom {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
+@media (max-width: 767px) {
+  .planner-app .shell {
+    padding: 0 14px;
+    gap: 10px;
+    height: 60px;
+    min-height: 60px;
+  }
+  .planner-app .brand {
+    font-size: 18px;
+    gap: 6px;
+  }
+  .planner-app .brand svg {
+    width: 22px;
+  }
+  .planner-app .page-label,
+  .planner-app .help span {
+    display: none;
+  }
+  .planner-app .header-actions {
+    gap: 2px;
+  }
+  .planner-app .help {
+    width: 44px;
+    padding: 0;
+  }
+  .planner-app .fixture-banner {
+    font-size: 10px;
+    text-align: left;
+    padding: 4px 12px;
+  }
+  .workspace-nav {
+    display: flex;
+    order: 3;
+    border-top: 1px solid var(--border);
+    padding: 5px 8px max(5px, env(safe-area-inset-bottom));
+    gap: 4px;
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+  .workspace-nav button {
+    flex: 1;
+    font-size: 11px;
+    min-height: 44px;
+    padding: 6px 4px;
+    border: 0;
+  }
+  .workspace-nav button[aria-pressed="true"] {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .planner-app .workspace {
+    order: 2;
+    display: block;
+    --sheet-size: 42%;
+  }
+  .planner-app .planner-panel {
+    position: absolute;
+    z-index: 4;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--sheet-size);
+    border: 1px solid var(--border);
+    border-radius: 18px 18px 0 0;
+    padding: 12px 18px 20px;
+    visibility: visible;
+    box-shadow: 0 -4px 18px #09132112;
+  }
+  .planner-app .result-workspace {
+    position: absolute;
+    inset: 0;
+    padding-bottom: var(--sheet-size);
+  }
+  .sheet-controls {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .sheet-controls button {
+    min-height: 32px;
+    font-size: 11px;
+    padding: 4px 12px;
+    background: var(--surface-muted);
+  }
+  .planner-app[data-expanded="true"] .workspace {
+    --sheet-size: 74%;
+  }
+  .planner-app[data-view="map"] .workspace {
+    --sheet-size: 0px;
+  }
+  .planner-app[data-view="map"] .planner-panel {
+    display: none;
+  }
+  .planner-app[data-has-trip="false"] .planner-panel {
+    height: 100%;
+    border-radius: 0;
+    border: 0;
+    position: absolute;
+  }
+  .planner-app[data-has-trip="false"] .result-workspace {
+    display: none;
+  }
+  .planner-app[data-has-trip="false"] .workspace-nav button:not(:first-child) {
+    opacity: 0.7;
+  }
+  .planner-app .trip-summary h2 {
+    font-size: 22px;
+  }
+  .planner-app .trip-controls {
+    padding-bottom: 12px;
+  }
+  .planner-app .workspace-footer {
+    display: none;
+  }
+  .planner-app .map-toolbar {
+    left: 10px;
+    top: 10px;
+    right: 10px;
+  }
+  .planner-app .map-toolbar strong {
+    font-size: 11px;
+    padding: 8px;
+  }
+  .planner-app .map-toolbar button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .planner-app .map-toolbar button {
+    width: 44px;
+  }
+  .planner-app .map-status {
+    left: 10px;
+    top: 50px;
+    max-width: calc(100% - 76px);
+    font-size: 9px;
+    padding: 4px 6px;
+  }
+  .planner-app .maplibregl-ctrl-top-right {
+    top: 56px;
+    right: 5px;
+  }
+  .map-legend-toggle {
+    right: 9px;
+    top: 162px;
+  }
+  .planner-app .map-credits {
+    font-size: 9px;
+    padding: 3px 8px;
+    max-height: 56px;
+    overflow: auto;
+  }
+  .map-credits small,
+  .map-credits .weather-attribution {
+    font-size: 9px;
+  }
+  .planner-app .forecast-timeline {
+    padding: 5px 10px;
+    display: block;
+    min-height: 48px;
+  }
+  .forecast-mobile-toggle {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    min-height: 40px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  .planner-app
+    .forecast-timeline[data-mobile-open="false"]
+    > :not(.forecast-mobile-toggle) {
+    display: none;
+  }
+  .planner-app .forecast-timeline[data-mobile-open="true"] {
+    max-height: 65%;
+    overflow: auto;
+    flex-shrink: 1;
+  }
+  .planner-app .forecast-timeline[data-mobile-open="true"] .timeline-heading {
+    margin-top: 8px;
+  }
+  .planner-app .map-region {
+    min-height: 130px;
+  }
+  .timeline-tools {
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .layer-segments {
+    display: none;
+  }
+  .compact-layer {
+    display: block;
+    flex: 1;
+  }
+  .compact-layer select {
+    min-height: 44px !important;
+    font-size: 12px;
+  }
+  .overlay-switch {
+    min-height: 44px;
+  }
+  .timeline-bottom {
+    display: block;
+  }
+  .coverage-status {
+    display: block;
+    margin-top: 8px;
+  }
+  .planner-app .scalar-legend {
+    gap: 5px;
+  }
+  .forecast-help {
+    line-height: 1.5;
+  }
+  .checkpoint-dialog {
+    border-radius: 0;
+    padding: 26px 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .checkpoint-dialog {
+    animation: none;
+  }
+  .planner-app * {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Keep choices in the first viewport beside the map, with optional input metadata compact. */
+.trip-summary {
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+.trip-summary h2 {
+  font-size: 20px;
+  margin: 8px 0 12px;
+}
+.summary-journey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+}
+.summary-journey strong {
+  max-width: calc(50% - 28px);
+  overflow-wrap: anywhere;
+}
+.summary-journey > span {
+  transform: rotate(-90deg);
+}
+.summary-journey svg {
+  width: 14px;
+  flex-shrink: 0;
+}
+.trip-input-details {
+  margin-top: 10px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.trip-input-details summary {
+  cursor: pointer;
+  min-height: 28px;
+}
+.planner-app .trip-controls {
+  padding-bottom: 10px;
+}
+.planner-app .comparison-heading .eyebrow,
+.planner-app .comparison-heading h2 {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.planner-app .comparison-heading p {
+  margin: 0 0 8px;
+}
+.planner-app .recommendation-summary {
+  padding: 12px;
+  font-size: 13px;
+  margin: 8px 0 12px;
+}
+.planner-app .recommendation-summary p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+.assessment-tabs {
+  margin-bottom: 12px;
+}
+.planner-app .page-label {
+  font-size: 14px;
+  letter-spacing: 0;
+  font-weight: 500;
+  margin: 0;
+}
+@media (max-width: 767px) {
+  .planner-app .page-label {
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .planner-app:is([data-view="routes"], [data-view="checkpoints"])
+    .trip-summary {
+    display: none;
+  }
+  .planner-app:is([data-view="routes"], [data-view="checkpoints"])
+    .trip-controls {
+    display: none;
+  }
+  .planner-app:is([data-view="routes"], [data-view="checkpoints"])
+    .assessment-tabs {
+    margin-bottom: 8px;
+  }
+}
+/* Hidden overflow must not become a second focus-scroll container around the panes. */
+.planner-app,
+.planner-app .workspace,
+.planner-app .result-workspace,
+.planner-app .map-and-details,
+.planner-app .map-region {
+  overflow: clip;
+}
+.planner-app .comparison {
+  padding-bottom: 0;
+}
+@media (max-width: 767px) {
+  .planner-app .result-workspace {
+    padding-bottom: 0;
+    bottom: var(--sheet-size);
+  }
+  .planner-app[data-expanded="true"] .workspace {
+    --sheet-size: 62%;
+  }
+  .planner-app[data-expanded="true"] .map-legend-toggle {
+    display: none;
+  }
+  .workspace-nav button:disabled {
+    cursor: default;
+  }
+}
+.processing-inline {
+  font-size: 14px;
+  padding: 16px;
+  background: var(--primary-soft);
+  border-radius: 12px;
+}
+.processing-inline p {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+@media (max-width: 767px) {
+  .planner-app:has(.forecast-timeline[data-mobile-open="true"])
+    :is(
+      .map-toolbar,
+      .map-status,
+      .maplibregl-ctrl,
+      .map-legend-toggle,
+      .map-legend
+    ) {
+    display: none;
+  }
+}
+.timing-note {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin: 4px 0 8px;
+}
+/* Short viewports (including browser zoom) prioritize readable panels with an explicit Map view. */
+@media (max-width: 767px) and (max-height: 560px) {
+  .planner-app[data-has-trip="true"]:not([data-view="map"]) .result-workspace {
+    display: none;
+  }
+  .planner-app[data-has-trip="true"]:not([data-view="map"]) .planner-panel {
+    height: 100%;
+    border-radius: 0;
+  }
+  .sheet-controls {
+    display: none;
+  }
+  .map-legend-toggle {
+    display: none;
+  }
+}
+.planner-app
+  :is(
+    .route-card > button,
+    .trip-controls button,
+    .timezone-chip,
+    .summary-top button,
+    .assessment-tabs button
+  ) {
+  min-height: 44px;
+}
+.planner-app .timeline-controls button {
+  width: 44px;
+  min-height: 44px;
+}
+.planner-app .swap-row {
+  height: 44px;
+  margin: -8px 0 4px;
+}
+.planner-app .swap {
+  min-height: 44px;
+}
+.sheet-controls button {
+  min-height: 44px;
+}
+@media (max-width: 767px) {
+  .planner-app[data-view="map"][data-has-trip="true"] .workspace {
+    --sheet-size: 0px;
+  }
+}
+/* User refinement: one RouteCast design language, from home to workspace. */
+.planner-app .shell {
+  height: 76px;
+  min-height: 76px;
+  padding: 0 32px;
+  background: var(--canvas);
+  border-bottom: 0;
+}
+.planner-app .brand {
+  font-family: Manrope, "Segoe UI", sans-serif;
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -1px;
+  gap: 9px;
+}
+.planner-app .brand > span {
+  display: block;
+}
+.planner-app .brand .brand-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--teal);
+  margin-left: -2px;
+}
+.planner-app .page-label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.planner-app .header-actions {
+  gap: 12px;
+}
+.planner-app .help {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 0 14px;
+}
+.panel-toggle {
+  display: flex;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.panel-toggle svg {
+  transition: transform 180ms ease;
+}
+.panel-toggle[aria-expanded="false"] svg {
+  transform: rotate(180deg);
+}
+.panel-toggle:is(:hover, :focus-visible) {
+  background: var(--primary-soft);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.planner-app .fixture-banner {
+  min-height: 32px;
+  margin: 0 24px;
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.fixture-banner > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fixture-banner strong,
+.fixture-banner > span > svg {
+  color: var(--teal);
+  font-size: 10px;
+  letter-spacing: 1.1px;
+}
+.fixture-guide-trigger {
+  min-height: 32px;
+  padding: 4px 8px;
+  font-size: 11px;
+  border: 0;
+  background: transparent;
+  color: var(--primary);
+}
+.fixture-guide dl {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 24px 0;
+}
+.fixture-guide dt {
+  color: var(--text-muted);
+}
+.fixture-guide dd {
+  margin: 0;
+}
+.fixture-guide-note {
+  font-size: 13px;
+  color: var(--text-muted);
+  padding: 14px;
+  background: var(--primary-soft);
+  border-radius: 12px;
+  line-height: 1.6;
+}
+.planner-app .workspace {
+  padding: 16px;
+  transition: grid-template-columns 180ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.planner-app .planner-panel {
+  padding: 26px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--control-border) transparent;
+  transition:
+    opacity 140ms ease,
+    transform 180ms ease;
+}
+.planner-app[data-collapsed="true"] .planner-panel {
+  opacity: 0;
+  transform: translateX(-10px);
+  border-width: 0;
+}
+.planner-app .panel-heading {
+  margin-bottom: 24px;
+}
+.planner-app .panel-heading .eyebrow {
+  color: var(--teal);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+.planner-app .panel-heading h2 {
+  font-size: 28px;
+  font-weight: 750;
+  letter-spacing: -1.2px;
+  margin: 12px 0 8px;
+}
+.planner-app .panel-heading p {
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 270px;
+}
+.planner-app .field label,
+.planner-app .spacing legend {
+  font-size: 13px;
+  font-weight: 600;
+  transition: color 160ms;
+}
+.planner-app .field {
+  margin-bottom: 18px;
+}
+.planner-app
+  input:not([type="radio"]):not([type="checkbox"]):not([type="range"]),
+.planner-app select {
+  min-height: 52px;
+  border-radius: 12px;
+  background: var(--surface-muted);
+  border-color: var(--border);
+  font-size: 14px;
+  padding: 12px;
+  transition:
+    background-color 160ms,
+    border-color 160ms,
+    box-shadow 160ms;
+}
+.planner-app
+  input:not([type="radio"]):not([type="checkbox"]):not(
+    [type="range"]
+  ):hover:not(:disabled) {
+  border-color: var(--control-border);
+}
+.planner-app
+  input:not([type="radio"]):not([type="checkbox"]):not(
+    [type="range"]
+  ):focus-visible,
+.planner-app select:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--primary) 10%, transparent);
+  background: var(--surface);
+  border-color: var(--primary);
+}
+.planner-app .field:focus-within > label {
+  color: var(--primary);
+}
+.planner-app .input-icon svg {
+  top: 17px;
+  color: var(--text-muted);
+  transition:
+    color 160ms,
+    transform 160ms;
+}
+.planner-app .input-icon:focus-within svg {
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+.planner-app input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.85;
+}
+.planner-app .input-suffix span {
+  top: 15px;
+}
+.planner-app .swap {
+  font-size: 11px;
+  color: var(--teal);
+  border-radius: 8px;
+}
+.planner-app .swap:is(:hover, :focus-visible) {
+  background: var(--teal-soft);
+}
+.planner-app .form-divider {
+  margin: 24px 0;
+}
+.planner-app .timezone-chip {
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.planner-app .primary {
+  border-radius: 12px;
+  min-height: 52px;
+  font-weight: 650;
+  letter-spacing: 0.1px;
+}
+.planner-app .segments {
+  border-radius: 12px;
+  border-color: var(--border);
+  background: var(--surface-muted);
+  padding: 3px;
+  gap: 3px;
+}
+.planner-app .segments span {
+  border-radius: 9px;
+  min-height: 42px;
+  transition:
+    background-color 160ms,
+    box-shadow 160ms;
+}
+.planner-app .segments input:checked + span {
+  background: var(--surface);
+  box-shadow: 0 2px 8px #09132118;
+  color: var(--primary);
+}
+.planner-app .segments label:hover span {
+  background: var(--primary-soft);
+}
+.planner-app .segments input:focus-visible + span {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+.planner-app .result-workspace {
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: var(--surface);
+}
+.planner-app .processing {
+  max-width: none;
+  width: 100%;
+}
+.planner-welcome {
+  isolation: isolate;
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  padding: 36px;
+  overflow: clip;
+  background: radial-gradient(
+    ellipse at 85% 40%,
+    var(--primary-soft),
+    transparent 65%
+  );
+}
+.welcome-copy {
+  min-width: 0;
+  animation: copy-enter 250ms ease-out;
+}
+.welcome-copy .landing-eyebrow {
+  font-size: 9px;
+  letter-spacing: 1.7px;
+  color: var(--teal);
+  line-height: 1.5;
+}
+.welcome-copy h2 {
+  font-family: Manrope, "Segoe UI", sans-serif;
+  font-size: clamp(30px, 3.1vw, 46px);
+  line-height: 1.12;
+  letter-spacing: -1.9px;
+  font-weight: 750;
+  margin: 20px 0;
+}
+.welcome-copy h2 em {
+  font-style: normal;
+  color: var(--primary);
+}
+.welcome-copy > p:not(.landing-eyebrow) {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 340px;
+}
+.welcome-workflow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 28px;
+  font-size: 12px;
+}
+.welcome-workflow > span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.welcome-workflow > span > svg {
+  color: var(--teal);
+}
+.welcome-workflow > svg {
+  display: none;
+}
+.welcome-illustration {
+  min-width: 0;
+}
+.planner-welcome .hero-scene {
+  margin: 0;
+  transform: rotate(-2deg);
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 22px 42px #09132110;
+}
+.planner-welcome .hero-scene > svg {
+  height: auto;
+  width: 100%;
+  min-height: 0;
+}
+.planner-welcome .scene-summary {
+  bottom: 38px;
+  right: 10px;
+  max-width: 90%;
+  padding: 10px;
+  gap: 8px;
+}
+.planner-welcome .scene-summary strong {
+  font-size: 11px;
+}
+.planner-welcome .scene-summary span {
+  font-size: 9px;
+}
+.planner-welcome .scene-summary > svg {
+  width: 22px;
+}
+.planner-welcome .scene-top {
+  padding: 8px 12px;
+}
+.planner-welcome .scene-top > span {
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.planner-welcome .hero-scene figcaption {
+  font-size: 9px;
+  padding: 4px 12px 12px;
+  line-height: 1.5;
+}
+.planner-welcome .scene-paused * {
+  animation: none !important;
+}
+.welcome-caption {
+  grid-column: 1/-1;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.welcome-caption > span {
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.welcome-caption p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.planner-app .workspace-footer {
+  font-size: 10px;
+  padding: 8px;
+  background: var(--surface);
+}
+.planner-app .route-card {
+  border-radius: 16px;
+  transition:
+    background-color 160ms,
+    border-color 160ms,
+    box-shadow 160ms;
+}
+.planner-app .route-card:hover {
+  border-color: var(--control-border);
+  box-shadow: 0 6px 18px #0913210a;
+}
+.planner-app .route-card.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 8%, transparent);
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  .planner-app {
+    --sidebar-size: 340px;
+  }
+  .planner-app .planner-panel {
+    padding: 22px 18px;
+  }
+  .planner-welcome {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 24px;
+  }
+  .welcome-copy {
+    text-align: center;
+  }
+  .welcome-copy h2 {
+    font-size: 32px;
+    margin: 12px 0;
+  }
+  .welcome-copy h2 br {
+    display: none;
+  }
+  .welcome-copy > p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .welcome-workflow,
+  .welcome-caption {
+    display: none;
+  }
+  .welcome-illustration {
+    width: min(100%, 360px);
+    margin: auto;
+  }
+  .planner-welcome .hero-scene > svg {
+    height: min(30dvh, 230px);
+  }
+}
+@media (min-width: 768px) and (max-height: 650px) {
+  .planner-welcome {
+    padding: 20px 26px;
+    gap: 20px;
+  }
+  .welcome-copy h2 {
+    font-size: 32px;
+    letter-spacing: -1.3px;
+    margin: 14px 0;
+  }
+  .welcome-copy > p:not(.landing-eyebrow) {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .welcome-workflow {
+    gap: 10px;
+    margin-top: 18px;
+    font-size: 11px;
+  }
+  .welcome-caption {
+    display: none;
+  }
+  .planner-welcome .hero-scene > svg {
+    height: calc(100dvh - 320px);
+    min-height: 130px;
+  }
+  .planner-welcome .scene-summary {
+    display: none;
+  }
+}
+@media (max-width: 767px) {
+  .planner-app .shell {
+    height: 68px;
+    min-height: 68px;
+    padding: 0 16px;
+  }
+  .planner-app .brand {
+    font-size: 21px;
+  }
+  .panel-toggle {
+    display: none;
+  }
+  .planner-app .header-actions {
+    gap: 8px;
+  }
+  .planner-app .help {
+    padding: 0;
+    width: 44px;
+  }
+  .planner-app .fixture-banner {
+    margin: 0 12px;
+    gap: 4px;
+    min-height: 36px;
+  }
+  .fixture-explanation {
+    display: none;
+  }
+  .planner-app .workspace {
+    padding: 0;
+    gap: 0;
+    transition: none;
+  }
+  .planner-app .planner-panel {
+    border-radius: 22px 22px 0 0;
+    padding: 16px 20px 24px;
+    opacity: 1;
+    transform: none;
+  }
+  .planner-app[data-has-trip="false"] .planner-panel {
+    border-radius: 20px 20px 0 0;
+    border: 1px solid var(--border);
+    padding: 24px 20px;
+  }
+  .planner-app .result-workspace {
+    border-radius: 0;
+    border: 0;
+  }
+  .fixture-guide dl {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .fixture-guide dd {
+    margin-bottom: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .planner-welcome *,
+  .panel-toggle svg,
+  .planner-app .workspace,
+  .planner-app .planner-panel {
+    animation: none !important;
+    transition: none !important;
+  }
+}

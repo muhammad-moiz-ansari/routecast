@@ -15,8 +15,22 @@ Six targeted checks pass (four new cases plus two affected landing/motion cases)
 | Phase | Status | Scope |
 | --- | --- | --- |
 | UI-1 | Complete | Branded landing, shared theme/tokens/font, explicit routes, lazy planner and controlled illustrative motion |
-| UI-2 | Not started | Planner workspace, form/cards/map layout and responsive controls |
+| UI-2 | Complete | Viewport planner, scrollable sidebar, docked forecast, checkpoint drawer/list and responsive navigation |
 | UI-3 | Not started | Smooth operational corridor weather renderer and final presentation review |
+
+## UI-2 result — 9 November 2026
+
+Implemented only UI-2 plus the requested shared specular CTA refinement. Primary landing/header/menu/closing planner CTAs and the Compare routes action use SpecularAction: an original pointer-lit CSS rim inspired by the React Bits reference, with keyboard focus, disabled and static reduced-motion states. No WebGL/shader/animation dependency or idle loop was added. The preference is recorded in UI_INTERACTION_GUIDELINES.md.
+
+The planner fills the viewport under a compact header. A separately scrollable sidebar holds the trip summary, edit action, refresh/stop controls, recommendation and compact route cards. The map stays alongside results; forecast controls occupy their own dock, and attribution remains outside controls. Shared timing/source metadata is disclosed once while stale, blocked, incomplete and proportional-ETA cues remain visible. Checkpoints have a dedicated text-list mode and a focused Radix drawer with Escape/focus return.
+
+Extracted PlannerHeader, PlannerSidebar, TripForm, TripSummary, TimezonePicker, RouteCard and CheckpointList. App retains mutation, validation, restoration, session and lifecycle ownership. A stable sidebar portal keeps inspection and absolute forecast time with the mounted comparison/map. Theme, panel and responsive changes do not fit/recreate the map; its existing ResizeObserver handles layout. Selected lines are blue with casing, route labels are circular, selected endpoints are distinguished, and zoom/fit/legend controls occupy an anchored rail. Risk badge, strip, marker and existing categorical-field colors now share one palette, with explicit day/night badge pairs.
+
+Mobile uses Trip/Routes/Checkpoints/Map navigation and explicit sheet expansion/collapse; its forecast dock can expand independently. Very short viewports prioritize a full text panel with a separate Map view. Editing preserves values and prepares a new comparison, leaving the saved trip intact. Searchable timezone choices preserve the existing IANA conversion/schema; Escape discards unconfirmed search text. Form submission remains explicit and guarded against duplicates; its CTA flows after fields instead of covering them.
+
+Verification: 20 unique focused cases pass across scoped runs (18 affected existing cases, 2 new cancellation/panel-preservation cases); final TypeScript/production build and 71 notices pass. Actual fixture review covered 1366×768 and 1280×800 desktop, day/night results and 320px reflow, 640×400 constrained layout, form validation/submission, editing/timezone search, drawer and legend Escape/focus return, cached forecast time and pane controls. All 12 risk badge contrast pairs exceed 4.5:1. See UI2 entries in VERIFICATION_LOG.md for scope, fingerprints, resolved failures and review limits.
+
+Routing/weather/basemap calls: zero. Backend, API contracts and lifecycle/risk rules are unchanged; prior verification is reused. Operational weather remains the existing cell renderer for UI-3. Actual browser text enlargement, screen-reader/device breadth and existing release gates remain pending; constrained CSS viewports were reviewed without claiming full WCAG certification. Owned preview stopped, viewport reset and original night preference restored. No staging, commit, push, PR or deployment. Stopped after UI-2; await the user's next phase request.
 
 ## UI-1 result
 
@@ -35,3 +49,11 @@ See UI1 entries in VERIFICATION_LOG.md. Four new focused component cases and thr
 Backend/risk/corridor/lifecycle evidence from phases 7–10 is reused. Planner core layout and its existing sticky-action behavior remain for UI-2; operational weather remains the existing polygon-cell implementation until UI-3. Full screen-reader/device/zoom review and OS-level reduced-motion browser review remain pending; the reduced-motion branch and cleanup are component-tested and its CSS is reviewed. Existing Zod annotation and MapLibre chunk-size advisories remain nonfatal. Existing release gates in PROGRESS.md are unchanged.
 
 Owned fixture preview was stopped; the pre-existing server on port 5173 was left alone. Browser cleanup navigation timed out after the successful review, so final theme restoration/viewport reset is unconfirmed. No Git mutation, PR, publication or deployment. Stopped after UI-1; wait for the user's next phase instruction.
+
+## UI-2 correction in progress — 9 November 2026
+
+User rejected the empty planner's density and mismatch with the landing. Revisited all three supplied references visually. Replaced the legacy width-constrained empty state with PlannerWelcome using the same extracted HeroRouteScene as home (static initially, with explicit motion control), matching Manrope/blue/teal identity, panel spacing and shared branding. Improved focused fields, segmented controls and card feedback; moved the collapse arrow into an animated header action. Removed the fixture test-values dialog and preview banner at the user's explicit request; synthetic content remains synthetic. Tests/build are being checked separately.
+
+This follow-up is **not complete**. Automatic browser approval review rejected localhost navigation because account usage limits prevented the approval check. No workaround was attempted. Current rendered UI review is pending; earlier screenshots do not verify these changes. The newly requested smooth operational gradient field also remains unimplemented: existing polygons are still present. It must preserve geographic support, missing holes and categorical hazards under the UI-3 rendering requirements, rather than blurring existing boxes.
+
+Fixture inputs: search/select Albany and Boston; future local departure (10 November 2026 13:00 for this recorded session), Asia/Karachi, 42,000 lb, 25 mi. Results are pre-authored and do not represent a live route between those names. No provider calls or Git/deployment actions.
