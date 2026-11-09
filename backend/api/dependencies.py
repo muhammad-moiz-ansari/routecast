@@ -1,5 +1,9 @@
 """The explicit composition root: constructing dependencies performs no I/O."""
 
+from typing import cast
+
+from celery import Task
+
 from cache.redis_client import cache_available
 from persistence.stores.health_store import database_available
 from services.health.health_repo import HealthRepo
@@ -95,7 +99,8 @@ def get_planning_service():
     def dispatch(run_id):
         from tasks.planning_tasks import analyze
 
-        analyze.apply_async(args=[run_id], retry=False)
+        # Celery replaces the decorated function with a Task at runtime.
+        cast(Task, analyze).apply_async(args=[run_id], retry=False)
 
     return PlanningService(
         AnalysisStore(),
@@ -156,7 +161,7 @@ def get_corridor_service():
     def dispatch(job_id):
         from tasks.corridor_tasks import corridor
 
-        corridor.apply_async(args=[job_id], retry=False)
+        cast(Task, corridor).apply_async(args=[job_id], retry=False)
 
     client, forecasts = get_forecast_source()
     return CorridorService(

@@ -104,26 +104,24 @@ Qualify periodic reassessment: "Automatic reassessment is configuration-controll
 
 ### 5:50-7:55 | Architecture and provider replacement | 125 seconds
 
-Show the following sequence, with editor tabs already open:
+Use these bullets as narration notes. Focus on the visible structure and how it makes changes easier; avoid spending this section reading method signatures.
 
-1. backend/api/routes/weather_routes.py: thin owner-scoped HTTP boundary.
-2. backend/services/weather/weather_repo.py: the abstract assess contract.
-3. backend/services/weather/weather_service.py: the concrete implementation receiving client/cache/usage dependencies.
-4. backend/services/weather/models.py: HourlyForecast and ForecastSeries, using normalized units and timestamps.
-5. backend/integrations/open_meteo/weather_client.py and backend/integrations/pirate_weather/weather_client.py: both adapters return the same model.
-6. backend/api/dependencies.py: get_forecast_source(), followed briefly by get_weather_service() and get_corridor_service().
+- Show the backend/services folder and its weather, routing, risk and recommendation modules.
+  Say: "We used a Repository-Service structure to keep the backend modular. Each feature has its own module, so routing, weather and risk logic are organized separately instead of being mixed into one large file."
 
-Say: "We organized the backend using Repository-Service contracts, dependency injection and dedicated provider adapters. Routes handle HTTP and ownership. The service contains the application workflow. Our repo files define abstract service contracts; actual database queries live in persistence stores."
+- Expand backend/services/weather and show weather_repo.py, weather_service.py and models.py.
+  Say: "Each module follows a consistent structure. The repo file defines the contract, the service implements the workflow, and the models define the data passed between components. That makes it easier to find the right place for a change and understand how the pieces fit together."
 
-Say: "The weather service receives its client rather than constructing a specific provider internally. Open-Meteo and Pirate Weather both normalize their responses into the same ForecastSeries and HourlyForecast models. That includes consistent timestamps, wind in miles per hour and precipitation in inches per hour. The rest of the application operates on that contract."
+- Briefly show backend/api/routes and backend/persistence/stores.
+  Say: "API routes handle incoming requests, services handle application logic, and persistence stores handle database queries. Keeping these responsibilities separate makes the code easier to maintain and extend."
 
-Point to get_forecast_source(): "This composition function chooses Pirate Weather when its server-side key is configured, otherwise Open-Meteo. Both checkpoint assessments and the corridor service use the same selection. Each provider has a separate cache namespace, so switching providers does not silently reuse the other provider's forecast entries."
+- Show the Open-Meteo and Pirate Weather adapter folders under backend/integrations, then get_forecast_source() in backend/api/dependencies.py.
+  Say: "A practical example is our weather-provider change. Both adapters convert their provider's data into the same internal format. We can select the required adapter here while keeping the frontend, checkpoint calculation and risk-ranking logic consistent. This keeps provider-specific changes localized."
 
-Finish: "This made provider replacement localized: implement and validate the adapter, then wire it here. We did not need to redesign the frontend, checkpoint algorithm or risk-ranking rules. Provider-specific unit conversion, interval alignment, request limits and error handling still need tests. This is a configuration choice, not automatic failover after an error."
+- Point back to the service constructor and module folders.
+  Say: "The same separation helps with testing. We can pass in a fake provider and test the application logic without live API calls. Overall, the structure improves modularity, makes changes easier to manage and helps us add features with fewer changes across the codebase."
 
-Make the benefits explicit while showing the injected constructor and adapter selection: "The separation also makes testing easier: we can inject fake clients and test our rules without live API calls. Provider-specific changes stay isolated, while the shared forecast contract is reused by checkpoint assessments and the corridor view. This improves maintainability and reduces the scope of future changes."
-
-Do not claim PirateWeatherClient inherits WeatherRepo: it is an injected adapter exposing fetch(). WeatherService is the concrete subclass of WeatherRepo. Do not claim a runtime dropdown switches providers or that the replacement took a measured number of minutes.
+Presenter accuracy: repo files here are abstract service contracts; database queries live in persistence stores. Provider selection is configuration-based, not automatic failover. Provider replacement still requires validating unit conversions, timestamps, errors and request limits. Do not describe it as a guaranteed one-line change.
 
 ### 7:55-8:35 | AI summarization and insights | 40 seconds
 
