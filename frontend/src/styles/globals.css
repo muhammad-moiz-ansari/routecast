@@ -1171,3 +1171,5 @@ h3 {
 /* Pointer tooltip only; the button's aria-label still names it for keyboard/screen-reader use. */
 .theme-switch:focus-within:not(:hover) .theme-tooltip { display: none; }
 @media (hover: none) { .theme-switch .theme-tooltip { display: none !important; } }
+
+.brand-icon { display: inline-block; flex-shrink: 0; object-fit: contain; vertical-align: middle; }

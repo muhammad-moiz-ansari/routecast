@@ -16,6 +16,8 @@ Synchronous denials return HTTP 429, `provider_budget_exhausted` and Retry-After
 
 Groq is reserved one request per uncached `POST /trips/{id}/suggestions/`; cached results and all GETs reserve nothing. No migration is needed for it because the ledger has one row per provider name. App defaults sit well below Groq's free-plan limits for `openai/gpt-oss-20b` (30 requests/minute and 1,000/day when checked on 9 November 2026); confirm your account's actual limits in the Groq console.
 
+GROQ_API_KEY is backend-only and optional; without it the suggestion box says AI suggestions are not set up and nothing is sent. GROQ_MODEL defaults to `openai/gpt-oss-20b`, a current Groq production model on 9 November 2026 (Llama 3.x models were shut down for free/developer keys on 16 August 2026); if requests fail with `ai_request_rejected`, check [Groq models](https://console.groq.com/docs/models) and [deprecations](https://console.groq.com/docs/deprecations). Each uncached request is one HTTPS POST to Groq's chat completions endpoint with strict JSON-schema output, low reasoning effort, 3-second connect/20-second other timeouts, no redirects or retries and sanitized errors. Requests carry route statistics, local times, checkpoint weather and cargo load, not coordinates or place names; review Groq's terms and data policy before using real trip data.
+
 ## Activate locally
 
 Stop Django and both Celery workers with Ctrl+C. From `backend`:

@@ -1,4 +1,5 @@
 import { PlannerWelcome } from "../features/trip-planner/components/PlannerWelcome";
+import { BrandIcon } from "../components/ui/BrandIcon";
 import { providerBudgetMessage } from "../api/providerMessages";
 import { ProcessingRoute } from "../features/trip-planner/components/ProcessingRoute";
 import { PlannerSidebar } from "../features/trip-planner/components/PlannerSidebar";
@@ -392,7 +393,7 @@ export function App() {
             >
               <ProcessingRoute />
               <div className="workspace-icon">
-                <Route size={34} />
+                <BrandIcon size={40} />
               </div>
               <span className="eyebrow">
                 {status?.data ? "Latest completed analysis" : "Trip submitted"}

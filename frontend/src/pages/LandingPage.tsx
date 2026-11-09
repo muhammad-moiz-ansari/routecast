@@ -3,7 +3,8 @@ import { HeroRouteScene } from "../components/landing/HeroRouteScene";
 import { SpecularLink } from "../components/ui/SpecularAction";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Route, ArrowUpRight, ArrowRight } from "lucide-react";
+import { ArrowUpRight, ArrowRight } from "lucide-react";
+import { BrandIcon } from "../components/ui/BrandIcon";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import "../styles/landing.css";
 import { HoloCard } from "../components/ui/HoloCard";
@@ -119,7 +120,7 @@ export function LandingPage() {
       </a>
       <header className="site-header">
         <Link to="/" className="site-brand">
-          <Route aria-hidden="true" />
+          <BrandIcon />
           RouteCast
           <span className="brand-dot" />
         </Link>
@@ -316,7 +317,7 @@ export function LandingPage() {
           </div>
         </section>
         <section className="closing-cta">
-          <Route size={36} />
+          <BrandIcon size={44} white />
           <h2>
             Plan with a clearer
             <br />
@@ -329,7 +330,7 @@ export function LandingPage() {
       </main>
       <footer className="site-footer">
         <Link className="site-brand" to="/">
-          <Route />
+          <BrandIcon />
           RouteCast
         </Link>
         <nav aria-label="Footer navigation">

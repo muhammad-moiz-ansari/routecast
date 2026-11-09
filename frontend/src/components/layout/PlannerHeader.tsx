@@ -1,5 +1,6 @@
 import { ThemeToggle } from "../ui/ThemeToggle";
-import { Route, ChevronLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { BrandIcon } from "../ui/BrandIcon";
 export function PlannerHeader({
   collapsed = false,
   onTogglePanel,
@@ -10,7 +11,7 @@ export function PlannerHeader({
   return (
     <header className="shell">
       <a className="brand site-brand" href="/" aria-label="RouteCast home">
-        <Route size={26} />
+        <BrandIcon />
         <span>RouteCast</span>
         <i className="brand-dot" aria-hidden="true" />
       </a>

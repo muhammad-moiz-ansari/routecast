@@ -14,4 +14,4 @@ Current through Phase 10 (9 November 2026). Implementation preparation is comple
 | Browser persistence | Anonymous session access has no account recovery. Unsaved drafts, source place names absent from storage, inspection selection and selected absolute time are not persisted through full reload. Completed inputs restore with coordinate labels. Creation has no backend idempotency key. |
 | Packaging | MapLibre's lazy ~1.05 MB minified engine advisory and third-party Zod annotation notices are nonfatal. No blanket performance claim or repeated benchmark suite. Production API docs disabled; use local OpenAPI for inspection. |
 
-See DEPLOYMENT.md for release/rollback steps, PROVIDER_SETUP.md for actual usage controls and LIVE_API_CHECKLIST.md for narrowly bounded future checks. No pending item authorizes provider calls, publication or deployment.
+See [deployment](DEPLOYMENT.md) for release/rollback steps and [API usage limits](API_USAGE_LIMITS.md) for provider controls. No pending item authorizes provider calls, publication or deployment.
