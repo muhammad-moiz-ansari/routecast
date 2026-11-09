@@ -1,5 +1,11 @@
 # Known limitations and release evidence
 
+## Palette and focus refresh — 10 November 2026
+
+Home, planner, calendar/dialog controls and saved-trip UI share blue with honey-yellow, sage-green and lavender accent roles in both themes. Section/card fills, workflow accents and the closing action add colour without redefining weather-risk categories. Shared focus now uses a soft glow with an inset cue; sidebar scrolling reserves room for it. Selected route cards no longer stack an outline over a thick border. The conventions are recorded in ARCHITECTURE.md for future UI changes.
+
+Verification: production build (including TypeScript and dependency notices) passed. New accent foreground/fill contrast measured 5.31:1–9.74:1 across both themes. Focused existing landing/planner/comparison tests produced 37 passes and one failure: the comparison test still requests the former GeoJSON `corridor-field` source, while `useFieldOverlay` now publishes `weather-raster-*` image sources. No renderer code changed in this refresh. CSS parsing and diff whitespace checks passed. Browser visual review remains pending because the browser tool timed out reaching the local fixture server; only the supplied reference site was reviewed in-browser. No live route/weather API requests, staging, commits or deployment were performed.
+
 Current through Phase 10 (9 November 2026). Implementation preparation is complete; unrestricted public/commercial operation is not verified.
 
 | Area | Actual limit / outstanding evidence |

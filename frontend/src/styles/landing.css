@@ -19,6 +19,32 @@ h3,
   background: var(--canvas);
   color: var(--text);
 }
+/* Colour roles repeat across the home page and planner rather than introducing per-card hexes. */
+.landing-hero {
+  background: radial-gradient(
+    ellipse at 85% 25%,
+    var(--sun-soft),
+    transparent 58%
+  );
+}
+.landing .hero-copy > .landing-eyebrow,
+.planner-app .welcome-copy > .landing-eyebrow {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  border: 1px solid color-mix(in srgb, var(--sun-ink) 20%, transparent);
+  border-radius: 999px;
+  background: var(--sun-soft);
+  color: var(--sun-ink);
+}
+.landing .weather-insight {
+  background: linear-gradient(125deg, var(--leaf-soft), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: clamp(20px, 4vw, 44px);
+}
 .landing a {
   text-decoration: none;
 }
@@ -201,8 +227,12 @@ h3,
 }
 .hero-fact {
   font-size: 13px;
-  color: var(--text-muted);
   margin-top: 32px;
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--leaf-soft);
+  color: var(--leaf);
 }
 .hero-scene {
   position: relative;
@@ -379,7 +409,9 @@ h3,
 }
 .step-visual {
   min-height: 390px;
-  background: var(--surface);
+  background:
+    radial-gradient(ellipse at 100% 0, var(--sun-soft), transparent 70%),
+    var(--surface);
   border: 1px solid var(--border);
   border-radius: 24px;
   padding: 36px;
@@ -484,8 +516,19 @@ h3,
   gap: 24px;
 }
 .recommendation-story li {
-  padding: 20px 0;
-  border-top: 1px solid var(--control-border);
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--leaf-soft);
+}
+.recommendation-story li:nth-child(2) {
+  background: var(--sun-soft);
+}
+.recommendation-story li:nth-child(3) {
+  background: var(--violet-soft);
+}
+.recommendation-story li:nth-child(4) {
+  background: var(--primary-soft);
 }
 .recommendation-story li span {
   font-size: 12px;
@@ -526,8 +569,9 @@ h3,
   line-height: 1.15;
 }
 .closing-cta .landing-button {
-  background: #fff;
-  color: #173fa6;
+  background: var(--sun);
+  color: var(--on-sun);
+  --on-primary: var(--on-sun);
 }
 .site-footer {
   max-width: 1240px;
@@ -551,8 +595,13 @@ h3,
   color: var(--text-muted);
 }
 .landing :is(a, button, summary):focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 4px;
+  outline: none;
+  box-shadow: var(--focus-shadow);
+}
+.landing .landing-button:focus-visible {
+  box-shadow:
+    inset 0 0 0 2px var(--on-primary),
+    0 0 16px var(--focus-glow);
 }
 .landing :is(button, a) {
   -webkit-tap-highlight-color: transparent;
@@ -1282,6 +1331,27 @@ html {
 .capability-group { display: flex; flex: 0 0 auto; width: max(1240px, 100vw); list-style: none; padding: 0; margin: 0; }
 .capability-group li { flex: 1; min-width: 0; padding: 0; border-right: 1px solid var(--border); }
 .capability-group .capability-card { display: flex; align-items: center; gap: 12px; padding: 18px 20px; min-height: 60px; font-weight: 600; font-size: 14px; }
+.capability-group li:nth-child(1) .capability-card {
+  background: var(--primary-soft);
+}
+.capability-group li:nth-child(2) .capability-card {
+  background: var(--sun-soft);
+}
+.capability-group li:nth-child(3) .capability-card {
+  background: var(--leaf-soft);
+}
+.capability-group li:nth-child(4) .capability-card {
+  background: var(--violet-soft);
+}
+.capability-group li:nth-child(2) .capability-card > span {
+  color: var(--sun-ink);
+}
+.capability-group li:nth-child(3) .capability-card > span {
+  color: var(--leaf);
+}
+.capability-group li:nth-child(4) .capability-card > span {
+  color: var(--violet);
+}
 .capability-motion { flex-shrink: 0; width: 36px; height: 40px; padding: 0; border-radius: 10px; background: var(--surface); color: var(--primary); margin-right: 4px; }
 @media (prefers-reduced-motion: reduce) {
  .capability-marquee .capability-track { transform: none !important; width: 100%; will-change: auto; }

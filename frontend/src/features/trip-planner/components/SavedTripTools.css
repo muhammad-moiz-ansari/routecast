@@ -75,8 +75,16 @@
   transform: translate(2px, -2px);
 }
 .saved-trips-list a:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 4px;
+  outline: none;
+  box-shadow: var(--focus-shadow);
+}
+.saved-trip-actions > button:first-child:not(:disabled) {
+  background: var(--sun-soft);
+  color: var(--sun-ink);
+  border-color: color-mix(in srgb, var(--sun-ink) 30%, var(--border));
+}
+.saved-trips-list li:nth-child(even) a {
+  background: var(--leaf-soft);
 }
 .saved-trips-list small {
   margin-top: 5px;

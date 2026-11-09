@@ -4,7 +4,20 @@ import { Bookmark, Check, FolderOpen, X, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { readSavedTrips, saveTrip } from "../../../api/trips";
+import { ApiError } from "../../../api/client";
 import "./SavedTripTools.css";
+
+function savedTripsFailure(error: Error) {
+  if (error instanceof ApiError) {
+    if (error.status === 401 || error.status === 403)
+      return "Your session could not be verified. Try again to reconnect.";
+    if (error.status === 404 || error.status === 422)
+      return "Saved trips are unavailable on this server. Please try again later.";
+    if (error.status >= 500)
+      return "The server could not load your saved trips. Please try again.";
+  }
+  return "Could not load your trips. Please try again.";
+}
 
 /** Browser-session bookmarks reuse persisted results instead of submitting trips again. */
 export function SavedTripTools({
@@ -75,7 +88,7 @@ export function SavedTripTools({
               {saved.isPending && <p role="status">Loading saved trips…</p>}
               {saved.isError && (
                 <div role="alert">
-                  <p>Could not load your trips. Please try again.</p>
+                  <p>{savedTripsFailure(saved.error)}</p>
                   <button type="button" onClick={() => saved.refetch()}>
                     Try again
                   </button>

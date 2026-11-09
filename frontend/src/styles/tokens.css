@@ -41,8 +41,27 @@
 :root {
   --teal: #0f766e;
   --teal-soft: #e7f7f5;
+  /* Decorative accents have separate ink/fill pairs; weather risk keeps its own palette. */
+  --sun: #f4ce58;
+  --sun-ink: #765400;
+  --sun-soft: #fff3c4;
+  --on-sun: #302910;
+  --leaf: #386341;
+  --leaf-soft: #e8f3e2;
+  --violet: #70529a;
+  --violet-soft: #f0eafa;
+  --focus-glow: color-mix(in srgb, var(--primary) 22%, transparent);
+  --focus-shadow: inset 0 0 0 2px var(--primary), 0 0 14px var(--focus-glow);
 }
 :root[data-theme="night"] {
   --teal: #5eead4;
   --teal-soft: #133b3e;
+  --sun: #eed277;
+  --sun-ink: #f2d681;
+  --sun-soft: #36311f;
+  --on-sun: #302910;
+  --leaf: #a6d88b;
+  --leaf-soft: #203829;
+  --violet: #c4acf0;
+  --violet-soft: #29233c;
 }

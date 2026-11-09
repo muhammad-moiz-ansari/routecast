@@ -41,8 +41,8 @@
   opacity: 1;
 }
 .specular-cta:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 4px;
+  outline: none;
+  box-shadow: var(--focus-shadow);
 }
 .specular-cta:disabled::before {
   display: none;
