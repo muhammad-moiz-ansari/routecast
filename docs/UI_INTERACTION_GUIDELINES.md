@@ -1,0 +1,17 @@
+# RouteCast interaction preferences
+
+User-approved direction, 9 November 2026. Apply these consistently to future UI phases and follow-up changes. Read alongside UI_REDESIGN_HANDOFF.md; these refine UI-1 and do not authorize UI-2/UI-3 or deployment.
+
+- Every enabled button needs visible hover feedback and equivalent keyboard focus feedback. Use the shared globals.css baseline, then tailor background/border, restrained lift/glow or icon movement to context. A selected state is not a substitute for hover. Do not animate disabled controls or rely on hover to convey essential information.
+- Workflow selectors need a clear surface highlight and animated arrow. Their preview must explain the selected action visually: example locations/departure/cargo, checkpoint arrival forecasts, then eligibility/route comparison. Do not repeat the title over an arbitrary line.
+- Forecast-hour examples must change conditions and readings over fixed geography with a fixed scale. Use a short crossfade between distinct authored fields, synchronized readings and a brief description. Do not slide the same background to simulate new forecast data. Label examples as illustrative, keep data legible on mobile, and keep them separate from authoritative operational risk/weather logic.
+- FAQ answers should animate smoothly in both directions, with a right chevron rotating down when open and back when closed. Preserve native button keyboard interaction, aria-expanded/controls, focus and collapsed-content exclusion. Reuse AnimatedDisclosure rather than abrupt display toggles.
+- Same-page navigation should scroll smoothly; reduced-motion users get immediate navigation. Preserve real anchor URLs, direct section links and keyboard access.
+- Use restrained holographic foil and pointer tilt on suitable illustrative/capability cards, inspired by the React Bits Holo Card reference. Reuse HoloCard: bounded tilt, no idle loop, touch scrolling preserved, static keyboard focus treatment and a reduced-motion fallback. Keep content readable; avoid adding WebGL/shader frameworks for this effect. Do not add fake click behavior to informational cards.
+- Ordinary controls use about 160–180ms transitions; FAQ uses 220–280ms, forecast crossfade 400ms. Reduced motion removes travel/tilt and transition delays while retaining visible states and chevron direction. No per-frame React state, perpetual decorative card animation or invisible pointer overlays.
+
+Current shared pieces: frontend/src/components/ui/HoloCard.tsx, AnimatedDisclosure.tsx, styles/globals.css. Landing example content lives in components/landing/LandingExamples.tsx; it does not call APIs. These are presentation preferences; backend contracts and supplied risk rules remain unchanged.
+
+The user supplied three screenshots and referred to a fourth that was not attached. The holo request was applied to the landing capability, workflow and forecast cards; do not infer authorization to redesign operational result cards ahead of UI-2.
+
+Reference reviewed: [React Bits Holo Card](https://reactbits.dev/c/components/holo-card) and its [official source](https://github.com/DavidHDev/react-bits/blob/main/src/ts-default/Components/HoloCard/HoloCard.tsx). RouteCast uses an original CSS/DOM treatment of the requested foil/tilt idea, not copied shader/source code; no new package or external assets were added.

@@ -114,7 +114,9 @@ it("shows a static scene for reduced motion and cleans up scene observers", () =
   const router = createMemoryRouter(routes, { initialEntries: ["/"] });
   const ui = render(<RouterProvider router={router} />);
   expect(document.querySelector(".hero-scene")).toHaveClass("scene-paused");
-  expect(screen.getByRole("img")).toBeVisible();
+  expect(
+    screen.getByRole("img", { name: /Blue route B crosses/ }),
+  ).toBeVisible();
   ui.unmount();
   expect(disconnect).toHaveBeenCalled();
 });

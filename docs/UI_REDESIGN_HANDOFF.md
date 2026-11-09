@@ -4,6 +4,8 @@ Prepared: 9 November 2026. Scope: design and implementation instructions, not co
 
 ## 1. Read this first
 
+**User interaction refinements (9 November 2026):** Read [UI_INTERACTION_GUIDELINES.md](UI_INTERACTION_GUIDELINES.md) before future UI work. All enabled buttons need hover/focus feedback; workflow and forecast examples must communicate meaningful changes; FAQs open/close smoothly with rotating chevrons; same-page navigation scrolls smoothly; suitable cards use restrained holo foil/tilt. Preserve reduced-motion and touch/keyboard behavior. These preferences supersede the original simpler UI-1 examples and remain applicable to UI-2/UI-3.
+
 The original implementation phases 0–10 are complete. This is a new, three-phase UI project: **UI-1, UI-2, UI-3**. Do not restart the backend implementation plan.
 
 Build a distinctive, credible weather-aware truck routing product for a company presentation. Provide an expressive animated landing page and a separate focused route-planning workspace. Use blue as the primary identity, teal as a restrained secondary accent, and a genuine sun/moon theme toggle. Replace the visible corridor boxes with smooth geographic weather gradients.

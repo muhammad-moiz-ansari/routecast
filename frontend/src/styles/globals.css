@@ -28,6 +28,21 @@ button:disabled {
   cursor: wait;
   opacity: 0.65;
 }
+/* Shared interaction baseline: later UI phases should extend, not remove, this feedback. */
+button {
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+button:not(:disabled):is(:hover, :focus-visible) {
+  border-color: var(--primary);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary) 16%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  button:not(:disabled):hover { transform: translateY(-1px); }
+}
+button:not(:disabled):active { transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  button:not(:disabled):is(:hover, :focus-visible, :active) { transform: none; }
+}
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,

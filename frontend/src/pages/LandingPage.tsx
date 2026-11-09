@@ -8,13 +8,18 @@ import {
   Pause,
   Play,
   CloudSun,
-  Wind,
   Truck,
   MapPin,
   ArrowRight,
 } from "lucide-react";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import "../styles/landing.css";
+import { HoloCard } from "../components/ui/HoloCard";
+import { AnimatedDisclosure } from "../components/ui/AnimatedDisclosure";
+import {
+  WorkflowPreview,
+  ForecastPreview,
+} from "../components/landing/LandingExamples";
 function RouteScene() {
   const host = useRef<HTMLElement>(null);
   const [paused, setPaused] = useState(false);
@@ -240,7 +245,6 @@ const questions = [
 export function LandingPage() {
   const [menu, setMenu] = useState(false);
   const [step, setStep] = useState(0);
-  const [hour, setHour] = useState(0);
   const trigger = useRef<HTMLButtonElement>(null);
   const navigation = useRef<HTMLElement>(null);
   const content = useRef<HTMLElement>(null);
@@ -382,10 +386,10 @@ export function LandingPage() {
             "Cargo-aware risk rules",
             "0–48 hour forecast exploration",
           ].map((s, i) => (
-            <div key={s}>
+            <HoloCard key={s} className="capability-card">
               <span>0{i + 1}</span>
               {s}
-            </div>
+            </HoloCard>
           ))}
         </section>
         <section className="landing-section how-section" id="how-it-works">
@@ -413,28 +417,7 @@ export function LandingPage() {
               ))}
             </div>
           </div>
-          <div className="step-visual" key={step}>
-            <span className="visual-label">ILLUSTRATIVE WORKFLOW</span>
-            {step === 0 ? (
-              <MapPin size={52} />
-            ) : step === 1 ? (
-              <Wind size={52} />
-            ) : (
-              <Route size={52} />
-            )}
-            <h3>{steps[step][0]}</h3>
-            <p>{steps[step][1]}</p>
-            <div className="workflow-line">
-              <span>Origin</span>
-              <i />
-              <span>{step === 1 ? "Arrival forecast" : "Destination"}</span>
-            </div>
-            <small>
-              {step === 2
-                ? "Eligibility first · Then compare weather exposure"
-                : "Coordinates · Departure timezone · Cargo load"}
-            </small>
-          </div>
+          <WorkflowPreview step={step} />
         </section>
         <section
           id="weather-insight"
@@ -456,41 +439,7 @@ export function LandingPage() {
               Explore the planner <ArrowUpRight size={18} />
             </Link>
           </div>
-          <figure className={`forecast-art forecast-art-${hour}`}>
-            <div className="forecast-wash" />
-            <svg viewBox="0 0 500 220" aria-hidden="true">
-              <path
-                d="M30 170C120 170 100 60 220 110S350 130 470 35"
-                fill="none"
-                stroke="var(--surface)"
-                strokeWidth="12"
-              />
-              <path
-                d="M30 170C120 170 100 60 220 110S350 130 470 35"
-                fill="none"
-                stroke="var(--primary)"
-                strokeWidth="5"
-              />
-            </svg>
-            <div
-              className="illustration-hours"
-              aria-label="Illustrative forecast views"
-            >
-              {["Hour 0", "Hour 12", "Hour 24"].map((h, i) => (
-                <button
-                  key={h}
-                  aria-pressed={hour === i}
-                  onClick={() => setHour(i)}
-                >
-                  {h}
-                </button>
-              ))}
-            </div>
-            <figcaption>Illustrative forecast · fixed color scale</figcaption>
-            <div className="illustrative-legend">
-              <i /> Lower wind intensity → Higher
-            </div>
-          </figure>
+          <ForecastPreview />
         </section>
         <section
           className="landing-section recommendation-story"
@@ -547,10 +496,9 @@ export function LandingPage() {
           </div>
           <div>
             {questions.map(([q, a]) => (
-              <details key={q}>
-                <summary>{q}</summary>
+              <AnimatedDisclosure key={q} question={q}>
                 <p>{a}</p>
-              </details>
+              </AnimatedDisclosure>
             ))}
           </div>
         </section>

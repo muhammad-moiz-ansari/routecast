@@ -2,6 +2,16 @@
 
 Updated 9 November 2026. This is the separate UI project; original implementation phases 0–10 remain complete.
 
+## UI-1 interaction refinements — 9 November 2026
+
+Completed the user's follow-up without starting UI-2/UI-3. Added a shared hover/focus baseline for enabled buttons and distinct hover/arrow feedback on workflow selectors and links. Suitable landing capability, workflow and forecast cards use reusable CSS foil and bounded pointer tilt, inspired by the React Bits Holo Card reference; no shader/package or idle animation was added. SS-4 was not attached, so the scope assumption is recorded in [interaction guidelines](UI_INTERACTION_GUIDELINES.md).
+
+Replaced the repeated workflow label/line with three concrete authored examples: trip inputs, checkpoint arrival forecasts with cargo-aware Severe example, and eligible/blocked/incomplete route comparisons. Replaced the sliding forecast background with three geographically fixed wind fields that crossfade, with distinct readings, hour descriptions and a fixed scale. Mobile readings are real text rather than tiny SVG labels. These remain labeled illustrations, isolated from operational forecast/risk logic.
+
+FAQ uses reusable AnimatedDisclosure with smooth opening **and closing**, rotating right/down chevron, native buttons, aria-expanded/controls and inert collapsed answers. Section anchors now scroll smoothly with instant reduced-motion navigation. User preferences are persisted in UI_INTERACTION_GUIDELINES.md and linked near the top of the handoff for future phase consistency.
+
+Six targeted checks pass (four new cases plus two affected landing/motion cases). Actual fixture browser review confirmed the three workflow states, changed forecast fields/readings, hover foil/tilt, FAQ keyboard open/close and computed transition/chevron states, smooth anchor navigation, and 320px day/night readability without horizontal overflow. Final TypeScript/build/notices results and cleanup are recorded in VERIFICATION_LOG.md. No live routing/weather/basemap calls. Existing UI-1/backend evidence reused; screen-reader/device/OS reduced-motion coverage remains limited as recorded below. No Git or deployment actions.
+
 | Phase | Status | Scope |
 | --- | --- | --- |
 | UI-1 | Complete | Branded landing, shared theme/tokens/font, explicit routes, lazy planner and controlled illustrative motion |

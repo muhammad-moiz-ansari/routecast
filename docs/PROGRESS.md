@@ -29,4 +29,6 @@ Stopped after Phase 10. Nothing staged, committed, pushed, published or deployed
 
 ## Separate UI redesign — UI-1
 
+9 November 2026 follow-up: refined enabled-button hover/focus feedback, meaningful authored workflow/forecast illustrations, holo card treatment, smooth FAQ opening/closing and anchor scrolling. Durable future-phase preferences are in docs/UI_INTERACTION_GUIDELINES.md and linked from the handoff. See UI1-POLISH verification entries. UI-2/UI-3 remain unstarted.
+
 9 November 2026: UI-1 implemented and verified using offline fixtures. Complete branded landing, shared day/night theme/tokens, self-hosted Manrope, explicit landing/planner/trip/not-found routing and controlled accessible illustrative motion are recorded in [UI redesign progress](UI_REDESIGN_PROGRESS.md). UI-2/UI-3 are not started. Original phases 0–10 and their pending release gates remain unchanged. See UI1 verification entries; zero routing/weather/basemap requests. Stopped after UI-1 without Git or deployment actions.
