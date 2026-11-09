@@ -1,5 +1,11 @@
 # Architecture
 
+## Shared visual palette and focus (10 November 2026)
+
+Frontend colour roles live in `frontend/src/styles/tokens.css`. Blue remains the primary brand/action colour; honey yellow (`sun`), sage green (`leaf`) and lavender (`violet`) each have separate foreground and soft-fill tokens for light and night themes. Reuse those roles for decorative cards, section backgrounds, workflow details and saved-trip controls. Keep weather-risk colours in their existing risk palette; decorative colours must not redefine risk or eligibility. New accent foreground/fill pairs have measured text contrast above 4.5:1.
+
+Focus uses the shared `--focus-shadow`: an inset blue cue plus a diffused glow, with contrasting inset cues for primary actions. Scroll surfaces reserve space around their contents so the glow is not cut at the left edge. Selected route cards use one thin border and an inset left accent rather than stacked outlines. Keyboard focus remains explicit, including system-colour outlines in forced-colours mode. Preserve these conventions for future UI work across home, planner and dialogs.
+
 ## Shared provider budget guard (9 November 2026)
 
 Both provider transports reserve allowance through integrations/provider_budget.py before opening outbound HTTP. ORM operations remain in persistence/stores/provider_budget_store.py, with a single ProviderBudget row per provider containing bounded UTC windows. A durable transaction and PostgreSQL select_for_update serialize minute/hour/day/month reservations and commit them before HTTP; nested outer transactions, storage errors, malformed counters and backwards windows fail closed. New migration 0004 creates only this ledger. TomTom search/routing share a request budget; core/corridor Open-Meteo calls share weighted location budgets derived from request horizon/variables. No Redis flush or credential rotation resets this ledger. Read-only management command provider_usage reports limits/usage/reset times without provider calls. Transport tests inject no-op guards only when isolating existing HTTP parsing; dedicated guard tests exercise actual SQLite reservations and mock HTTP. PostgreSQL concurrent-lock runtime evidence remains pending. See API_USAGE_LIMITS.md for activation, settings and scope.
