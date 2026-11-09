@@ -1,5 +1,7 @@
 # Frontend setup — Phases 7–9
 
+UI-1 adds the landing page at `/`, the existing planner at `/plan`, retained `/trips/:id` links and a real not-found page. Shared day/night controls preserve `routecast-theme` and follow the system before a user choice. Manrope headings are self-hosted with `/fonts/OFL.txt`; no remote font service or animation dependency is required. Landing illustrations are authored examples and mount no operational query/map hooks. See UI_REDESIGN_PROGRESS.md for this separate UI project; the planner workspace redesign and smooth operational forecast renderer are later phases.
+
 React/TypeScript/Vite planner, React Router, TanStack Query, React Hook Form/Zod, Temporal polyfill for IANA/DST handling, Radix Dialog and Lucide. Dependencies are bounded in frontend/package.json and resolved exactly in package-lock.json. Node 24/npm 12 were used locally; use a Vite-supported recent Node version. MapLibre GL JS is added in Phase 8; no animation/global-state/chart packages are introduced.
 
 From frontend:

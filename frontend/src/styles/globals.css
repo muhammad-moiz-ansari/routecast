@@ -1150,3 +1150,5 @@ h3 {
 .weather-attribution a {
   text-decoration: underline;
 }
+
+.theme-switch{position:relative;display:inline-flex}.theme-switch button{width:48px;height:48px;padding:0}.theme-tooltip{display:none;position:absolute;top:54px;right:0;background:var(--surface);color:var(--text);padding:8px;min-width:165px;border:1px solid var(--control-border);z-index:20}.theme-switch:hover .theme-tooltip,.theme-switch:focus-within .theme-tooltip{display:block}

@@ -1,3 +1,4 @@
+import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,7 +9,6 @@ import {
   ArrowRight,
   ArrowDownUp,
   Route,
-  Sun,
   HelpCircle,
   X,
   Clock3,
@@ -47,9 +47,6 @@ export function App() {
   const lifecycle = useTripLifecycle(id);
   const analysis = lifecycle.query;
   const visible = lifecycle.active;
-  const [theme, setTheme] = useState(
-    () => localStorage.getItem("routecast-theme") ?? "system",
-  );
   const summary = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
   const sending = useRef(false);
@@ -66,17 +63,6 @@ export function App() {
       spacing: "25",
     },
   });
-  useEffect(() => {
-    const media = matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      document.documentElement.dataset.theme =
-        theme === "system" ? (media.matches ? "night" : "day") : theme;
-    };
-    apply();
-    media.addEventListener("change", apply);
-    localStorage.setItem("routecast-theme", theme);
-    return () => media.removeEventListener("change", apply);
-  }, [theme]);
   const mutation = useMutation({
     mutationFn: createTrip,
     onSuccess: (trip) => {
@@ -212,18 +198,7 @@ export function App() {
         </a>
         <span className="page-label">Trip planner</span>
         <div className="header-actions">
-          <label className="theme">
-            <Sun size={16} aria-hidden="true" />
-            <select
-              aria-label="Color theme"
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-            >
-              <option value="system">System</option>
-              <option value="day">Day</option>
-              <option value="night">Night</option>
-            </select>
-          </label>
+          <ThemeToggle />
           <Dialog.Root>
             <Dialog.Trigger className="help" aria-label="Methodology">
               <HelpCircle size={18} />
@@ -456,7 +431,7 @@ export function App() {
                   sending.current = false;
                   setSubmitted(false);
                   mutation.reset();
-                  navigate("/");
+                  navigate("/plan");
                 }}
               >
                 Plan another trip

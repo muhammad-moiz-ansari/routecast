@@ -1,5 +1,3 @@
 import { createBrowserRouter } from "react-router-dom";
-import { App } from "./App";
-export const router = createBrowserRouter([
-  { path: "/:mode?/:id?", element: <App /> },
-]);
+import { routes } from "./routes";
+export const router = createBrowserRouter(routes);

@@ -1,3 +1,4 @@
+import {ThemeProvider} from "../app/ThemeProvider";
 import { StrictMode } from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
@@ -21,11 +22,11 @@ function mount() {
           })
         }
       >
-        <MemoryRouter>
+        <ThemeProvider><MemoryRouter>
           <Routes>
             <Route path="/:mode?/:id?" element={<App />} />
           </Routes>
-        </MemoryRouter>
+        </MemoryRouter></ThemeProvider>
       </QueryClientProvider>
     </StrictMode>,
   );
@@ -128,10 +129,7 @@ it("closes methodology on Escape and restores focus", async () => {
 
 it("persists explicit theme preference", async () => {
   mount();
-  await userEvent.selectOptions(
-    screen.getByRole("combobox", { name: "Color theme" }),
-    "night",
-  );
+  await userEvent.click(screen.getByRole("button", { name: "Switch to dark mode" }));
   expect(document.documentElement.dataset.theme).toBe("night");
   expect(localStorage.getItem("routecast-theme")).toBe("night");
 });

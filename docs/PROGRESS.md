@@ -26,3 +26,7 @@ This prepares a controlled noncommercial assessment behind user-supplied authent
 Sampling/ETA limitations, polar text-only corridor samples, anonymous session recovery, absent backend creation idempotency, unsaved draft/place-label/display-time persistence and omitted optional playback remain documented in KNOWN_LIMITATIONS.md. No changes to business rules, ORM models/migrations, actual persisted trips or worker scheduling behavior.
 
 Stopped after Phase 10. Nothing staged, committed, pushed, published or deployed. The user owns release authorization and all Git operations.
+
+## Separate UI redesign — UI-1
+
+9 November 2026: UI-1 implemented and verified using offline fixtures. Complete branded landing, shared day/night theme/tokens, self-hosted Manrope, explicit landing/planner/trip/not-found routing and controlled accessible illustrative motion are recorded in [UI redesign progress](UI_REDESIGN_PROGRESS.md). UI-2/UI-3 are not started. Original phases 0–10 and their pending release gates remain unchanged. See UI1 verification entries; zero routing/weather/basemap requests. Stopped after UI-1 without Git or deployment actions.

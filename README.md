@@ -26,7 +26,7 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:5173. Vite proxies /api to port 8000 with the original Host, preserving owner session/CSRF behavior. Local [health](http://127.0.0.1:8000/api/v1/health/), [readiness](http://127.0.0.1:8000/api/v1/ready/) and [API docs](http://127.0.0.1:8000/api/v1/docs) are available. Readiness checks only PostgreSQL/Redis; docs use external CDN resources locally and are disabled in production.
+Open http://127.0.0.1:5173 for the landing page, then choose **Plan a route** (or open /plan). Existing /trips/:id links retain the planner. Vite proxies /api to port 8000 with the original Host, preserving owner session/CSRF behavior. Local [health](http://127.0.0.1:8000/api/v1/health/), [readiness](http://127.0.0.1:8000/api/v1/ready/) and [API docs](http://127.0.0.1:8000/api/v1/docs) are available. Readiness checks only PostgreSQL/Redis; docs use external CDN resources locally and are disabled in production.
 
 For real analyses add the server-only TOMTOM_API_KEY in your existing backend/.env and start separate terminals from backend:
 

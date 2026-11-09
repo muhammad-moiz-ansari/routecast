@@ -1,3 +1,4 @@
+import {ThemeProvider} from "../app/ThemeProvider";
 import {
   act,
   render,
@@ -64,11 +65,11 @@ it("integrates working routes then a completed snapshot without any trip POST or
   });
   render(
     <QueryClientProvider client={client}>
-      <MemoryRouter initialEntries={["/trips/preview-trip"]}>
+      <ThemeProvider><MemoryRouter initialEntries={["/trips/preview-trip"]}>
         <Routes>
           <Route path="/:mode?/:id?" element={<App />} />
         </Routes>
-      </MemoryRouter>
+      </MemoryRouter></ThemeProvider>
     </QueryClientProvider>,
   );
   await waitFor(
