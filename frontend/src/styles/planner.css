@@ -623,8 +623,9 @@
 }
 .planner-app .maplibregl-ctrl-top-right {
   top: 64px;
-  right: 8px;
+  right: 12px;
 }
+.planner-app .maplibregl-ctrl-top-right .maplibregl-ctrl { margin: 0; }
 .planner-app .maplibregl-ctrl-group button {
   width: 44px;
   height: 44px;
@@ -632,7 +633,8 @@
 .map-legend-toggle {
   position: absolute;
   z-index: 3;
-  top: 168px;
+  /* Two 44px zoom controls, their border, then a 12px gap. */
+  top: 166px;
   right: 12px;
   min-height: 44px;
   width: 44px;
@@ -1113,11 +1115,11 @@
   }
   .planner-app .maplibregl-ctrl-top-right {
     top: 56px;
-    right: 5px;
+    right: 9px;
   }
   .map-legend-toggle {
     right: 9px;
-    top: 162px;
+    top: 158px;
   }
   .planner-app .map-credits {
     font-size: 9px;
