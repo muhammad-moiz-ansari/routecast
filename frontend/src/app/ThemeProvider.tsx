@@ -26,6 +26,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
   useEffect(() => {
     document.documentElement.dataset.theme = night ? "night" : "day";
+    const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (icon) {
+      icon.type = "image/png";
+      icon.href = night ? "/favicon-dark.png" : "/favicon-light.png";
+    }
   }, [night]);
   const toggle = () => {
     const next = night ? "day" : "night";

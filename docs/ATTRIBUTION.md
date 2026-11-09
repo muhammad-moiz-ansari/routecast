@@ -1,5 +1,7 @@
 # Source attribution and distribution notices
 
+RouteCast branding uses the three user-supplied 512×512 PNGs in frontend/public: favicon-light.png for light surfaces, favicon-dark.png for dark surfaces, and favicon-white.png on the blue closing section. The shared brand component and theme-aware tab icon reference these local files directly.
+
 GSAP 3.15.1 powers the home capability marquee. Its distributed README copyright and [standard no-charge licence reference](https://gsap.com/standard-license) are retained in generated browser dependency notices. It is not an MIT-licensed dependency. The official terms permit website animation; RouteCast does not use it as a visual animation authoring tool.
 
 Reviewed 9 November 2026. This records the implemented sources and observed license metadata, not a legal certification or permission to deploy under an account's terms.
