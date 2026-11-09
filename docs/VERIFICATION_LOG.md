@@ -1,5 +1,13 @@
 # Verification ledger
 
+## Planner calendar and visual refinement — 9 November 2026
+
+Production build passed, including TypeScript and 71 dependency notices; existing Zod annotation/MapLibre chunk advisories remain nonfatal. Final diff whitespace check passed.
+
+Three focused offline cases passed: themed date/time application preserves wall-time value; keyboard calendar selection/Escape retains prior departure and returns trigger focus; existing StrictMode planner submission still converts departure timezone and submits once. Strengthened the calendar case to wait for actual arrow-key focus movement, then reran only that case: passed. Final TypeScript passed. Reference URLs nascon26-webdev.vercel.app, endpage-nascon.vercel.app and walls-dont-lie.vercel.app each failed via web tool, so styling follows user screenshots/existing RouteCast tokens rather than a claimed visual reference review. One atomic follow-up patch matched preformatted test lines incorrectly, failed without changes, then was corrected.
+
+Owned fixture server 5174 started with fixtures forced true; browser navigation to /plan timed out (ERR_CONNECTION_TIMED_OUT), so no actual new visual/mobile/contrast review claimed. Owned server stopped; existing user servers untouched. Native calendar indicator is hidden in favor of the themed dialog button; editable datetime/time fields remain accessible. Static CSS review covers centered 48px header/44px action targets, scoped input glow, forced-colors focus outline, static sidebar gradients, constrained scrolling dialog, and reduced-motion exclusion of dialog fade. Routing/weather/basemap API checks: zero. No Git writes or deployment.
+
 ## Shared API usage limits — 9 November 2026
 
 First affected socket-blocked adapter/relevance/budget run: 56 passed. Follow-up budget/API/management/clock/config/workflow run: 24 passed, two new scheduler cases failed because periodic reassessment created another run after budget errors. Added both budget error codes to AnalysisStore's explicit-owner-action failures; reran the three affected authentication/budget scheduling cases: all passed. Covered all window cutoffs, zero-disable behavior, month/day rollover, durable consumption after HTTP failure, rejection before network, weighted multi-location weather denial, unavailable storage sanitation, rejection under an outer transaction, invalid/negative reservation protection, backwards-clock fail-closed handling, API 429/Retry-After, read-only usage reporting, invalid configuration and corridor partial-data retention. Existing transport tests explicitly inject a no-op guard to isolate parsing; production defaults never bypass protection because of transport or test settings.

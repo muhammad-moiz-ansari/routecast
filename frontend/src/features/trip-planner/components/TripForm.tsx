@@ -3,6 +3,7 @@ import type { RefObject } from "react";
 import { ArrowRight, ArrowDownUp } from "lucide-react";
 import { PlaceSearch } from "./PlaceSearch";
 import { TimezonePicker } from "./TimezonePicker";
+import { DeparturePicker } from "./DeparturePicker";
 import { SpecularButton } from "../../../components/ui/SpecularAction";
 import { ApiError } from "../../../api/client";
 import type { PlannerValues } from "../schemas";
@@ -100,14 +101,7 @@ export function TripForm({
       <div className="form-divider" />
       <div className="field">
         <label htmlFor="departure">Departure date & time</label>
-        <input
-          id="departure"
-          type="datetime-local"
-          {...form.register("departure")}
-          disabled={busy || submitted}
-          aria-invalid={!!errors.departure}
-          aria-describedby="departure-note departure-error"
-        />
+        <DeparturePicker form={form} disabled={busy || submitted} />
         <small id="departure-note">Local time in the timezone below.</small>
         {errors.departure && (
           <span id="departure-error" className="error-text">

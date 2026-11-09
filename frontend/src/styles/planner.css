@@ -1967,7 +1967,7 @@
 .planner-app .shell { flex-shrink: 0; padding-inline: 16px; }
 .planner-app .shell .theme-switch > button { width: 44px; height: 44px; min-height: 44px; }
 .planner-app .shell .theme-tooltip { top: 46px; }
-.planner-app .shell .header-actions { position: relative; top: 3px; }
+.planner-app .shell .header-actions { position: relative; top: 0; }
 
 /* Processing content starts inside the card even when the viewport needs scrolling. */
 .planner-app .processing {
@@ -2024,3 +2024,48 @@
 @media (prefers-reduced-motion: reduce) {
   .processing-route-glow, .processing-route-trail { animation: none; }
 }
+
+/* Restrained atmosphere stays static and never competes with form labels. */
+.planner-app .planner-panel {
+  background-color: var(--surface);
+  background-image: radial-gradient(ellipse at 0 0, color-mix(in srgb, var(--teal) 7%, transparent), transparent 55%),
+    radial-gradient(ellipse at 100% 100%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 65%);
+}
+.planner-app .shell { height: 48px; min-height: 48px; align-items: center; }
+.planner-app .shell .header-actions { top: 0; align-items: center; }
+.planner-app .workspace { padding-top: 0; }
+.planner-app input:not([type="radio"]):not([type="checkbox"]):not([type="range"]):is(:focus, :focus-visible),
+.planner-app select:is(:focus, :focus-visible), .departure-dialog input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent), 0 0 18px color-mix(in srgb, var(--teal) 10%, transparent);
+  background: var(--surface);
+}
+.departure-picker { position: relative; }
+.planner-app .departure-picker input { padding-right: 52px; }
+.departure-picker input::-webkit-calendar-picker-indicator,
+.departure-dialog input::-webkit-calendar-picker-indicator { display: none; }
+.departure-calendar-trigger { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; padding: 0; border: 0; background: transparent; color: var(--primary); border-radius: 9px; }
+.departure-dialog { width: min(400px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow: auto; padding: 24px; border-radius: 22px; background: var(--surface); color: var(--text); border: 1px solid var(--control-border); box-shadow: 0 24px 80px #0005; }
+.departure-dialog h2 { padding-right: 28px; font-size: 22px; letter-spacing: -.6px; margin: 0 0 8px; }
+.departure-dialog p { color: var(--text-muted); font-size: 13px; line-height: 1.6; }
+.calendar-month { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 12px; }
+.calendar-month button { width: 36px; height: 36px; padding: 0; border-radius: 10px; background: var(--surface-muted); }
+.calendar-weekdays, .calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.calendar-weekdays { text-align: center; color: var(--text-muted); font-size: 11px; margin-bottom: 8px; }
+.calendar-days button { min-width: 0; min-height: 36px; padding: 4px 0; border: 1px solid transparent; border-radius: 9px; background: transparent; font-size: 13px; color: var(--text); }
+.calendar-days button.outside-month { color: var(--text-muted); opacity: .6; }
+.calendar-days button[aria-current="date"] { border-color: var(--teal); }
+.calendar-days button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary, #081321); opacity: 1; box-shadow: 0 3px 14px color-mix(in srgb, var(--primary) 25%, transparent); }
+.calendar-days button:hover { background: var(--primary-soft); }
+.calendar-days button[aria-pressed="true"]:hover { background: var(--primary); }
+.calendar-time { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.calendar-time label { font-size: 12px; color: var(--text-muted); }
+.calendar-time input { width: 120px; padding: 10px; border: 1px solid var(--control-border); border-radius: 10px; background: var(--surface-muted); color: var(--text); font: inherit; }
+.calendar-actions { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+.calendar-actions button { min-height: 40px; border-radius: 10px; }
+.calendar-actions .calendar-apply { background: var(--primary); color: var(--on-primary, #081321); }
+@media (max-width: 380px) { .departure-dialog { padding: 16px; } }
+@media (forced-colors: active) { .planner-app input:focus-visible, .departure-dialog input:focus-visible { outline: 2px solid Highlight !important; outline-offset: 2px; } }
+@media (prefers-reduced-motion: no-preference) { .departure-dialog[data-state="open"] { animation: calendar-enter 180ms ease-out; } }
+@keyframes calendar-enter { from { opacity: 0; } to { opacity: 1; } }

@@ -1,5 +1,9 @@
 # Progress
 
+## Planner calendar and visual refinement — 9 November 2026
+
+Added a themed departure calendar dialog with month navigation, day selection, local time, Today/apply controls, arrow/Home/End navigation and Escape/focus return. Native editable datetime segments remain as fallback; existing Temporal timezone/DST interpretation is unchanged. Replaced stacked input outlines with primary-border/blue-teal glow and forced-colors fallback; centered compact navbar controls and removed extra workspace top padding. Sidebar now has restrained static teal/blue gradient atmosphere. No provider/backend behavior changes, dependency additions or live API checks. Three focused offline tests and TypeScript pass; browser fixture preview timed out, so rendered visual confirmation remains pending. User reference URLs were inaccessible through web browsing; no visual review of them is claimed.
+
 ## Shared API usage limits — 9 November 2026
 
 Implemented user-selected provider quota protection. Shared durable PostgreSQL caps now guard every TomTom search/routing request and Open-Meteo core/corridor batch before HTTP, with minute/hour/day/calendar-month limits and fail-closed storage handling. Conservative defaults, weighted weather units, no failed-request refunds, read-only provider_usage inspection, sanitized HTTP 429/Retry-After and readable background quota notices are documented in API_USAGE_LIMITS.md. Scheduler excludes budget errors from automatic reassessment; saved snapshots remain usable. Environment templates document optional limits; no private credentials changed.
