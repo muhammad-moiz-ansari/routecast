@@ -1,4 +1,5 @@
 import { PlannerWelcome } from "../features/trip-planner/components/PlannerWelcome";
+import { providerBudgetMessage } from "../api/providerMessages";
 import { ProcessingRoute } from "../features/trip-planner/components/ProcessingRoute";
 import { PlannerSidebar } from "../features/trip-planner/components/PlannerSidebar";
 import { PlannerHeader } from "../components/layout/PlannerHeader";
@@ -388,7 +389,8 @@ export function App() {
               </h3>
               <p>
                 {status?.status === "failed"
-                  ? `The backend reported ${status.error_code ?? "an analysis failure"}. Your trip remains saved.`
+                  ? (providerBudgetMessage(status.error_code) ??
+                    `The backend reported ${status.error_code ?? "an analysis failure"}. Your trip remains saved.`)
                   : status?.status === "complete"
                     ? "Your route analysis has finished. Your trip reference is saved below."
                     : "Your trip is saved. Each processing stage updates as it finishes. Arrival times and forecasts remain estimates."}

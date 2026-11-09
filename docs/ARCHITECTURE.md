@@ -1,5 +1,9 @@
 # Architecture
 
+## Shared provider budget guard (9 November 2026)
+
+Both provider transports reserve allowance through integrations/provider_budget.py before opening outbound HTTP. ORM operations remain in persistence/stores/provider_budget_store.py, with a single ProviderBudget row per provider containing bounded UTC windows. A durable transaction and PostgreSQL select_for_update serialize minute/hour/day/month reservations and commit them before HTTP; nested outer transactions, storage errors, malformed counters and backwards windows fail closed. New migration 0004 creates only this ledger. TomTom search/routing share a request budget; core/corridor Open-Meteo calls share weighted location budgets derived from request horizon/variables. No Redis flush or credential rotation resets this ledger. Read-only management command provider_usage reports limits/usage/reset times without provider calls. Transport tests inject no-op guards only when isolating existing HTTP parsing; dedicated guard tests exercise actual SQLite reservations and mock HTTP. PostgreSQL concurrent-lock runtime evidence remains pending. See API_USAGE_LIMITS.md for activation, settings and scope.
+
 The foundation implements Django configuration, Django Ninja API registration, health operations and shared helpers. API routes call services through `api/dependencies.py`. HealthService inherits HealthRepo and receives explicit probe callables; construction performs no network I/O.
 
 For each implemented service use `<name>_repo.py` (ABC signatures only), `<name>_service.py` (concrete subclass), and `models.py` (Pydantic contracts). Public methods and interface methods have concise docstrings. Comment decisions rather than restating assignments. Health is the first real service; future services are not empty scaffolds.

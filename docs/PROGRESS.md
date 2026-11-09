@@ -1,5 +1,15 @@
 # Progress
 
+## Shared API usage limits — 9 November 2026
+
+Implemented user-selected provider quota protection. Shared durable PostgreSQL caps now guard every TomTom search/routing request and Open-Meteo core/corridor batch before HTTP, with minute/hour/day/calendar-month limits and fail-closed storage handling. Conservative defaults, weighted weather units, no failed-request refunds, read-only provider_usage inspection, sanitized HTTP 429/Retry-After and readable background quota notices are documented in API_USAGE_LIMITS.md. Scheduler excludes budget errors from automatic reassessment; saved snapshots remain usable. Environment templates document optional limits; no private credentials changed.
+
+Implementation/offline verification complete; local activation remains pending. Agent's PostgreSQL readiness probe returned false, so migration 0004 was not applied and user workers were not restarted. User must stop Django/workers, migrate in the working terminal, inspect usage, then restart. No live provider calls, account changes, Git mutations or deployment. Quotas cover this database's future reservations, not historical/provider-dashboard/external-app use or per-owner abuse; real PostgreSQL concurrency remains unverified.
+
+## Current local setup checkpoint — 9 November 2026
+
+User confirms OpenFreeMap basemap is visible and an Argentina trip shows stronger winds with forecast-hour changes. Earlier user confirmations establish real trip processing and corridor display on Pakistan routes. These are user-observed local integration results, distinct from agent-run offline checks; no new live calls were made to repeat them. Local provider setup is operational by user report. The later worldwide-search refinement has offline regression evidence only. Oracle deployment remains deferred at user direction. Next development priority is awaiting selection; no additional phase or large feature is inferred.
+
 ## Worldwide search relevance — 9 November 2026
 
 TomTom search still uses one predictive request and no country restriction. The adapter now requests 10–20 candidates, ranks token-prefix/locality matches before applying the requested output limit, removes identical label/coordinate duplicates, and includes POI names and country context in labels. Accent-insensitive comparison preserves original display text/coordinates; ties preserve provider order. No country list/database, new key, dependency or endpoint contract is needed. Synthetic Lahore/Pakistan and Córdoba/Argentina examples pass; improved live relevance remains unconfirmed and depends on provider candidate coverage. Existing selections stay explicit; no automatic coordinate selection or new trip creation.

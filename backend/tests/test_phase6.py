@@ -134,7 +134,7 @@ def test_frames_fixed_anchor_cache_and_no_slider_fetch(system):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.parametrize("failure", ["null", "provider", "stop"])
+@pytest.mark.parametrize("failure", ["null", "provider", "stop", "budget"])
 def test_partial_failure_or_stop_never_invalidates_core(system, failure):
     p, r, s, clock, calls, sent, w, locks = system
     service, forecasts, dispatch, usage = corridor(system)
@@ -145,6 +145,12 @@ def test_partial_failure_or_stop_never_invalidates_core(system, failure):
     job = CorridorRun.objects.get()
     forecasts.null = failure == "null"
     forecasts.fail = failure == "provider"
+    if failure == "budget":
+
+        def exhausted(_):
+            raise ProviderError("provider_budget_exhausted", "Allowance exhausted", 429, 60)
+
+        forecasts.fetch = exhausted
     if failure == "stop":
         r.stop(owner, trip.id)
     service.execute(job.id)

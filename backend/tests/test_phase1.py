@@ -39,7 +39,9 @@ def wire(payload, calls, status=200, headers=None):
         calls.append(request)
         return httpx.Response(status, json=payload, headers=headers)
 
-    return ProviderHTTP("test-secret", transport=httpx.MockTransport(respond))
+    return ProviderHTTP(
+        "test-secret", transport=httpx.MockTransport(respond), budget=lambda *_: None
+    )
 
 
 def trip_service(payload, calls):
@@ -119,7 +121,9 @@ def test_timeouts_and_missing_configuration():
         raise httpx.ReadTimeout("secret URL", request=request)
 
     with pytest.raises(ProviderError, match="timed out"):
-        ProviderHTTP("test-secret", httpx.MockTransport(timeout)).get("/test", {})
+        ProviderHTTP("test-secret", httpx.MockTransport(timeout), budget=lambda *_: None).get(
+            "/test", {}
+        )
     assert len(calls) == 1
     with pytest.raises(ProviderError, match="not configured"):
         ProviderHTTP("").get("/test", {})

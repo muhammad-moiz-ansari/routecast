@@ -58,6 +58,11 @@ class AnalysisRun(models.Model):
         ]
 
 
+class ProviderBudget(models.Model):
+    provider = models.CharField(max_length=32, primary_key=True)
+    windows = models.JSONField(default=dict)
+
+
 class CorridorRun(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     analysis = models.OneToOneField(AnalysisRun, on_delete=models.CASCADE, related_name="corridor")

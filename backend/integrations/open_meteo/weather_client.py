@@ -1,13 +1,17 @@
 from datetime import UTC, datetime
-from math import isfinite
+from math import ceil, isfinite
 from threading import BoundedSemaphore
 
 import httpx
 
 from integrations.exceptions import ProviderError
+from integrations.provider_budget import reserve_provider_budget
 from services.weather.models import ForecastSeries, HourlyForecast
 
 _slots = BoundedSemaphore(2)
+FORECAST_DAYS = 16
+PAST_DAYS = 1
+HOURLY_VARIABLES = ("wind_speed_10m", "rain", "showers", "snowfall")
 
 
 def normalize(payload, coordinate, fetched_at):
@@ -61,8 +65,11 @@ def normalize(payload, coordinate, fetched_at):
 
 
 class OpenMeteoClient:
-    def __init__(self, transport=None, clock=lambda: datetime.now(UTC)):
+    def __init__(
+        self, transport=None, clock=lambda: datetime.now(UTC), budget=reserve_provider_budget
+    ):
         self.transport, self.clock = transport, clock
+        self.budget = budget
 
     def fetch(self, coordinates):
         """Fetch up to 50 exact locations once; never retry or extrapolate."""
@@ -71,6 +78,9 @@ class OpenMeteoClient:
         if not _slots.acquire(timeout=1):
             raise ProviderError("provider_busy", "Forecast capacity is busy.")
         try:
+            # Round horizon/variable multipliers up per location, not once per batch.
+            units = ceil((FORECAST_DAYS + PAST_DAYS) / 14) * ceil(len(HOURLY_VARIABLES) / 10)
+            self.budget("open-meteo", units * len(coordinates))
             with httpx.Client(
                 timeout=httpx.Timeout(20, connect=3),
                 transport=self.transport,
@@ -82,11 +92,11 @@ class OpenMeteoClient:
                     params={
                         "latitude": ",".join(str(c.latitude) for c in coordinates),
                         "longitude": ",".join(str(c.longitude) for c in coordinates),
-                        "hourly": "wind_speed_10m,rain,showers,snowfall",
+                        "hourly": ",".join(HOURLY_VARIABLES),
                         "timezone": "UTC",
                         "timeformat": "unixtime",
-                        "forecast_days": 16,
-                        "past_days": 1,
+                        "forecast_days": FORECAST_DAYS,
+                        "past_days": PAST_DAYS,
                         "wind_speed_unit": "kmh",
                         "precipitation_unit": "mm",
                     },

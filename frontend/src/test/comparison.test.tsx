@@ -127,6 +127,15 @@ it("opens and closes assessment timing with the shared disclosure", () => {
   expect(panel).toHaveAttribute("inert");
 });
 
+it("explains quota exhaustion while retaining completed route results", () => {
+  const analysis = fixture();
+  analysis.error_code = "provider_budget_exhausted";
+  analysis.retained_previous = true;
+  render(<RouteComparison analysis={analysis} />);
+  expect(screen.getByText(/API allowance is exhausted/)).toBeVisible();
+  expect(screen.getByRole("button", { name: "Inspect route A" })).toBeEnabled();
+});
+
 it("keeps compact clusters selectable without an unconfigured-basemap label", async () => {
   vi.stubEnv("VITE_MAP_STYLE_DAY", "https://maps.example/day.json");
   vi.stubEnv("VITE_MAP_STYLE_NIGHT", "https://maps.example/night.json");

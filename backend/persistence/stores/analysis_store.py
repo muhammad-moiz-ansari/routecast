@@ -222,8 +222,10 @@ class AnalysisStore:
                 "provider_authentication",
                 "provider_invalid_request",
                 "provider_not_configured",
+                "provider_budget_exhausted",
+                "provider_budget_unavailable",
             ):
-                # Credential/input failures need an explicit owner action, not periodic retries.
+                # Configuration, input and budget failures need owner action, not periodic retries.
                 continue
             when = latest.created_at if latest else trip.created_at
             if (now - when).total_seconds() >= REFRESH_SECONDS:

@@ -14,6 +14,15 @@ import {
   fieldFeatures,
 } from "../features/map/utils/corridorField";
 const fixture = () => structuredClone(raw) as unknown as CorridorProjection;
+it("explains a corridor quota limit while leaving downloaded forecast controls usable", () => {
+  const projection = fixture();
+  projection.data!.notices = ["provider_budget_exhausted"];
+  render(<Harness projection={projection} />);
+  fireEvent.click(screen.getByRole("button", { name: "Forecast details" }));
+  expect(screen.getByText(/API allowance is exhausted/)).toBeVisible();
+  fireEvent.click(screen.getByRole("button", { name: "Close forecast details" }));
+  expect(screen.getByRole("slider")).toBeEnabled();
+});
 function Harness({ projection }: { projection: CorridorProjection }) {
   const [time, setTime] = useState<string | null>(null);
   const [prefs, setPrefs] = useState(loadPreferences);

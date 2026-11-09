@@ -1,4 +1,5 @@
 import * as Dialog from "@radix-ui/react-dialog";
+import { providerBudgetMessage } from "../../../api/providerMessages";
 import { X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { AnimatedDisclosure } from "../../../components/ui/AnimatedDisclosure";
 import { RiskBadge } from "../../route-comparison/components/RiskBadge";
@@ -211,7 +212,7 @@ export function ForecastTimeline({
               )}
               {data?.notices.map((n, i) => (
                 <p className="state-warning" key={i}>
-                  {n}
+                  {providerBudgetMessage(n) ?? n}
                 </p>
               ))}
               <button disabled={!data || index === 0} onClick={() => select(0)}>

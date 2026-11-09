@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { providerBudgetMessage } from "../../../api/providerMessages";
 import { AnimatedDisclosure } from "../../../components/ui/AnimatedDisclosure";
 import { RouteCard } from "./RouteCard";
 import { CheckpointList } from "./CheckpointList";
@@ -206,8 +207,8 @@ export function RouteComparison({
         )}
         {analysis.error_code && (
           <p className="state-warning">
-            Latest analysis: {analysis.error_code}. Retained results remain
-            available.
+            {providerBudgetMessage(analysis.error_code) ??
+              `Latest analysis: ${analysis.error_code}. Retained results remain available.`}
           </p>
         )}
         {[

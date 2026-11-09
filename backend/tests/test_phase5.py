@@ -464,10 +464,18 @@ def test_live_test_mode_disables_background_tick(system):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_credential_failure_does_not_trigger_periodic_retry(system):
+@pytest.mark.parametrize(
+    "code",
+    [
+        "provider_authentication",
+        "provider_budget_exhausted",
+        "provider_budget_unavailable",
+    ],
+)
+def test_credential_failure_does_not_trigger_periodic_retry(system, code):
     p, r, s, clock, calls, sent, w, _ = system
     owner, trip = create(system)
-    w.failure = ProviderError("provider_authentication", "Rejected")
+    w.failure = ProviderError(code, "Rejected")
     p.execute(trip.analysis_id)
     clock.advance(901)
     r.tick()

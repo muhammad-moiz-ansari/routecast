@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -73,6 +74,28 @@ SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 
 TOMTOM_API_KEY = os.environ.get("TOMTOM_API_KEY", "")
+
+
+def provider_limits(prefix, defaults):
+    """Zero blocks calls; invalid limits never become an unlimited allowance."""
+    result = {}
+    for period, default in zip(("minute", "hour", "day", "month"), defaults):
+        name = f"{prefix}_LIMIT_{period.upper()}"
+        try:
+            value = int(os.environ.get(name, default))
+            if value < 0:
+                raise ValueError()
+        except ValueError:
+            raise ImproperlyConfigured(f"{name} must be a nonnegative integer") from None
+        result[period] = value
+    return result
+
+
+# Combined TomTom search/routing requests; weather counts conservative weighted location units.
+PROVIDER_BUDGETS = {
+    "tomtom": provider_limits("TOMTOM", (20, 100, 100, 2000)),
+    "open-meteo": provider_limits("OPEN_METEO", (200, 1000, 4000, 100000)),
+}
 
 # Celery commonly runs with INFO logging; HTTPX INFO includes credential-bearing URLs.
 LOGGING = {

@@ -3,14 +3,16 @@ from threading import BoundedSemaphore
 import httpx
 
 from .exceptions import ProviderError
+from .provider_budget import reserve_provider_budget
 
 _slots = BoundedSemaphore(4)
 
 
 class ProviderHTTP:
-    def __init__(self, api_key, transport=None):
+    def __init__(self, api_key, transport=None, budget=reserve_provider_budget):
         self.api_key = api_key
         self.transport = transport
+        self.budget = budget
 
     def get(self, path, params):
         """Issue one bounded request, without retries or credential-bearing errors."""
@@ -19,6 +21,7 @@ class ProviderHTTP:
         if not _slots.acquire(timeout=1):
             raise ProviderError("provider_busy", "Routing/search capacity is busy.")
         try:
+            self.budget("tomtom", 1)
             with httpx.Client(
                 base_url="https://api.tomtom.com",
                 timeout=httpx.Timeout(15, connect=3),

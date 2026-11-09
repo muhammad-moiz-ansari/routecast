@@ -15,7 +15,7 @@ def register_errors(api):
 
     @api.exception_handler(ProviderError)
     def provider(request, exc):
-        return api.create_response(
+        response = api.create_response(
             request,
             error_body(
                 exc.code,
@@ -25,6 +25,9 @@ def register_errors(api):
             ),
             status=exc.status,
         )
+        if exc.retry_after_seconds:
+            response["Retry-After"] = str(exc.retry_after_seconds)
+        return response
 
     @api.exception_handler(TripNotFound)
     def missing(request, exc):

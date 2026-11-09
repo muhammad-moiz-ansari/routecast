@@ -39,7 +39,9 @@ def setup_service():
         count = len(request.url.params["latitude"].split(","))
         return httpx.Response(200, json=[payload() for _ in range(count)])
 
-    client = OpenMeteoClient(httpx.MockTransport(respond), clock=lambda: NOW)
+    client = OpenMeteoClient(
+        httpx.MockTransport(respond), clock=lambda: NOW, budget=lambda *_: None
+    )
     return WeatherService(
         client, ForecastCache(cache), lambda n: record_weather_usage(cache, n), clock=lambda: NOW
     ), calls
@@ -135,7 +137,9 @@ def test_provider_errors_no_retries(status):
         return httpx.Response(status, json={"error": "secret"})
 
     with pytest.raises(ProviderError):
-        OpenMeteoClient(httpx.MockTransport(respond)).fetch([generate().checkpoints[0].coordinate])
+        OpenMeteoClient(httpx.MockTransport(respond), budget=lambda *_: None).fetch(
+            [generate().checkpoints[0].coordinate]
+        )
     assert len(calls) == 1
 
 
@@ -162,7 +166,9 @@ def test_timeout_and_units_in_inches():
         raise httpx.ReadTimeout("secret", request=request)
 
     with pytest.raises(ProviderError, match="timed out"):
-        OpenMeteoClient(httpx.MockTransport(timeout)).fetch([generate().checkpoints[0].coordinate])
+        OpenMeteoClient(httpx.MockTransport(timeout), budget=lambda *_: None).fetch(
+            [generate().checkpoints[0].coordinate]
+        )
     p = payload()
     p["hourly_units"] = {
         "wind_speed_10m": "mph",
