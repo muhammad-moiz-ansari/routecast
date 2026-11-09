@@ -9,6 +9,17 @@ export class ApiError extends Error {
     super(detail.message);
   }
 }
+/** Start a sleeping free-tier backend early; liveness needs no session and calls no provider. */
+export function wakeBackend() {
+  if (fixtureMode) return;
+  try {
+    fetch("/api/v1/health/", { credentials: "omit", cache: "no-store" }).catch(
+      () => {},
+    );
+  } catch {
+    // A failed wake-up only means the first real request waits instead.
+  }
+}
 let session: Promise<string> | undefined;
 async function transport(path: string, init: RequestInit) {
   if (fixtureMode) {
