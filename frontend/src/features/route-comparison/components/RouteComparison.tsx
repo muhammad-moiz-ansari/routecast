@@ -81,12 +81,18 @@ export function RouteComparison({
   useEffect(() => {
     if (!selectedId && routes[0]) setSelectedId(recommended ?? routes[0].id);
   }, [routes, recommended, selectedId]);
+  // Before the first completed analysis nothing is stale yet; weather is still pending.
   const stale =
     !online ||
-    analysis.routing_stale ||
-    analysis.weather_stale ||
-    analysis.retained_previous ||
-    analysis.analysis_revision !== analysis.input_revision;
+    (!!data &&
+      (analysis.routing_stale ||
+        analysis.weather_stale ||
+        analysis.retained_previous ||
+        analysis.analysis_revision !== analysis.input_revision));
+  const checking =
+    !data &&
+    !analysis.error_code &&
+    ["queued", "running"].includes(analysis.status);
   const summary = data?.recommendation.routes.find(
     (r) => r.route_id === selectedId,
   );
@@ -147,15 +153,20 @@ export function RouteComparison({
               ? `Route ${recommended} recommended`
               : stale
                 ? "Current recommendation withheld"
-                : data?.recommendation.state === "NO_ELIGIBLE_ROUTE"
-                  ? "No route is recommended under the current conditions"
-                  : "Assessment incomplete"}
+                : checking
+                  ? "Checking weather along the routes"
+                  : data?.recommendation.state === "NO_ELIGIBLE_ROUTE"
+                    ? "No route is recommended under the current conditions"
+                    : "Assessment incomplete"}
           </strong>
           <p>
             {stale
               ? "Showing a previous or stale assessment. Historical risk and weather remain inspectable; they do not establish current eligibility."
-              : (data?.recommendation.explanation.message ??
-                "Routes are available. Weather at arrival is still being assessed.")}
+              : data
+                ? data.recommendation.explanation.message
+                : checking
+                  ? "Routes are available. Weather at arrival is still being assessed."
+                  : "Weather at arrival has not been assessed yet."}
           </p>
         </div>
         {data && analysis.analysis_version !== null && (
