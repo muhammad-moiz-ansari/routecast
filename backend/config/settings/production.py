@@ -13,6 +13,14 @@ ALLOWED_HOSTS = [
 ]
 if not ALLOWED_HOSTS or any("*" in h or "://" in h or "/" in h for h in ALLOWED_HOSTS):
     raise ImproperlyConfigured("Set explicit DJANGO_ALLOWED_HOSTS without schemes or wildcards")
+# Browser origins that reach this API through a same-origin proxy, such as a Vercel rewrite.
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()
+]
+if any(not o.startswith("https://") or "*" in o or o.count("/") != 2 for o in CSRF_TRUSTED_ORIGINS):
+    raise ImproperlyConfigured(
+        "Set DJANGO_CSRF_TRUSTED_ORIGINS to https:// origins without paths or wildcards"
+    )
 DEBUG = False
 ROUTECAST_API_DOCS = False
 SESSION_COOKIE_SECURE = True

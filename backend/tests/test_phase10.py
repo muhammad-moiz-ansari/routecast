@@ -90,3 +90,43 @@ def test_container_probe_preserves_host_and_fails_on_unready_dependencies(monkey
     response.status = 503
     with pytest.raises(RuntimeError):
         healthcheck.check()
+
+
+def test_proxied_frontend_origin_passes_csrf_only_when_trusted():
+    code = """
+from django.conf import settings
+import django
+django.setup()
+from django.http import HttpResponse
+from django.middleware.csrf import CsrfViewMiddleware
+from django.test import RequestFactory
+results = []
+for origin in ['https://app.example.test', 'https://foreign.example']:
+    req = RequestFactory().post(
+        '/api/v1/trips/', data='{}', content_type='application/json',
+        HTTP_HOST='api.example.test', HTTP_ORIGIN=origin, HTTP_X_FORWARDED_PROTO='https',
+        HTTP_X_CSRFTOKEN='a' * 32,
+    )
+    req.COOKIES[settings.CSRF_COOKIE_NAME] = 'a' * 32
+    middleware = CsrfViewMiddleware(lambda _: HttpResponse())
+    middleware.process_request(req)
+    response = middleware.process_view(req, lambda _: HttpResponse(), (), {})
+    results.append(response.status_code if response else None)
+print(results)
+"""
+    result = production(code, DJANGO_CSRF_TRUSTED_ORIGINS=" https://app.example.test ")
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == "[None, 403]"
+    untrusted = production(code)
+    assert untrusted.returncode == 0, untrusted.stderr
+    assert untrusted.stdout.strip() == "[403, 403]"
+
+
+@pytest.mark.parametrize(
+    "origins",
+    ["app.example.test", "http://app.example.test", "https://*.example.test", "https://a.test/"],
+)
+def test_production_rejects_invalid_trusted_origins(origins):
+    result = production("import config.settings.production", DJANGO_CSRF_TRUSTED_ORIGINS=origins)
+    assert result.returncode != 0
+    assert "DJANGO_CSRF_TRUSTED_ORIGINS" in result.stderr
