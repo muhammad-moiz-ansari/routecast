@@ -1,5 +1,9 @@
 # Progress
 
+## Basemap setup and compact map markers — 9 November 2026
+
+Configured previously empty ignored frontend/.env.local day/night style URLs to OpenFreeMap Positron/Dark, matching the zero-budget request without exposing backend TomTom credentials. No new dependency or production configuration changes. Cluster circles reduced from 16px to 8px radius; selected-point ring reduced from 19px to 12px. Separate transparent 22px cluster hit target preserves interaction. Configured basemaps no longer show an informational status pill; geometry-only notice remains when unconfigured and genuine map errors remain visible. Remote asset/visual verification pending user's local reload; no agent live basemap/provider checks.
+
 ## Live-route patchy overlay correction — 9 November 2026
 
 User screenshots exposed tiny forecast patches on detailed live routes. Root cause in renderer: sample support was restricted to nearest geometry segment plus/minus one segment, making coverage depend on the provider's vertex density. Replaced segment-count proximity with projected spherical chainage proximity bounded by forecast sample spacing; Euclidean/spherical sample radius, same-route restriction, missing masks, clipping, palette and categorical maxima remain. No new provider requests or data acquisition; reload the existing trip to discard old raster/support caches. The configured corridor still represents a narrow route buffer, with missing/unsupported regions transparent.

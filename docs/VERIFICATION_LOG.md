@@ -1,5 +1,11 @@
 # Verification ledger
 
+## Basemap setup and compact markers — 9 November 2026
+
+Two focused map integration tests passed (12 unrelated cases skipped); final TypeScript and diff whitespace checks passed. No broad UI/build sweep repeated for these scoped map presentation/configuration changes.
+
+Reviewed official OpenFreeMap quick-start and upstream style documentation; chose public Positron/Dark URLs for the user's zero-budget local setup. Changed only previously empty frontend/.env.local style variables, preserving all existing nonempty/private values and production config. No style/tile/glyph/sprite live checks performed by agent (budget/use zero); user's running map may begin normal runtime asset fetching after Vite reloads. Remote basemap delivery and actual attribution visibility remain unverified. Offline map integration verifies small cluster visuals, retained 44px-diameter transparent interaction, click-to-zoom and absence of geometry-only/success pills when configured; existing checkpoint activation case checks retained details interaction. Fixture mode continues to force geometry-only style. No TomTom/Open-Meteo requests or new trip submissions by agent.
+
 ## Live-route patchy overlay correction — 9 November 2026
 
 Five existing renderer cases plus worker cancellation passed in the affected run; new dense-route test initially exceeded the 10-second timeout when cold-rendering 1,000 road segments twice. Changed its second render to reuse support geometry, matching application behavior, then reran only that case: passed in 6.73s. It verifies six positions between forecast supports paint despite hundreds of intervening road segments, then changes the center support to missing and verifies its hole stays transparent even with cached geometry. No timeout threshold increased. Final TypeScript passes; no new browser/live-provider review claimed. No backend/provider, sampling-cap, ranking or risk-rule changes. Older screenshot evidence only establishes patchy rendering before this correction; current live visual confirmation remains pending.

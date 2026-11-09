@@ -326,10 +326,10 @@ export default function RouteMap(props: MapProps) {
           source: "points",
           filter: ["has", "point_count"],
           paint: {
-            "circle-radius": 16,
+            "circle-radius": 8,
             "circle-color": "#52636c",
             "circle-stroke-color": "#fff",
-            "circle-stroke-width": 3,
+            "circle-stroke-width": 1.5,
           },
         });
         map.addLayer({
@@ -338,11 +338,19 @@ export default function RouteMap(props: MapProps) {
           source: "points",
           filter: ["==", ["get", "id"], latest.current.selectedPointId ?? ""],
           paint: {
-            "circle-radius": 19,
+            "circle-radius": 12,
             "circle-color": "#ffffff",
             "circle-stroke-color": "#14252d",
-            "circle-stroke-width": 3,
+            "circle-stroke-width": 2,
           },
+        });
+        // Cluster visuals stay small while retaining a comfortable interaction target.
+        map.addLayer({
+          id: "cluster-hit",
+          type: "circle",
+          source: "points",
+          filter: ["has", "point_count"],
+          paint: { "circle-radius": 22, "circle-opacity": 0 },
         });
         map.addLayer({
           id: "checkpoint-hit",
@@ -370,13 +378,16 @@ export default function RouteMap(props: MapProps) {
     map.on("webglcontextlost", () => setFailed(true));
     map.on("click", (e) => {
       const features = map.queryRenderedFeatures(e.point, {
-        layers: ["checkpoint-hit", "clusters", "route-hit"].filter(
-          (id) => !!map.getLayer(id),
-        ),
+        layers: [
+          "checkpoint-hit",
+          "cluster-hit",
+          "clusters",
+          "route-hit",
+        ].filter((id) => !!map.getLayer(id)),
       });
       const f = features[0];
       if (!f) return;
-      if (f.layer.id === "clusters") {
+      if (f.layer.id === "clusters" || f.layer.id === "cluster-hit") {
         if (f.geometry.type !== "Point") return;
         const coordinate = f.geometry.coordinates as [number, number];
         map.jumpTo({ center: coordinate, zoom: map.getZoom() + 2 });
@@ -436,15 +447,17 @@ export default function RouteMap(props: MapProps) {
             <span>Fit routes</span>
           </button>
         </div>
-        <p className="map-status" role={failed ? "alert" : undefined}>
-          {failed
-            ? "Map unavailable. Use the route comparison and checkpoint list."
-            : tileError
-              ? "Map rendering or basemap failed. Text remains available."
-              : !configured
-                ? "Geometry-only view · Basemap not configured"
-                : "Basemap and route geometry"}
-        </p>
+        {(failed || tileError || !configured) && (
+          <p className="map-status" role={failed ? "alert" : undefined}>
+            {failed
+              ? "Map unavailable. Use the route comparison and checkpoint list."
+              : tileError
+                ? "Map rendering or basemap failed. Text remains available."
+                : !configured
+                  ? "Geometry-only view · Basemap not configured"
+                  : null}
+          </p>
+        )}
         <div
           ref={host}
           className={`map-canvas ${failed ? "map-hidden" : ""}`}

@@ -127,6 +127,31 @@ it("opens and closes assessment timing with the shared disclosure", () => {
   expect(panel).toHaveAttribute("inert");
 });
 
+it("keeps compact clusters selectable without an unconfigured-basemap label", async () => {
+  vi.stubEnv("VITE_MAP_STYLE_DAY", "https://maps.example/day.json");
+  vi.stubEnv("VITE_MAP_STYLE_NIGHT", "https://maps.example/night.json");
+  try {
+    render(<RouteComparison analysis={fixture()} />);
+    const map = await ready();
+    expect(
+      screen.queryByText(/Geometry-only view|Basemap and route geometry/),
+    ).not.toBeInTheDocument();
+    expect(map.getLayer("clusters").paint["circle-radius"]).toBe(8);
+    expect(map.getLayer("cluster-hit").paint["circle-radius"]).toBe(22);
+    map.picked = [
+      {
+        layer: { id: "cluster-hit" },
+        properties: {},
+        geometry: { type: "Point", coordinates: [67, 25] },
+      },
+    ];
+    act(() => map.fire("click", { point: { x: 1, y: 1 } }));
+    expect(map.jumpTo).toHaveBeenCalledWith({ center: [67, 25], zoom: 7 });
+  } finally {
+    vi.unstubAllEnvs();
+  }
+});
+
 it("synchronizes list/map inspection without changing backend recommendation or refitting camera", async () => {
   const a = fixture();
   const ui = render(<RouteComparison analysis={a} />);
