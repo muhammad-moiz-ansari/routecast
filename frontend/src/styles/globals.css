@@ -243,9 +243,12 @@ small {
 }
 .segments input {
   position: absolute;
+  inset: 0;
   opacity: 0;
   width: 100%;
   height: 100%;
+  /* The shared 48px input height overflows the segment, and focus then scrolls the clipped row. */
+  min-height: 0;
   margin: 0;
 }
 .segments span {
