@@ -4,10 +4,14 @@
 
 All trip operations require the server-side owner session; unsafe requests additionally require X-CSRFToken. Unknown and foreign-owned IDs both return 404. No GET schedules or requests provider data.
 
+SavedTripSummary contains `id`, `title`, `saved_at`, `departure_at`, `timezone` and `status`. Saving preserves the first bookmark title and timestamp, including after repeated clicks or reloads. Save/list responses use `Cache-Control: no-store`. Saved trips belong to the existing anonymous owner session; they have no account recovery or cross-device synchronization. Listing and saving never enqueue analyses. Opening a bookmark reads the existing trip; normal viewer heartbeats and configured periodic reassessment policy still apply.
+
 | Method | Path | Current behavior |
 | --- | --- | --- |
 | POST | /trips/ | 202 TripResponse with id, queued analysis_id and input_revision; no synchronous provider calls |
 | GET | /trips/{id}/ | Inputs, job status, analysis_id, current analysis_version/revision and available route options |
+| POST | /trips/{id}/save/ | 200 SavedTripSummary; body `{ "title": "Origin → Destination" }` (optional, trimmed, maximum 200 characters); idempotently bookmark an owned trip without scheduling work |
+| GET | /trips/saved/?limit=20&offset=0 | 200 SavedTripPage with `items` and nullable `next_offset`; saved trips only, newest bookmark first; limit 1–50, offset nonnegative |
 | PATCH | /trips/{id}/ | Full validated TripCreateRequest replacement, increment input revision, invalidate old candidates, return 202 RefreshResult |
 | POST | /trips/{id}/refresh/ | 202 queued/coalesced RefreshResult; 429 refresh_cooldown with retry_after_seconds; stopped trip 409 |
 | POST | /trips/{id}/stop/ | 200 stopped=true; retain completed data, cancel/fence queued or running jobs; idempotent |

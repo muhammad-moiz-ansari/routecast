@@ -3,7 +3,7 @@ from enum import StrEnum
 from uuid import UUID
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
-from pydantic import Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from common.enums import CheckpointSpacing
 from services.routing.models import RouteOptions, RouteRequest
@@ -53,3 +53,27 @@ class TripResponse(TripCreateRequest):
     analysis_revision: int | None = None
     input_revision: int = 1
     analysis_id: UUID | None = None
+
+
+class SaveTripRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    title: str = Field(default="", max_length=200)
+
+
+class SavedTripQuery(BaseModel):
+    limit: int = Field(default=20, ge=1, le=50)
+    offset: int = Field(default=0, ge=0)
+
+
+class SavedTripSummary(BaseModel):
+    id: UUID
+    title: str
+    saved_at: datetime
+    departure_at: datetime
+    timezone: str
+    status: TripStatus
+
+
+class SavedTripPage(BaseModel):
+    items: list[SavedTripSummary]
+    next_offset: int | None = None

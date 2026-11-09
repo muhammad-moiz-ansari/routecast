@@ -67,6 +67,15 @@ beforeEach(() => {
           stage: "weather",
           data: null,
         });
+      if (path.endsWith("/trips/trip-123/"))
+        return Response.json({
+          origin: { latitude: 30, longitude: 70 },
+          destination: { latitude: 31, longitude: 70 },
+          departure_at: "2099-11-09T07:00:00Z",
+          timezone: "Asia/Karachi",
+          cargo_load_lb: 42000,
+          checkpoint_spacing_miles: 25,
+        });
       throw new Error("Unexpected endpoint " + path);
     }),
   );

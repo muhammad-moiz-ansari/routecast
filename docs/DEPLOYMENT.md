@@ -1,5 +1,7 @@
 # Release and operation runbook
 
+Saved trips require migration `persistence/0005_saved_trips`. Apply backend migrations before serving the updated sidebar. `config/render_start.sh` already runs `python manage.py migrate --noinput` on startup; deployments using another startup command must run that migration step separately. Keep the same database, stable Django secret and session cookie configuration across releases so existing anonymous owners retain access. The feature introduces no environment variables or provider keys.
+
 Gunicorn's optional management control socket is disabled in config/gunicorn.py. Container deployments manage the process lifecycle; the nonroot image intentionally has no writable /home/routecast. This prevents its control-interface permission error without changing HTTP serving or granting extra filesystem access. The configuration was loaded/checked locally, but the revised Linux/Render process still needs redeployment and log verification. A platform “live” message does not establish database/Redis readiness; use /api/v1/ready/ separately (it does not call providers).
 
 Prepared 9 November 2026. Configuration is ready for a controlled, noncommercial assessment deployment after user authorization. Nothing was deployed. Image builds, Linux process execution, hosted HTTPS/CSRF and real broker/provider E2E remain pending. Docker is unavailable in the implementation environment, so YAML inspection is not a Compose/image/runtime smoke.

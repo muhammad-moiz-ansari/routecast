@@ -2,7 +2,7 @@ from uuid import UUID
 
 from django.http import HttpResponse
 from django.middleware.csrf import get_token
-from ninja import Router
+from ninja import Query, Router
 from ninja.responses import Status
 
 from api.dependencies import get_refresh_service, get_trip_service
@@ -12,7 +12,14 @@ from api.session import OwnerSessionAuth, establish_owner
 from common.exceptions import InvalidDeparture
 from services.refresh.models import RefreshResult
 from services.routing.models import RouteOptions
-from services.trip.models import TripCreateRequest, TripResponse
+from services.trip.models import (
+    SavedTripPage,
+    SavedTripQuery,
+    SavedTripSummary,
+    SaveTripRequest,
+    TripCreateRequest,
+    TripResponse,
+)
 
 router = Router(tags=["Trips"], auth=OwnerSessionAuth())
 
@@ -39,6 +46,20 @@ def create(request, payload: TripCreateRequest):
                 field_errors=[{"field": "departure_at", "message": "Use a future departure."}],
             ),
         )
+
+
+@router.get("/trips/saved/", response={200: SavedTripPage, **ERROR_RESPONSES})
+def saved_trips(request, response: HttpResponse, query: Query[SavedTripQuery]):
+    """Read private bookmarks without making new provider requests."""
+    response["Cache-Control"] = "no-store"
+    return get_trip_service().list_saved(request.auth, query)
+
+
+@router.post("/trips/{trip_id}/save/", response={200: SavedTripSummary, **ERROR_RESPONSES})
+def save_trip(request, response: HttpResponse, trip_id: UUID, payload: SaveTripRequest):
+    """Bookmark an owned trip using the existing session and CSRF protection."""
+    response["Cache-Control"] = "no-store"
+    return get_trip_service().save(request.auth, trip_id, payload)
 
 
 @router.get("/trips/{trip_id}/", response={200: TripResponse, **ERROR_RESPONSES})

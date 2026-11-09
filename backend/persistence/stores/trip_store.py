@@ -1,10 +1,45 @@
+from django.db import transaction
 from django.utils import timezone
 
 from persistence.models import RouteSnapshot, Trip
-from services.trip.models import TripResponse
+from services.trip.models import SavedTripPage, SavedTripSummary, TripResponse
 
 
 class TripStore:
+    @staticmethod
+    def _saved_summary(trip):
+        return SavedTripSummary(
+            id=trip.id,
+            title=trip.saved_title or "Untitled trip",
+            saved_at=trip.saved_at,
+            departure_at=trip.inputs["departure_at"],
+            timezone=trip.inputs["timezone"],
+            status=trip.status,
+        )
+
+    @transaction.atomic
+    def save(self, owner_id, trip_id, payload):
+        """Make saving idempotent and keep the original bookmark timestamp."""
+        trip = Trip.objects.select_for_update().filter(owner_id=owner_id, pk=trip_id).first()
+        if trip is None:
+            return None
+        trip.saved_at = trip.saved_at or timezone.now()
+        trip.saved_title = trip.saved_title or payload.title or "Untitled trip"
+        trip.save(update_fields=["saved_at", "saved_title"])
+        return self._saved_summary(trip)
+
+    def list_saved(self, owner_id, query):
+        """Avoid loading analysis payloads when listing owner-scoped bookmarks."""
+        rows = list(
+            Trip.objects.filter(owner_id=owner_id, saved_at__isnull=False).order_by(
+                "-saved_at", "-id"
+            )[query.offset : query.offset + query.limit + 1]
+        )
+        return SavedTripPage(
+            items=[self._saved_summary(trip) for trip in rows[: query.limit]],
+            next_offset=query.offset + query.limit if len(rows) > query.limit else None,
+        )
+
     def create(self, owner_id, inputs, now=None):
         """Persist validated inputs before the provider operation."""
         return Trip.objects.create(

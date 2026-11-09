@@ -1,16 +1,23 @@
 import storedAnalysis from "./comparison.json";
 import storedCorridor from "./corridor.json";
+import type { SavedTrip } from "../../api/trips";
+const savedTrips: SavedTrip[] = [];
 let version = 1;
 let refreshPending = 0;
 let stopped = false;
 // Prefix matches model autocomplete; different preview places must not share endpoints.
-const previewPlaces = ["Lahore", "Faisalabad", "Islamabad", "Karachi", "Albany", "Boston"].map(
-  (name, index) => ({
-    id: `synthetic-place-${index}`,
-    label: `${name} · Synthetic location`,
-    coordinate: { latitude: 30 + index * 0.1, longitude: 70 + index * 0.1 },
-  }),
-);
+const previewPlaces = [
+  "Lahore",
+  "Faisalabad",
+  "Islamabad",
+  "Karachi",
+  "Albany",
+  "Boston",
+].map((name, index) => ({
+  id: `synthetic-place-${index}`,
+  label: `${name} · Synthetic location`,
+  coordinate: { latitude: 30 + index * 0.1, longitude: 70 + index * 0.1 },
+}));
 export async function fixtureFetch(
   path: string,
   init: RequestInit,
@@ -18,6 +25,30 @@ export async function fixtureFetch(
   if (init.signal?.aborted) throw new DOMException("Aborted", "AbortError");
   if (path === "/session/")
     return Response.json({ csrf_token: "synthetic-token" });
+  if (path.startsWith("/trips/saved/?")) {
+    const offset = Number(
+      new URLSearchParams(path.split("?")[1]).get("offset") ?? 0,
+    );
+    return Response.json({
+      items: savedTrips.slice(offset, offset + 20),
+      next_offset: savedTrips.length > offset + 20 ? offset + 20 : null,
+    });
+  }
+  if (path.endsWith("/save/") && init.method === "POST") {
+    const id = decodeURIComponent(path.split("/")[2]);
+    const existing = savedTrips.find((trip) => trip.id === id);
+    const trip: SavedTrip = {
+      id,
+      title: JSON.parse(String(init.body)).title,
+      saved_at: existing?.saved_at ?? new Date().toISOString(),
+      departure_at: storedAnalysis.data.inputs.departure_at,
+      timezone: storedAnalysis.data.inputs.timezone,
+      status: "complete",
+    };
+    if (existing) Object.assign(existing, trip);
+    else savedTrips.unshift(trip);
+    return Response.json(trip);
+  }
   if (path.startsWith("/locations/search/")) {
     const q = new URLSearchParams(path.split("?")[1]).get("query") ?? "";
     const matches = previewPlaces.filter((place) =>
@@ -54,6 +85,19 @@ export async function fixtureFetch(
       { status: 202 },
     );
   if (path.endsWith("/heartbeat/")) return Response.json({ status: "ok" });
+  if (
+    /^\/trips\/[^/]+\/$/.test(path) &&
+    (!init.method || init.method === "GET")
+  )
+    return Response.json({
+      ...storedAnalysis.data.inputs,
+      id: decodeURIComponent(path.split("/")[2]),
+      status: "complete",
+      input_revision: 1,
+      analysis_version: version,
+      analysis_id: "preview-analysis",
+      error_code: null,
+    });
   if (path.endsWith("/refresh/")) {
     if (
       new URLSearchParams(window.location.search).get("fixture") === "cooldown"
