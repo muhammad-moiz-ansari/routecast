@@ -45,3 +45,5 @@ class WeatherResult(BaseModel):
     provider_requests: int
     unique_locations_requested: int
     estimated_usage_units: int
+    # Older stored payloads predate the field and were all Open-Meteo.
+    provider: str = "open-meteo"

@@ -41,6 +41,7 @@ export function ForecastTimeline({
   onPreferences,
   absoluteTime,
   onTime,
+  weatherProvider,
 }: {
   corridor: CorridorProjection | undefined;
   zone: string;
@@ -48,6 +49,7 @@ export function ForecastTimeline({
   onPreferences: (p: DisplayPreferences) => void;
   absoluteTime: string | null;
   onTime: (t: string) => void;
+  weatherProvider?: string;
 }) {
   const data = corridor?.data;
   const index = data ? frameIndex(data.timestamps, absoluteTime) : 0;
@@ -238,7 +240,9 @@ export function ForecastTimeline({
                   </ul>
                 </AnimatedDisclosure>
               )}
-              <WeatherAttribution />
+              <WeatherAttribution
+                provider={data?.provider ?? weatherProvider}
+              />
               <Dialog.Close
                 className="close"
                 aria-label="Close forecast details"

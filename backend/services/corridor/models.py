@@ -38,3 +38,4 @@ class CorridorDataset(BaseModel):
     units: dict[str, str]
     coverage: str
     notices: list[str]
+    provider: str = "open-meteo"

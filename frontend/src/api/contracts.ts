@@ -167,6 +167,7 @@ export interface AnalysisSnapshot {
     provider_requests: number;
     unique_locations_requested: number;
     estimated_usage_units: number;
+    provider?: string;
   };
   recommendation: Recommendation;
   routing_fetched_at: string;
@@ -203,6 +204,7 @@ export interface CorridorDataset {
   notices: string[];
   risk_categories?: RiskCategory[][];
   rules_version?: string;
+  provider?: string;
 }
 export type SuggestionKind = "route" | "timing" | "cargo" | "caution" | "data";
 export interface SuggestionResult {
