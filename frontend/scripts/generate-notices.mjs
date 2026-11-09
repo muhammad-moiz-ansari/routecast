@@ -33,7 +33,10 @@ for (const [relative, entry] of Object.entries(lock.packages).sort(([a], [b]) =>
       const text = await readFile(path.join(directory, readme), "utf8");
       if (
         /##? License/i.test(text) &&
-        /Permission is hereby granted/.test(text)
+        (/Permission is hereby granted/.test(text) ||
+          // GSAP distributes its copyright and standard-license reference in README.
+          (pkg.name === "gsap" && pkg.version === "3.15.1" &&
+            text.includes("https://gsap.com/standard-license")))
       )
         licenses.push(readme);
     }
@@ -58,7 +61,8 @@ for (const [relative, entry] of Object.entries(lock.packages).sort(([a], [b]) =>
       fallback;
   sections.push(body);
 }
-const output = sections.join("\n");
+// Preserve notice wording while removing upstream Markdown's trailing spaces.
+const output = sections.join("\n").replace(/[ \t]+$/gm, "");
 const target = path.join(root, "public", "THIRD_PARTY_NOTICES.txt");
 if (process.argv.includes("--check")) {
   if ((await readFile(target, "utf8")) !== output)

@@ -1,5 +1,9 @@
 # Progress
 
+## Capability marquee — 9 November 2026
+
+Home capability strip now loops seamlessly left to right using pinned GSAP 3.15.1. Equal-width duplicate groups preserve the seam; clone is aria-hidden/inert. Persistent pause/resume, hover pause, viewport/tab suspension and a static wrapping reduced-motion layout preserve user control. Scoped context/observer/listeners clean up on unmount. Dependency notices retain GSAP's upstream README copyright/standard-license reference. Two focused offline tests pass; no provider/backend changes or new rendered visual confirmation.
+
 ## Inset scrolling, tooltip and icon follow-up — 9 November 2026
 
 Planner sidebar now contains an inset scroll surface; its scrollbar and the welcome-card scrollbar share primary-blue thumbs with rounded WebKit tips/inset track ends. Native fallback scrollbars remain browser-dependent. Theme tooltip is pointer-hover-only (native title removed); accessible button names remain. Planner route scene plays by default while preserving reduced-motion/visibility/pause controls. Added a local SVG favicon and index link. User's planner navbar adjustments were preserved; only new scrollbar styles appended. No provider requests or deployment.

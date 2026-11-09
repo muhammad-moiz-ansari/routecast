@@ -1,5 +1,11 @@
 # Verification ledger
 
+## Capability marquee — 9 November 2026
+
+Production build passed (TypeScript, 72 notices and Vite; existing annotation/chunk advisories). Whitespace check exposed trailing spaces in upstream README Markdown retained by the notice generator; normalized trailing spaces without changing wording, regenerated and rechecked notices/whitespace successfully. No application rebuild repeated for notice-only whitespace normalization.
+
+Two focused offline cases pass with mocked GSAP: -50% to 0 left-to-right infinite linear configuration, manual pause/resume, one accessible copy and context cleanup; reduced motion creates no tween and retains four accessible items. Equal-width responsive groups and percentage translation statically reviewed; actual browser visual confirmation remains pending after earlier localhost access failures. Added pinned GSAP 3.15.1 using npm with scripts/audit/funding disabled. Registry/official GSAP reference traffic is dependency setup, not provider traffic. Initial notices/build failed because the package distributes licence information in README rather than a standalone LICENSE; added narrowly version-scoped README recognition, retaining its actual copyright/standard-license URL. Regenerated 72 package notices and their check passes. No route/weather/basemap requests or unrelated test sweeps. One documentation patch failed atomically on an incorrect attribution heading, then was corrected. No staging, commits, pushes or deployment.
+
 ## Inset scrolling and favicon follow-up — 9 November 2026
 
 Static review: outer planner card clips rounded corners, inner planner-scroll owns vertical scrolling, both scroll surfaces use shared theme thumb color with WebKit radius/track margins and standard scrollbar fallback. Removed ThemeToggle title and suppressed focus-only/touch tooltip while keeping aria-label. Removed planner-only defaultPaused prop; existing reduced-motion/intersection cleanup remains unchanged. Local SVG favicon referenced from index.html; no missing user-supplied PNG is referenced. TypeScript and whitespace checks pass; no new browser/rendered verification or unrelated test/build repeats. No APIs called. Navbar values edited by user were not changed.

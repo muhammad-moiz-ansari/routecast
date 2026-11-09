@@ -1,5 +1,7 @@
 # Source attribution and distribution notices
 
+GSAP 3.15.1 powers the home capability marquee. Its distributed README copyright and [standard no-charge licence reference](https://gsap.com/standard-license) are retained in generated browser dependency notices. It is not an MIT-licensed dependency. The official terms permit website animation; RouteCast does not use it as a visual animation authoring tool.
+
 Reviewed 9 November 2026. This records the implemented sources and observed license metadata, not a legal certification or permission to deploy under an account's terms.
 
 | Source | Use and credit | Conditions / implementation |

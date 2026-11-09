@@ -1,3 +1,4 @@
+import { CapabilityMarquee } from "../components/landing/CapabilityMarquee";
 import { HeroRouteScene } from "../components/landing/HeroRouteScene";
 import { SpecularLink } from "../components/ui/SpecularAction";
 import { useEffect, useRef, useState } from "react";
@@ -201,19 +202,7 @@ export function LandingPage() {
           </div>
           <HeroRouteScene />
         </section>
-        <section className="capability-strip" aria-label="Planner capabilities">
-          {[
-            "Up to 3 route options",
-            "Arrival-time weather checks",
-            "Cargo-aware risk rules",
-            "0–48 hour forecast exploration",
-          ].map((s, i) => (
-            <HoloCard key={s} className="capability-card">
-              <span>0{i + 1}</span>
-              {s}
-            </HoloCard>
-          ))}
-        </section>
+        <CapabilityMarquee />
         <section className="landing-section how-section" id="how-it-works">
           <div>
             <p className="landing-eyebrow">FROM DEPARTURE TO DECISION</p>

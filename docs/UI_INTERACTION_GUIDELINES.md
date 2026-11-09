@@ -1,5 +1,7 @@
 # RouteCast interaction preferences
 
+Capability-strip exception requested by user: use a seamless 36-second linear GSAP loop moving left to right. Retain persistent pause/resume, hover/off-screen/hidden-tab suspension, inaccessible duplicate group and static reduced-motion layout. Revert context/listeners/observer on unmount; no React frame loop.
+
 User-approved direction, 9 November 2026. Apply these consistently to future UI phases and follow-up changes. Read alongside UI_REDESIGN_HANDOFF.md; these apply across UI phases; future phase execution and deployment still require an explicit user request.
 
 - Every enabled button needs visible hover feedback and equivalent keyboard focus feedback. Use the shared globals.css baseline, then tailor background/border, restrained lift/glow or icon movement to context. A selected state is not a substitute for hover. Do not animate disabled controls or rely on hover to convey essential information.
