@@ -1,3 +1,4 @@
+import { MethodologyDialog } from "../../../components/ui/MethodologyDialog";
 import type { ReactNode } from "react";
 export function PlannerSidebar({
   children,
@@ -30,6 +31,9 @@ export function PlannerSidebar({
         </div>
       )}
       <div id="planner-content">{children}</div>
+      <footer className="planner-methodology">
+        <MethodologyDialog />
+      </footer>
     </section>
   );
 }

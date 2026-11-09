@@ -80,3 +80,5 @@ Development fixture refresh shows retained results, then publishes a new synthet
 Relevant new tests: timeline.test.tsx, lifecycle.test.tsx, the corridor-map integration case in comparison.test.tsx, and backend/tests/test_phase9.py. Existing P7/P8 evidence is reused except for affected integration cases. Refer to VERIFICATION_LOG.md before rerunning tests. Live worker/provider/basemap evidence and manual screen-reader/device/enlarged-text review remain pending.
 
 Per-frame values are outside live regions; the slider supplies the selected timestamp through aria-valuetext. Loading/failure feedback remains announced without announcing every drag or poll.
+
+UI-3 replaces operational cells with bounded worker-rendered scalar raster fields, conservative categorical Risk, fixed continuous scalar legends and transparent unsupported/missing regions. Forecast details now explains interpolation and uncertainty. Uncached selections show Updating forecast view while obsolete imagery is hidden; oversized unsupported extents show an overlay-unavailable message with sample values still available. No provider requests are made by slider/layer changes.

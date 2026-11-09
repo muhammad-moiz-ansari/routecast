@@ -12,7 +12,7 @@ import {
 } from "../../weather-timeline/frame";
 const R = 6371008.8,
   rad = Math.PI / 180;
-const angular = (a: number[], b: number[]) =>
+export const angular = (a: number[], b: number[]) =>
   2 *
   Math.asin(
     Math.min(
@@ -33,7 +33,7 @@ const bearing = (a: number[], b: number[]) =>
         Math.cos(b[1] * rad) *
         Math.cos((b[0] - a[0]) * rad),
   );
-function distanceToArc(p: number[], a: number[], b: number[]) {
+export function distanceToArc(p: number[], a: number[], b: number[]) {
   const d = angular(a, p),
     length = angular(a, b);
   if (length < 1e-10) return d * R;
@@ -45,11 +45,11 @@ function distanceToArc(p: number[], a: number[], b: number[]) {
         Math.asin(Math.max(-1, Math.min(1, Math.sin(d) * Math.sin(delta)))),
       ) * R;
 }
-const mercator = (p: number[]) => [
+export const mercator = (p: number[]) => [
   p[0] * rad * R,
   Math.log(Math.tan(Math.PI / 4 + (p[1] * rad) / 2)) * R,
 ];
-const geographic = (x: number, y: number) => [
+export const geographic = (x: number, y: number) => [
   x / R / rad,
   (2 * Math.atan(Math.exp(y / R)) - Math.PI / 2) / rad,
 ];

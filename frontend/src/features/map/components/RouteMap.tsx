@@ -1,6 +1,5 @@
+import { useFieldOverlay } from "../rendering/useFieldOverlay";
 import { WeatherAttribution } from "../../../components/ui/WeatherAttribution";
-import { useMemo } from "react";
-import { corridorCells, fieldFeatures } from "../utils/corridorField";
 import { useEffect, useRef, useState } from "react";
 import maplibregl, {
   type GeoJSONSource,
@@ -77,12 +76,8 @@ function fit(map: GLMap, routes: RouteCandidate[]) {
 export default function RouteMap(props: MapProps) {
   const host = useRef<HTMLDivElement>(null);
   const mapRef = useRef<GLMap | null>(null);
-  const cells = useMemo(
-    () => (props.corridor ? corridorCells(props.corridor, props.routes) : []),
-    [props.corridor?.dataset_id, props.routes],
-  );
-  const cellsRef = useRef(cells);
-  cellsRef.current = cells;
+  const [styleEpoch, setStyleEpoch] = useState(0);
+  const fieldStatus = useFieldOverlay(mapRef, props, styleEpoch);
   const latest = useRef(props);
   latest.current = props;
   const fitted = useRef(false);
@@ -133,16 +128,6 @@ export default function RouteMap(props: MapProps) {
     );
     (map.getSource("route-labels") as GeoJSONSource | undefined)?.setData(
       labelFeatures(p.routes),
-    );
-    (map.getSource("corridor-field") as GeoJSONSource | undefined)?.setData(
-      p.corridor && p.showForecast
-        ? fieldFeatures(
-            cellsRef.current,
-            p.corridor,
-            p.forecastLayer ?? "wind_mph",
-            p.forecastFrame ?? 0,
-          )
-        : { type: "FeatureCollection", features: [] },
     );
     const selected = p.routes.find((r) => r.id === p.selectedId);
     (map.getSource("endpoints") as GeoJSONSource | undefined)?.setData({
@@ -218,27 +203,6 @@ export default function RouteMap(props: MapProps) {
           if (!map.hasImage(c))
             map.addImage(c, ctx.getImageData(0, 0, 48, 48), { pixelRatio: 2 });
         }
-        map.addSource("corridor-field", {
-          type: "geojson",
-          data: { type: "FeatureCollection", features: [] },
-        });
-        map.addLayer({
-          id: "corridor-field",
-          type: "fill",
-          source: "corridor-field",
-          paint: { "fill-color": ["get", "color"], "fill-opacity": 0.85 },
-        });
-        map.addLayer({
-          id: "corridor-missing",
-          type: "line",
-          source: "corridor-field",
-          filter: ["==", ["get", "missing"], true],
-          paint: {
-            "line-color": "#ffffff",
-            "line-width": 1,
-            "line-dasharray": [2, 2],
-          },
-        });
         map.addSource("routes", {
           type: "geojson",
           data: routeFeatures(
@@ -396,6 +360,7 @@ export default function RouteMap(props: MapProps) {
         });
         map.moveLayer("endpoints");
         update(map);
+        setStyleEpoch((v) => v + 1);
       } catch {
         setFailed(true);
       }
@@ -531,6 +496,7 @@ export default function RouteMap(props: MapProps) {
         )}
       </div>
       <div className="map-credits">
+        {fieldStatus && <span role="status">{fieldStatus}</span>}
         <small>
           MapLibre GL JS · Routing: <a href="https://www.tomtom.com/">TomTom</a>
         </small>

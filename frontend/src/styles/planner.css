@@ -1957,3 +1957,8 @@
     transition: none !important;
   }
 }
+/* Continuous scalar ramp uses the same fixed anchors as the raster; categorical badges stay distinct. */
+.scalar-legend:not(:has(.risk-badge))::before {content:"";display:block;width:100%;height:6px;border-radius:8px;background:linear-gradient(90deg,#215c91,#287e8e,#997000,#b04f14,#a62c47);}
+.planner-methodology {margin-top:24px;padding-top:16px;border-top:1px solid var(--border);}
+.methodology-trigger {min-height:44px;width:100%;justify-content:flex-start;border-radius:12px;background:var(--surface-muted);color:var(--text-muted);font-size:13px;}
+.methodology-trigger:is(:hover,:focus-visible) {color:var(--primary);background:var(--primary-soft);}

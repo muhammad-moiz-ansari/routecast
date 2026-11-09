@@ -186,11 +186,13 @@ export function ForecastTimeline({
                 {data
                   ? quantity(data.grid.along_spacing_meters / 1609.344, "mi")
                   : "—"}
-                ; corridor half-width {data?.grid.width_miles ?? "—"} mi. Cells
-                show the nearest sampled value without additive intensity.
-                Sparse sampling and provider forecast resolution do not
-                establish conditions everywhere between samples. Only cells
-                wholly inside the route corridor are drawn; gaps are unpainted.
+                ; corridor half-width {data?.grid.width_miles ?? "—"} mi. Smooth
+                scalar colors interpolate nearby supported samples without
+                additive intensity. Unsupported regions remain transparent, with
+                feathering only inside corridor boundaries. Risk preserves the
+                highest supported category rather than averaging categories.
+                Additional pixels are a visual estimate, not additional forecast
+                observations.
               </p>
               {layer === "risk" && (
                 <p>
@@ -309,8 +311,11 @@ export function ForecastTimeline({
         </span>
       </div>
       <p className="forecast-help">
-        Forecast at selected time · Dashed / gray = unavailable · Arrival
-        forecasts determine recommendations.
+        {layer === "risk"
+          ? "Illustrative corridor risk"
+          : "Forecast at selected time"}{" "}
+        · Unpainted gaps = unavailable · Arrival forecasts determine
+        recommendations.
       </p>
     </section>
   );

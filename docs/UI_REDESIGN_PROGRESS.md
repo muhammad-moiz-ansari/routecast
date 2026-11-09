@@ -16,7 +16,7 @@ Six targeted checks pass (four new cases plus two affected landing/motion cases)
 | --- | --- | --- |
 | UI-1 | Complete | Branded landing, shared theme/tokens/font, explicit routes, lazy planner and controlled illustrative motion |
 | UI-2 | Complete | Viewport planner, scrollable sidebar, docked forecast, checkpoint drawer/list and responsive navigation |
-| UI-3 | Not started | Smooth operational corridor weather renderer and final presentation review |
+| UI-3 | Complete | Worker-rendered smooth scalar fields, geographic/missing masks, categorical risk and fixture review |
 
 ## UI-2 result — 9 November 2026
 
@@ -57,3 +57,16 @@ User rejected the empty planner's density and mismatch with the landing. Revisit
 This follow-up is **not complete**. Automatic browser approval review rejected localhost navigation because account usage limits prevented the approval check. No workaround was attempted. Current rendered UI review is pending; earlier screenshots do not verify these changes. The newly requested smooth operational gradient field also remains unimplemented: existing polygons are still present. It must preserve geographic support, missing holes and categorical hazards under the UI-3 rendering requirements, rather than blurring existing boxes.
 
 Fixture inputs: search/select Albany and Boston; future local departure (10 November 2026 13:00 for this recorded session), Asia/Karachi, 42,000 lb, 25 mi. Results are pre-authored and do not represent a live route between those names. No provider calls or Git/deployment actions.
+
+
+## UI-3 — 9 November 2026
+
+Implemented the requested smooth operational weather field. The map no longer mounts the old polygon-cell layers. Bounded Mercator image tiles interpolate supported wind/rain/snow values, share fixed color anchors, feather inside corridor boundaries and missing-support edges, and preserve transparent unknown regions. Risk uses conservative maximum categories and is labeled illustrative; backend checkpoint risk and ranking are unchanged.
+
+A dedicated worker handles sampling; new selections terminate obsolete jobs, reject late results and hide old imagery before updating the time view. A six-entry LRU caches completed images. Jobs use at most sixteen 256px tiles (1,048,576 pixels); resolution coarsens to meet that bound. Unsupported extents report overlay unavailability rather than silently truncating. Map sources are removed on replacement/unmount; workers and debounce timers clean up. No perpetual canvas loop or Blob URLs.
+
+Support radius is 1.5 times the hypotenuse of actual along/cross spacing. Neighbor candidates are limited to the closest route and adjacent geometry segments, so disconnected branches do not exchange values. This conservative support can leave extra transparent gaps in complex geometry; it does not create observations. Polar samples beyond 85 degrees remain text-only. Wind/rain/snow interpolate values before coloring; zero rain/snow is transparent. Risk is never numerically averaged.
+
+Six new targeted checks pass across scoped runs, final production build/71 notices and final TypeScript check pass. Actual fixture browser reviewed scalar fields in day/night, hour 48, categorical Risk, rapid hour changes and 320px reflow. Credits, route casing and hazard markers remain above the field. Only UI-3 renderer/display behavior was checked; unrelated phase suites and prior empty-planner design were not rerun. Zero routing/weather/basemap calls. Existing release/manual accessibility limitations remain. Preview stopped, viewport reset, night preference restored. Nothing staged/committed/pushed/published/deployed. Stop after UI-3.
+
+UI-3 follow-up: moved Methodology from the main header into the planner sidebar footer and extracted its existing Radix dialog unchanged. Targeted methodology Escape/focus-return case passed (1 passed/16 skipped); TypeScript passed. No provider calls or Git/deployment actions.
