@@ -1,5 +1,15 @@
 # Verification ledger
 
+## Inset scrolling and favicon follow-up — 9 November 2026
+
+Static review: outer planner card clips rounded corners, inner planner-scroll owns vertical scrolling, both scroll surfaces use shared theme thumb color with WebKit radius/track margins and standard scrollbar fallback. Removed ThemeToggle title and suppressed focus-only/touch tooltip while keeping aria-label. Removed planner-only defaultPaused prop; existing reduced-motion/intersection cleanup remains unchanged. Local SVG favicon referenced from index.html; no missing user-supplied PNG is referenced. TypeScript and whitespace checks pass; no new browser/rendered verification or unrelated test/build repeats. No APIs called. Navbar values edited by user were not changed.
+
+## Responsive navigation and landscape card — 9 November 2026
+
+Production build passed (TypeScript, 71 package notices, Vite), with existing Zod annotation/large-chunk advisories. Final whitespace check passed.
+
+Initial focused existing menu-dismissal/form-validation cases: two passed, 20 skipped; TypeScript passed. After strengthening validation assertions and adding a mobile-only case: two targeted cases passed, 21 skipped. New mobile case verifies closed navigation inertness, open state, three persistent morphing lines and Escape focus return; form test verifies only Trip is enabled without route data. Responsive CSS manually inspected for 814x391 landscape and 535x391 mobile conditions, adjustable gutters, fixed-header anchor offsets, disabled dock feedback and reduced motion. This is static CSS/DOM evidence, not a new rendered screenshot or real-device review. Previous browser connection timeouts remain an environment limitation. No route/weather/basemap API checks or backend tests were run; successful unrelated suites reused. No stage/commit/push or deployment.
+
 ## Planner calendar and visual refinement — 9 November 2026
 
 Production build passed, including TypeScript and 71 dependency notices; existing Zod annotation/MapLibre chunk advisories remain nonfatal. Final diff whitespace check passed.

@@ -1,5 +1,13 @@
 # Progress
 
+## Inset scrolling, tooltip and icon follow-up — 9 November 2026
+
+Planner sidebar now contains an inset scroll surface; its scrollbar and the welcome-card scrollbar share primary-blue thumbs with rounded WebKit tips/inset track ends. Native fallback scrollbars remain browser-dependent. Theme tooltip is pointer-hover-only (native title removed); accessible button names remain. Planner route scene plays by default while preserving reduced-motion/visibility/pause controls. Added a local SVG favicon and index link. User's planner navbar adjustments were preserved; only new scrollbar styles appended. No provider requests or deployment.
+
+## Responsive cards and navigation refinement — 9 November 2026
+
+Fixed short landscape welcome content by using a top-aligned scrollable card at >=768px width/<=550px height, including the reported 814x391 case. Added configurable 12px mobile panel/dock gutters and explicit navbar spacing variables (UI_SPACING_GUIDE.md). Mobile planner dock now uses icon/text controls, rounded shared-theme surfaces and native disabled states until route/checkpoint content exists. Landing header is fixed/translucent with scroll offsets, animated mobile open/close panel and hamburger-to-cross morph. Closed mobile links become inert and inaccessible immediately; resize/Escape/focus/reduced-motion behavior is preserved. No provider/backend or trip data changes; no new API calls or deployment.
+
 ## Planner calendar and visual refinement — 9 November 2026
 
 Added a themed departure calendar dialog with month navigation, day selection, local time, Today/apply controls, arrow/Home/End navigation and Escape/focus return. Native editable datetime segments remain as fallback; existing Temporal timezone/DST interpretation is unchanged. Replaced stacked input outlines with primary-border/blue-teal glow and forced-colors fallback; centered compact navbar controls and removed extra workspace top padding. Sidebar now has restrained static teal/blue gradient atmosphere. No provider/backend behavior changes, dependency additions or live API checks. Three focused offline tests and TypeScript pass; browser fixture preview timed out, so rendered visual confirmation remains pending. User reference URLs were inaccessible through web browsing; no visual review of them is claimed.

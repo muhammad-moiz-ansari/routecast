@@ -92,6 +92,29 @@ it("provides a genuine not-found route and a keyboard-dismissable menu", async (
   expect(button).toHaveAttribute("aria-expanded", "false");
 });
 
+it("excludes closed mobile navigation and restores focus when its animated menu closes", () => {
+  vi.spyOn(window, "matchMedia").mockImplementation(
+    (query) =>
+      ({
+        matches: query === "(max-width: 600px)",
+        media: query,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }) as unknown as MediaQueryList,
+  );
+  mount();
+  const navigation = document.getElementById("site-navigation")!;
+  const trigger = screen.getByRole("button", { name: "Open navigation" });
+  expect(navigation).toHaveAttribute("inert");
+  fireEvent.click(trigger);
+  expect(navigation).not.toHaveAttribute("inert");
+  expect(trigger.querySelectorAll(".hamburger-lines > span")).toHaveLength(3);
+  expect(trigger).toHaveAttribute("aria-expanded", "true");
+  fireEvent.keyDown(document, { key: "Escape" });
+  expect(navigation).toHaveAttribute("inert");
+  expect(trigger).toHaveFocus();
+});
+
 it("shows a static scene for reduced motion and cleans up scene observers", () => {
   const disconnect = vi.fn();
   vi.stubGlobal(

@@ -1167,3 +1167,7 @@ h3 {
 }
 
 .theme-switch{position:relative;display:inline-flex}.theme-switch button{width:48px;height:48px;padding:0}.theme-tooltip{display:none;position:absolute;top:54px;right:0;background:var(--surface);color:var(--text);padding:8px;min-width:165px;border:1px solid var(--control-border);z-index:20}.theme-switch:hover .theme-tooltip,.theme-switch:focus-within .theme-tooltip{display:block}
+
+/* Pointer tooltip only; the button's aria-label still names it for keyboard/screen-reader use. */
+.theme-switch:focus-within:not(:hover) .theme-tooltip { display: none; }
+@media (hover: none) { .theme-switch .theme-tooltip { display: none !important; } }

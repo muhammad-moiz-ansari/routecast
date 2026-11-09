@@ -5,7 +5,7 @@ export function ThemeToggle() {
   const label = night ? "Switch to light mode" : "Switch to dark mode";
   return (
     <span className="theme-switch">
-      <button type="button" onClick={toggle} aria-label={label} title={label}>
+      <button type="button" onClick={toggle} aria-label={label}>
         {night ? (
           <Sun aria-hidden="true" size={20} />
         ) : (

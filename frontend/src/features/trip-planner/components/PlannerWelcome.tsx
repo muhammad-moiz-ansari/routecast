@@ -35,7 +35,7 @@ export function PlannerWelcome() {
         </div>
       </div>
       <div className="welcome-illustration">
-        <HeroRouteScene defaultPaused />
+        <HeroRouteScene />
       </div>
       <div className="welcome-caption">
         <span>Weather at arrival</span>

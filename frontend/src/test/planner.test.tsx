@@ -74,6 +74,12 @@ beforeEach(() => {
 
 it("focuses an error summary without submitting unselected locations", async () => {
   mount();
+  for (const button of document.querySelectorAll<HTMLButtonElement>(
+    ".workspace-nav button",
+  )) {
+    if (button.textContent === "Trip") expect(button).toBeEnabled();
+    else expect(button).toBeDisabled();
+  }
   await userEvent.click(screen.getByRole("button", { name: "Compare routes" }));
   await waitFor(() => expect(screen.getByRole("alert")).toHaveFocus());
   expect(

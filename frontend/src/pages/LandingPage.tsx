@@ -2,7 +2,7 @@ import { HeroRouteScene } from "../components/landing/HeroRouteScene";
 import { SpecularLink } from "../components/ui/SpecularAction";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Route, ArrowUpRight, Menu, X, ArrowRight } from "lucide-react";
+import { Route, ArrowUpRight, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
 import "../styles/landing.css";
 import { HoloCard } from "../components/ui/HoloCard";
@@ -46,6 +46,18 @@ const questions = [
 ];
 export function LandingPage() {
   const [menu, setMenu] = useState(false);
+  const [mobile, setMobile] = useState(
+    () => matchMedia("(max-width: 600px)").matches,
+  );
+  useEffect(() => {
+    const media = matchMedia("(max-width: 600px)");
+    const update = () => {
+      setMobile(media.matches);
+      if (!media.matches) setMenu(false);
+    };
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
   const [step, setStep] = useState(0);
   const trigger = useRef<HTMLButtonElement>(null);
   const navigation = useRef<HTMLElement>(null);
@@ -115,23 +127,27 @@ export function LandingPage() {
           ref={navigation}
           aria-label="Main navigation"
           className={menu ? "site-nav open" : "site-nav"}
+          inert={mobile && !menu}
+          aria-hidden={mobile && !menu ? true : undefined}
         >
-          <a href="#how-it-works" onClick={() => setMenu(false)}>
-            How it works
-          </a>
-          <a href="#weather-insight" onClick={() => setMenu(false)}>
-            Weather insight
-          </a>
-          <a href="#methodology" onClick={() => setMenu(false)}>
-            Methodology
-          </a>
-          <SpecularLink
-            to="/plan"
-            className="mobile-plan"
-            onClick={() => setMenu(false)}
-          >
-            Plan a route →
-          </SpecularLink>
+          <div className="site-nav-content">
+            <a href="#how-it-works" onClick={() => setMenu(false)}>
+              How it works
+            </a>
+            <a href="#weather-insight" onClick={() => setMenu(false)}>
+              Weather insight
+            </a>
+            <a href="#methodology" onClick={() => setMenu(false)}>
+              Methodology
+            </a>
+            <SpecularLink
+              to="/plan"
+              className="mobile-plan"
+              onClick={() => setMenu(false)}
+            >
+              Plan a route →
+            </SpecularLink>
+          </div>
         </nav>
         <div className="site-actions">
           <ThemeToggle />
@@ -146,7 +162,11 @@ export function LandingPage() {
             aria-expanded={menu}
             onClick={() => setMenu(!menu)}
           >
-            {menu ? <X /> : <Menu />}
+            <span className="hamburger-lines" aria-hidden="true">
+              <span />
+              <span />
+              <span />
+            </span>
           </button>
         </div>
       </header>

@@ -1247,3 +1247,31 @@ html {
     font-size: 13px;
   }
 }
+
+/* Home navbar knobs: change height and inline spacing here. */
+.landing { --home-nav-height: 76px; --home-nav-inline: clamp(16px, 3.5vw, 48px); padding-top: var(--home-nav-height); }
+.landing .site-header {
+  position: fixed; inset: 0 0 auto; z-index: 30;
+  width: 100%; max-width: none; height: var(--home-nav-height);
+  padding: 0 max(var(--home-nav-inline), calc((100vw - 1264px) / 2));
+  background: color-mix(in srgb, var(--canvas) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(140%); -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+}
+.site-nav-content { display: contents; }
+.landing section[id] { scroll-margin-top: calc(var(--home-nav-height) + 16px); }
+.landing .skip { z-index: 40; }
+.hamburger-lines { position: relative; width: 22px; height: 18px; display: block; }
+.hamburger-lines > span { position: absolute; left: 0; width: 22px; height: 2px; border-radius: 2px; background: currentColor; transition: transform 240ms ease, opacity 160ms ease; }
+.hamburger-lines > span:nth-child(1) { top: 0; }
+.hamburger-lines > span:nth-child(2) { top: 8px; }
+.hamburger-lines > span:nth-child(3) { top: 16px; }
+.menu-button[aria-expanded="true"] .hamburger-lines > span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.menu-button[aria-expanded="true"] .hamburger-lines > span:nth-child(2) { opacity: 0; transform: scaleX(.5); }
+.menu-button[aria-expanded="true"] .hamburger-lines > span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+@media (max-width: 600px) {
+  .landing .site-nav { display: grid; grid-template-rows: 0fr; top: calc(var(--home-nav-height) - 4px); opacity: 0; visibility: hidden; transform: translateY(-8px); transition: grid-template-rows 260ms ease, opacity 180ms ease, transform 260ms ease, visibility 0s 260ms; backdrop-filter: blur(18px); background: color-mix(in srgb, var(--surface) 94%, transparent); }
+  .landing .site-nav.open { grid-template-rows: 1fr; opacity: 1; visibility: visible; transform: none; transition: grid-template-rows 260ms ease, opacity 180ms ease, transform 260ms ease, visibility 0s; }
+  .landing .site-nav-content { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+}
+@media (prefers-reduced-motion: reduce) { .landing .site-nav, .hamburger-lines > span { transition: none !important; } }

@@ -11,7 +11,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import { Route, Clock3, MapPin } from "lucide-react";
+import {
+  Route,
+  Clock3,
+  MapPin,
+  Map as MapIcon,
+  ListChecks,
+  ClipboardList,
+} from "lucide-react";
 import {
   plannerSchema,
   type PlannerValues,
@@ -222,13 +229,30 @@ export function App() {
             key={v}
             type="button"
             aria-pressed={panelView === v}
-            disabled={!id && v !== "trip"}
+            disabled={
+              v !== "trip" &&
+              (v === "checkpoints"
+                ? !status?.data
+                : !(
+                    status?.data?.routes.routes.length ||
+                    pendingRoutes.data?.routes.length
+                  ))
+            }
             onClick={() => {
               setPanelView(v);
               setCollapsed(false);
             }}
           >
-            {v[0].toUpperCase() + v.slice(1)}
+            {v === "trip" ? (
+              <ClipboardList size={18} aria-hidden="true" />
+            ) : v === "routes" ? (
+              <Route size={18} aria-hidden="true" />
+            ) : v === "checkpoints" ? (
+              <ListChecks size={18} aria-hidden="true" />
+            ) : (
+              <MapIcon size={18} aria-hidden="true" />
+            )}
+            <span>{v[0].toUpperCase() + v.slice(1)}</span>
           </button>
         ))}
       </nav>

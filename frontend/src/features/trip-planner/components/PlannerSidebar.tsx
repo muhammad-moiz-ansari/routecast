@@ -18,22 +18,24 @@ export function PlannerSidebar({
       tabIndex={-1}
       aria-labelledby={hasTrip ? "planner-title" : "trip-form-title"}
     >
-      {hasTrip && (
-        <div className="sheet-controls">
-          <button
-            type="button"
-            aria-expanded={expanded}
-            aria-controls="planner-content"
-            onClick={onExpand}
-          >
-            {expanded ? "Collapse panel" : "Expand panel"}
-          </button>
-        </div>
-      )}
-      <div id="planner-content">{children}</div>
-      <footer className="planner-methodology">
-        <MethodologyDialog />
-      </footer>
+      <div className="planner-scroll">
+        {hasTrip && (
+          <div className="sheet-controls">
+            <button
+              type="button"
+              aria-expanded={expanded}
+              aria-controls="planner-content"
+              onClick={onExpand}
+            >
+              {expanded ? "Collapse panel" : "Expand panel"}
+            </button>
+          </div>
+        )}
+        <div id="planner-content">{children}</div>
+        <footer className="planner-methodology">
+          <MethodologyDialog />
+        </footer>
+      </div>
     </section>
   );
 }
