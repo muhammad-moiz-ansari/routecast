@@ -10,6 +10,8 @@ keepalive = 5
 max_requests = 1000
 max_requests_jitter = 100
 worker_tmp_dir = "/tmp"
+# Deployments manage this process; no management socket may write to the absent user home.
+control_socket_disable = True
 # Django trusts the controlled gateway header. Gunicorn does not independently infer proxy schemes.
 forwarded_allow_ips = ""
 secure_scheme_headers = {}
