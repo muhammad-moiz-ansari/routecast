@@ -61,11 +61,13 @@ for (const [relative, entry] of Object.entries(lock.packages).sort(([a], [b]) =>
       fallback;
   sections.push(body);
 }
-// Preserve notice wording while removing upstream Markdown's trailing spaces.
-const output = sections.join("\n").replace(/[ \t]+$/gm, "");
+// Package licences can contain CRLF even on Linux; Git checkouts may normalize the generated file.
+// Compare canonical newlines so platform differences cannot masquerade as changed licence wording.
+const normalizeNewlines = (text) => text.replace(/\r\n?/g, "\n");
+const output = normalizeNewlines(sections.join("\n")).replace(/[ \t]+$/gm, "");
 const target = path.join(root, "public", "THIRD_PARTY_NOTICES.txt");
 if (process.argv.includes("--check")) {
-  if ((await readFile(target, "utf8")) !== output)
+  if (normalizeNewlines(await readFile(target, "utf8")) !== output)
     throw Error(
       "Dependency notices changed. Run npm run notices, review, then rebuild.",
     );
