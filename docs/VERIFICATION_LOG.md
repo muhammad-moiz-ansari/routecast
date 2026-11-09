@@ -1,5 +1,9 @@
 # Verification ledger
 
+## Worldwide search relevance — 9 November 2026
+
+Four socket-blocked backend cases pass (21 unrelated cases deselected): three new relevance/label/deduplication cases and the existing places/empty-results case. Asserted matching city+country beats unrelated candidates before limit, worldwide/accent-insensitive prefixes preserve Córdoba display text, named POIs remain selectable, coordinate values remain provider-owned, duplicate results collapse, equal matches retain provider order, no countrySet is sent, and exactly one HTTPX MockTransport request is made with candidate limit <=20/typeahead=true. Changed-file Ruff passes after shortening two overlong comments (one required a second shortening); no behavior change after successful tests. No live API requests or repeated successful provider checks. Reviewed current official Fuzzy Search documentation for predictive mode and result-limit support. Sorting only affects returned candidates; no claim of measured live relevance improvement.
+
 ## Basemap setup and compact markers — 9 November 2026
 
 Two focused map integration tests passed (12 unrelated cases skipped); final TypeScript and diff whitespace checks passed. No broad UI/build sweep repeated for these scoped map presentation/configuration changes.

@@ -31,6 +31,13 @@ class RoutingResponse(BaseModel):
 
 class Address(BaseModel):
     freeformAddress: str
+    municipality: str = ""
+    countrySubdivision: str = ""
+    country: str = ""
+
+
+class POI(BaseModel):
+    name: str = ""
 
 
 class SearchPoint(BaseModel):
@@ -42,6 +49,7 @@ class Place(BaseModel):
     id: str
     address: Address
     position: SearchPoint
+    poi: POI | None = None
 
 
 class SearchResponse(BaseModel):

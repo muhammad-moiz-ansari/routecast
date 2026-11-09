@@ -1,5 +1,9 @@
 # Progress
 
+## Worldwide search relevance — 9 November 2026
+
+TomTom search still uses one predictive request and no country restriction. The adapter now requests 10–20 candidates, ranks token-prefix/locality matches before applying the requested output limit, removes identical label/coordinate duplicates, and includes POI names and country context in labels. Accent-insensitive comparison preserves original display text/coordinates; ties preserve provider order. No country list/database, new key, dependency or endpoint contract is needed. Synthetic Lahore/Pakistan and Córdoba/Argentina examples pass; improved live relevance remains unconfirmed and depends on provider candidate coverage. Existing selections stay explicit; no automatic coordinate selection or new trip creation.
+
 ## Basemap setup and compact map markers — 9 November 2026
 
 Configured previously empty ignored frontend/.env.local day/night style URLs to OpenFreeMap Positron/Dark, matching the zero-budget request without exposing backend TomTom credentials. No new dependency or production configuration changes. Cluster circles reduced from 16px to 8px radius; selected-point ring reduced from 19px to 12px. Separate transparent 22px cluster hit target preserves interaction. Configured basemaps no longer show an informational status pill; geometry-only notice remains when unconfigured and genuine map errors remain visible. Remote asset/visual verification pending user's local reload; no agent live basemap/provider checks.
