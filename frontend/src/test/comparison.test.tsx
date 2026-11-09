@@ -402,3 +402,45 @@ it("keeps one map, inspection and absolute forecast time while moving the sideba
   ui.unmount();
   side.remove();
 });
+it("shows pending wording, not stale wording, before the first analysis completes", () => {
+  const stored = fixture();
+  const pending = {
+    ...stored,
+    data: null,
+    status: "running",
+    stage: "weather",
+    analysis_version: null,
+    analysis_revision: null,
+    routing_stale: true,
+    weather_stale: true,
+    retained_previous: false,
+    error_code: null,
+  } as Analysis;
+  const ui = render(
+    <RouteComparison analysis={pending} pendingRoutes={stored.data!.routes} />,
+  );
+  expect(screen.getByText("Checking weather along the routes")).toBeVisible();
+  expect(
+    screen.getByText(
+      "Routes are available. Weather at arrival is still being assessed.",
+    ),
+  ).toBeVisible();
+  expect(screen.queryByText("Current recommendation withheld")).toBeNull();
+  expect(screen.queryByText(/stale assessment/)).toBeNull();
+  ui.rerender(
+    <RouteComparison
+      analysis={{
+        ...pending,
+        status: "failed",
+        error_code: "provider_rate_limit",
+      }}
+      pendingRoutes={stored.data!.routes}
+    />,
+  );
+  expect(screen.getByText("Assessment incomplete")).toBeVisible();
+  expect(
+    screen.getByText("Weather at arrival has not been assessed yet."),
+  ).toBeVisible();
+  expect(screen.queryByText("Checking weather along the routes")).toBeNull();
+  ui.unmount();
+});
