@@ -1,5 +1,17 @@
 # Progress
 
+## Deployment setup in progress — 9 November 2026
+
+Live-mode setup follow-up: screenshot showed synthetic selections despite frontend/.env.local already setting fixtures false. Added `npm run dev:live` to force fixture mode off before Vite environment loading and refuse a silently different port when the old server is still running. Fixture autocomplete now offers named places for prefixes with distinct stable synthetic endpoints, fixing Lahore/Faisalabad preview validation. Existing real autocomplete already searches at two characters after a 300 ms pause; no live search or provider contract changes made. Restart the old frontend server and clear the two synthetic selections before live testing.
+
+User-terminal provider checks subsequently passed: TomTom search parsed three suggestions, truck routing returned three Lahore/Faisalabad routes, and Open-Meteo returned 408 hourly records for one location. Search relevance is still poor for Lahore Pakistan and needs a focused follow-up. Reuse these isolated checks; they do not establish full queued trip/corridor behavior. Hosting remains deferred while local setup continues.
+
+Local backend environment detects the configured key and live-test mode. User reports PostgreSQL/Redis readiness passing. Three bounded isolated provider attempts (one search, one route, one weather location) all returned provider_unavailable from this agent session; provider credentials/response contracts remain unverified. No retries or workers started; next step is checking outbound connectivity from the user's terminal. No deployment.
+
+User requested API-key setup and deployment with a zero monthly budget, preferring Vercel if practical. Created ignored `.env.production` from the template with unique generated Django/database secrets, blank TomTom key, placeholder hostname and periodic scheduling disabled. No existing credentials were read or overwritten. Hosting and provider account signup are pending user action; nothing has been deployed.
+
+Vercel Daemons beta supports Celery on Hobby, but its monthly memory quota cannot sustain even one minimum-size daemon all month. Existing topology needs two workers, Beat, PostgreSQL and Redis. Oracle Always Free VM is a candidate for the existing Compose stack; card verification, regional capacity and reclamation conditions apply. User's willingness to use card verification is pending. This assessment does not replace remaining runtime release checks.
+
 Current phase: **Phase 10 implementation/release preparation complete.**
 Completed implementation phases: 0–10. No further phase is started or inferred; wait for explicit user instructions.
 

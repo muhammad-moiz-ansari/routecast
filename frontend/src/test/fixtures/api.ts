@@ -3,6 +3,14 @@ import storedCorridor from "./corridor.json";
 let version = 1;
 let refreshPending = 0;
 let stopped = false;
+// Prefix matches model autocomplete; different preview places must not share endpoints.
+const previewPlaces = ["Lahore", "Faisalabad", "Islamabad", "Karachi", "Albany", "Boston"].map(
+  (name, index) => ({
+    id: `synthetic-place-${index}`,
+    label: `${name} · Synthetic location`,
+    coordinate: { latitude: 30 + index * 0.1, longitude: 70 + index * 0.1 },
+  }),
+);
 export async function fixtureFetch(
   path: string,
   init: RequestInit,
@@ -12,13 +20,22 @@ export async function fixtureFetch(
     return Response.json({ csrf_token: "synthetic-token" });
   if (path.startsWith("/locations/search/")) {
     const q = new URLSearchParams(path.split("?")[1]).get("query") ?? "";
+    const matches = previewPlaces.filter((place) =>
+      place.label.toLowerCase().startsWith(q.trim().toLowerCase()),
+    );
+    if (matches.length) return Response.json(matches);
+    // Keep arbitrary preview queries deterministic without mapping every city to one point.
+    const hash = Array.from(q.trim().toLowerCase()).reduce(
+      (value, character) => (value * 31 + character.charCodeAt(0)) >>> 0,
+      0,
+    );
     return Response.json([
       {
         id: q,
         label: q + " · Synthetic location",
         coordinate: {
-          latitude: q.toLowerCase().startsWith("b") ? 31 : 30,
-          longitude: 70,
+          latitude: 32 + (hash % 10000) / 10000,
+          longitude: 71 + (Math.floor(hash / 10000) % 10000) / 10000,
         },
       },
     ]);

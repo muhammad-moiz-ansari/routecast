@@ -81,6 +81,17 @@ it("focuses an error summary without submitting unselected locations", async () 
   ).toHaveLength(0);
 });
 
+it("offers keyboard-selectable suggestions after a partial place name", async () => {
+  mount();
+  const user = userEvent.setup();
+  const origin = screen.getByRole("combobox", { name: "Origin" });
+  await user.type(origin, "Lah");
+  await screen.findByRole("option", { name: "Lah region" });
+  await user.keyboard("{ArrowDown}{Enter}");
+  expect(origin).toHaveValue("Lah region");
+  expect(origin).toHaveAttribute("aria-expanded", "false");
+});
+
 it("selects places by keyboard and submits exactly once in StrictMode", async () => {
   mount();
   const user = userEvent.setup();

@@ -26,6 +26,8 @@ npm ci
 npm run dev
 ```
 
+For local live-backend testing, use `npm run dev:live` instead. It forces fixtures off even if the launching shell still has VITE_USE_FIXTURES=true. Stop the previous Vite server first; this command refuses to silently choose another port. Clear old synthetic origin/destination selections after restarting. Place suggestions appear after two characters and a 300 ms pause; choose a returned option rather than entering a full label manually.
+
 Open http://127.0.0.1:5173 for the landing page, then choose **Plan a route** (or open /plan). Existing /trips/:id links retain the planner. Vite proxies /api to port 8000 with the original Host, preserving owner session/CSRF behavior. Local [health](http://127.0.0.1:8000/api/v1/health/), [readiness](http://127.0.0.1:8000/api/v1/ready/) and [API docs](http://127.0.0.1:8000/api/v1/docs) are available. Readiness checks only PostgreSQL/Redis; docs use external CDN resources locally and are disabled in production.
 
 For real analyses add the server-only TOMTOM_API_KEY in your existing backend/.env and start separate terminals from backend:
