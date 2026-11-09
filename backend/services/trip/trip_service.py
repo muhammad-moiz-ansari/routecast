@@ -2,7 +2,14 @@ from uuid import UUID
 
 from common.exceptions import TripNotFound
 
-from .models import TripCreateRequest, TripResponse
+from .models import (
+    SavedTripPage,
+    SavedTripQuery,
+    SavedTripSummary,
+    SaveTripRequest,
+    TripCreateRequest,
+    TripResponse,
+)
 from .trip_repo import TripRepo
 
 
@@ -20,3 +27,14 @@ class TripService(TripRepo):
         if trip is None:
             raise TripNotFound()
         return trip
+
+    def save(self, owner_id: UUID, trip_id: UUID, payload: SaveTripRequest) -> SavedTripSummary:
+        """Save existing data without scheduling provider work."""
+        saved = self.store.save(owner_id, trip_id, payload)
+        if saved is None:
+            raise TripNotFound()
+        return saved
+
+    def list_saved(self, owner_id: UUID, query: SavedTripQuery) -> SavedTripPage:
+        """Return only bookmarks belonging to the authenticated anonymous owner."""
+        return self.store.list_saved(owner_id, query)

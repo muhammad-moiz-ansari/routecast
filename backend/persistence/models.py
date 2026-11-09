@@ -19,6 +19,8 @@ class Trip(models.Model):
     status = models.CharField(max_length=24, default="routing")
     error_code = models.CharField(max_length=64, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    saved_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    saved_title = models.CharField(max_length=200, blank=True, default="")
 
 
 class RouteSnapshot(models.Model):

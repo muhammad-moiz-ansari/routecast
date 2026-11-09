@@ -3,6 +3,7 @@ import { BrandIcon } from "../components/ui/BrandIcon";
 import { providerBudgetMessage } from "../api/providerMessages";
 import { ProcessingRoute } from "../features/trip-planner/components/ProcessingRoute";
 import { PlannerSidebar } from "../features/trip-planner/components/PlannerSidebar";
+import { SavedTripTools } from "../features/trip-planner/components/SavedTripTools";
 import { PlannerHeader } from "../components/layout/PlannerHeader";
 import { TripForm } from "../features/trip-planner/components/TripForm";
 import { TripSummary } from "../features/trip-planner/components/TripSummary";
@@ -25,7 +26,7 @@ import {
   type PlannerValues,
 } from "../features/trip-planner/schemas";
 import { departureInstant, systemZone } from "../utils/time";
-import { createTrip, readRoutes } from "../api/trips";
+import { createTrip, readRoutes, readTrip } from "../api/trips";
 import { ApiError, fixtureMode } from "../api/client";
 import { RouteComparison } from "../features/route-comparison/components/RouteComparison";
 import { useTripLifecycle } from "../features/trip-planner/hooks/useTripLifecycle";
@@ -51,6 +52,13 @@ export function App() {
   const navigate = useNavigate();
   const lifecycle = useTripLifecycle(id);
   const analysis = lifecycle.query;
+  // Inputs remain available even when a saved assessment failed before publishing results.
+  const tripDetails = useQuery({
+    queryKey: ["trip-details", id],
+    queryFn: ({ signal }) => readTrip(id!, signal),
+    enabled: !!id && !!analysis.data && !analysis.data.data?.inputs,
+    staleTime: Infinity,
+  });
   const processingActive =
     !analysis.error &&
     !analysis.data?.stopped &&
@@ -63,6 +71,7 @@ export function App() {
   const sending = useRef(false);
   const [submitted, setSubmitted] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [restoreVersion, setRestoreVersion] = useState(0);
   const [sidebar, setSidebar] = useState<HTMLDivElement | null>(null);
   const [panelView, setPanelView] = useState<
     "trip" | "routes" | "checkpoints" | "map"
@@ -125,7 +134,7 @@ export function App() {
   });
   const restored = useRef<string | null>(null);
   useEffect(() => {
-    const inputs = analysis.data?.data?.inputs;
+    const inputs = analysis.data?.data?.inputs ?? tripDetails.data;
     if (
       !id ||
       !inputs ||
@@ -162,7 +171,14 @@ export function App() {
       cargo: String(inputs.cargo_load_lb),
       spacing: String(inputs.checkpoint_spacing_miles) as "10" | "25" | "50",
     });
-  }, [id, analysis.data?.data, submitted, form]);
+  }, [
+    id,
+    analysis.data?.data,
+    tripDetails.data,
+    submitted,
+    restoreVersion,
+    form,
+  ]);
   async function submit(v: PlannerValues) {
     if (sending.current) return;
     sending.current = true;
@@ -263,6 +279,22 @@ export function App() {
           expanded={expanded}
           onExpand={() => setExpanded(!expanded)}
         >
+          <SavedTripTools
+            key={id ?? "new"}
+            tripId={id}
+            onOpenTrip={(nextId) => {
+              // Also restore when reopening the current bookmark after editing its draft.
+              restored.current = null;
+              sending.current = false;
+              setSubmitted(false);
+              setEditing(false);
+              form.reset();
+              mutation.reset();
+              setPanelView("routes");
+              if (nextId === id) setRestoreVersion((value) => value + 1);
+            }}
+            title={`${form.watch("origin")?.label ?? "Origin"} → ${form.watch("destination")?.label ?? "Destination"}`}
+          />
           <div hidden={!!id && !editing}>
             <div className="panel-heading">
               <span className="eyebrow">TRIP DETAILS</span>

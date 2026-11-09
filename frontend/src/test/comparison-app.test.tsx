@@ -57,6 +57,8 @@ it("integrates working routes then a completed snapshot without any trip POST or
               },
         );
       if (path.includes("/routes/")) return Response.json(stored.data.routes);
+      if (path.endsWith("/trips/preview-trip/"))
+        return Response.json({ ...stored.data.inputs, id: "preview-trip" });
       throw Error("Unexpected network destination");
     }),
   );
@@ -96,9 +98,7 @@ it("integrates working routes then a completed snapshot without any trip POST or
   expect(calls.filter((p) => p.includes("/routes/"))).toHaveLength(1);
   expect(await screen.findByRole("slider")).toBeEnabled();
   expect(screen.getByLabelText("Cargo load")).toHaveValue("42000");
-  fireEvent.click(
-    screen.getAllByRole("button", { name: "Routes" }).at(-1)!,
-  );
+  fireEvent.click(screen.getAllByRole("button", { name: "Routes" }).at(-1)!);
   failure = true;
   await act(async () => {
     await client.invalidateQueries({ queryKey: ["analysis", "preview-trip"] });
@@ -110,9 +110,7 @@ it("integrates working routes then a completed snapshot without any trip POST or
   expect(
     screen.getByRole("button", { name: "Inspect checkpoint A-0001" }),
   ).toBeEnabled();
-  fireEvent.click(
-    screen.getAllByRole("button", { name: "Routes" }).at(-1)!,
-  );
+  fireEvent.click(screen.getAllByRole("button", { name: "Routes" }).at(-1)!);
   failure = false;
   fireEvent.click(screen.getByRole("button", { name: "Retry status read" }));
   expect(await screen.findByText("Route B recommended")).toBeVisible();
