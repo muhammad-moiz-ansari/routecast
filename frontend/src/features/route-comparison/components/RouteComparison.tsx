@@ -16,6 +16,7 @@ import type {
 } from "../../../api/contracts";
 import { atTime, currentRecommendation } from "../presentation";
 import { CheckpointDetails } from "./CheckpointDetails";
+import { SuggestionsBox } from "./SuggestionsBox";
 const RouteMap = lazy(() => import("../../map/components/RouteMap"));
 export function RouteComparison({
   analysis,
@@ -157,6 +158,13 @@ export function RouteComparison({
                 "Routes are available. Weather at arrival is still being assessed.")}
           </p>
         </div>
+        {data && analysis.analysis_version !== null && (
+          <SuggestionsBox
+            tripId={analysis.trip_id}
+            analysisVersion={analysis.analysis_version}
+            zone={zone}
+          />
+        )}
         <section className="route-list" aria-label="Route options">
           {!routes.length && (
             <p>

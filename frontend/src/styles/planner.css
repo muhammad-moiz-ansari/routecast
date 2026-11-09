@@ -2126,3 +2126,50 @@
 .planner-scroll::-webkit-scrollbar-track, .planner-app .planner-welcome::-webkit-scrollbar-track { background: transparent; margin-block: 16px; }
 .planner-scroll::-webkit-scrollbar-thumb, .planner-app .planner-welcome::-webkit-scrollbar-thumb { background: var(--primary); border: 1px solid transparent; background-clip: padding-box; border-radius: 999px; }
 .planner-app .planner-welcome { border-radius: inherit; }
+.ai-suggestions {
+  margin: 0 0 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.ai-suggestions-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--teal);
+}
+.ai-suggestions h3 {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+}
+.ai-suggestions ul {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.ai-suggestions li {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr);
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+.ai-suggestions li svg {
+  margin-top: 3px;
+  color: var(--teal);
+}
+.ai-suggestions-note {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+}
+.ai-suggestions button {
+  margin-top: 8px;
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 12px;
+}

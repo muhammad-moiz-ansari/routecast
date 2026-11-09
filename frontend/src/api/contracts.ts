@@ -204,6 +204,14 @@ export interface CorridorDataset {
   risk_categories?: RiskCategory[][];
   rules_version?: string;
 }
+export type SuggestionKind = "route" | "timing" | "cargo" | "caution" | "data";
+export interface SuggestionResult {
+  analysis_version: number;
+  generated_at: string;
+  model: string;
+  cached: boolean;
+  suggestions: { kind: SuggestionKind; text: string }[];
+}
 export interface CorridorProjection {
   status: string;
   analysis_version: number | null;

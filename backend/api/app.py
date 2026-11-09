@@ -8,6 +8,7 @@ from api.routes.corridor_routes import router as corridor_router
 from api.routes.health_routes import router as health_router
 from api.routes.location_routes import router as location_router
 from api.routes.recommendation_routes import router as recommendation_router
+from api.routes.suggestion_routes import router as suggestion_router
 from api.routes.trip_routes import router as trip_router
 from api.routes.weather_routes import router as weather_router
 
@@ -31,3 +32,5 @@ api.add_router("", recommendation_router)
 api.add_router("", analysis_router)
 
 api.add_router("", corridor_router)
+
+api.add_router("", suggestion_router)

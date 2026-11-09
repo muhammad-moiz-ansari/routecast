@@ -109,6 +109,22 @@ def get_refresh_service():
     )
 
 
+def get_suggestion_service():
+    """Compose the optional advisory text client and per-analysis cache without I/O."""
+    from django.conf import settings
+    from django.core.cache import cache
+
+    from cache.suggestion_cache import SuggestionCache
+    from integrations.groq.chat_client import GroqChatClient
+    from services.suggestion.suggestion_service import SuggestionService
+
+    return SuggestionService(
+        GroqChatClient(settings.GROQ_API_KEY, settings.GROQ_MODEL),
+        SuggestionCache(cache),
+        settings.GROQ_MODEL,
+    )
+
+
 def get_corridor_service():
     """Compose independent corridor storage/cache/provider/lock dependencies without I/O."""
     from django.conf import settings
