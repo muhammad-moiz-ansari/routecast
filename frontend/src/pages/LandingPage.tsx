@@ -273,8 +273,10 @@ export function LandingPage() {
               </li>
             ))}
           </ol>
-          <details className="methodology-details">
-            <summary>View methodology and limitations</summary>
+          <AnimatedDisclosure
+            className="methodology-details"
+            question="View methodology and limitations"
+          >
             <p>
               Wind, rain and snow use the supplied category boundaries. Wind
               from 35 to below 45 mph with cargo above 40,000 lb becomes Severe;
@@ -289,7 +291,7 @@ export function LandingPage() {
               Plan and review while stopped; this is not certified navigation or
               dispatch.
             </p>
-          </details>
+          </AnimatedDisclosure>
         </section>
         <section className="landing-section faq-section">
           <div>

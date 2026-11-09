@@ -1,17 +1,24 @@
 import { useId, useState, type ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
+import "./AnimatedDisclosure.css";
 
 export function AnimatedDisclosure({
   question,
   children,
+  className = "",
+  compact = false,
 }: {
   question: string;
   children: ReactNode;
+  className?: string;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const id = useId();
   return (
-    <div className="animated-disclosure">
+    <div
+      className={`animated-disclosure ${compact ? "disclosure-compact" : ""} ${className}`}
+    >
       <h3>
         <button
           type="button"

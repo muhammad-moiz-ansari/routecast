@@ -6,7 +6,6 @@ import type {
 import {
   angular,
   bearing,
-  distanceToArc,
   mercator,
   geographic,
 } from "../utils/corridorField";
@@ -16,6 +15,7 @@ import {
   scalarColors,
 } from "../../weather-timeline/frame";
 import { riskColors } from "../../route-comparison/riskPalette";
+import { indexArcs } from "./arcIndex";
 export type GeometryCache = Record<
   string,
   ({ distance: number; neighbors: { i: number; distance: number }[] } | null)[]
@@ -123,17 +123,10 @@ export function renderField(
     throw Error(
       "Corridor exceeds the bounded overlay extent. Sample values remain available.",
     );
+  const nearest = indexArcs(segments);
   const nearestSegment = (p: number[]) => {
-    let best = 0,
-      d = Infinity;
-    segments.forEach((s, i) => {
-      const n = distanceToArc(p, s.a, s.b, s);
-      if (n < d) {
-        d = n;
-        best = i;
-      }
-    });
-    return { segment: segments[best], distance: d };
+    const result = nearest(p);
+    return { segment: segments[result.index], distance: result.distance };
   };
   const support = samples.map(nearestSegment),
     radius =

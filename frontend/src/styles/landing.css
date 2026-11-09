@@ -1169,69 +1169,6 @@ html {
   font-size: 11px;
   margin-top: 12px;
 }
-.animated-disclosure {
-  border-bottom: 1px solid var(--border);
-}
-.animated-disclosure h3 {
-  margin: 0;
-  font: inherit;
-}
-.animated-disclosure button {
-  width: 100%;
-  justify-content: flex-start;
-  text-align: left;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  padding: 23px 8px;
-  font-weight: 600;
-  font-size: 15px;
-}
-.animated-disclosure button svg {
-  flex-shrink: 0;
-  transition: transform 260ms ease;
-  color: var(--primary);
-}
-.animated-disclosure button[aria-expanded="true"] svg {
-  transform: rotate(90deg);
-}
-.animated-disclosure button:is(:hover, :focus-visible) {
-  background: var(--primary-soft);
-  box-shadow: none;
-  transform: none;
-}
-.disclosure-panel {
-  display: grid;
-  grid-template-rows: 0fr;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    grid-template-rows 280ms ease,
-    opacity 220ms ease,
-    visibility 0s 280ms;
-}
-.disclosure-panel.is-open {
-  grid-template-rows: 1fr;
-  opacity: 1;
-  visibility: visible;
-  transition:
-    grid-template-rows 280ms ease,
-    opacity 220ms ease,
-    visibility 0s;
-}
-.disclosure-panel > div {
-  overflow: hidden;
-  min-height: 0;
-}
-.disclosure-copy {
-  padding: 0 18px 20px 36px;
-}
-.disclosure-copy p {
-  margin: 0;
-  font-size: 15px;
-  color: var(--text-muted);
-  line-height: 1.7;
-}
 @media (max-width: 600px) {
   .step-visual {
     padding: 22px 18px;

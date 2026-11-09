@@ -1,5 +1,19 @@
 # Progress
 
+## Processing presentation — 9 November 2026
+
+Fixed the processing card's clipped icon by replacing unsafe vertical centering with scroll-safe content and auto margins. Added subtle stage-dot connectors, active-step semantics and a decorative glowing SVG route trail behind the content. Motion runs only during active processing, pauses on errors/terminal/stopped states, and becomes static for reduced-motion users. No per-frame React work, dependency changes or provider requests. Existing backend stage text remains authoritative.
+
+## Forecast performance and map space — 9 November 2026
+
+Visual follow-up: lowered the planner header action group by 3px at user request; the navbar stays 48px and button targets remain 44px.
+
+Replaced exhaustive per-pixel route-segment scanning with a spherical bounding-sphere hierarchy and exact nearest-arc checks. Dense live road geometry was an unbounded multiplier of the first-frame pixel workload; distant branches can now be skipped without route simplification. Existing frame/geometry caches, resolution, missing masks and risk semantics remain. Navbar reduced from 76px desktop/68px mobile to 48px with 44px controls; removed the planner workspace footer at user request. No live API calls. Actual live-trip speed/device validation remains pending.
+
+## Shared disclosure follow-up — 9 November 2026
+
+Assessment timing, trip input details, forecast sample values and landing methodology now reuse AnimatedDisclosure with right-to-down chevrons, smooth opening/closing, inert collapsed panels and reduced-motion support. Extracted shared CSS from landing styles so direct planner visits receive the same behavior; compact variants fit the planner. No native details/summary disclosures remain. Navigation menus, autocomplete and map/sidebar controls retain their distinct semantics. User reports a real route completed; no heatmap is expected until the separate corridor job runs. Corridor worker startup remains a user action, with at most two weather requests/100 locations for a single queued analysis; periodic scheduling should remain disabled during setup.
+
 ## Deployment setup in progress — 9 November 2026
 
 Live-mode setup follow-up: screenshot showed synthetic selections despite frontend/.env.local already setting fixtures false. Added `npm run dev:live` to force fixture mode off before Vite environment loading and refuse a silently different port when the old server is still running. Fixture autocomplete now offers named places for prefixes with distinct stable synthetic endpoints, fixing Lahore/Faisalabad preview validation. Existing real autocomplete already searches at two characters after a 300 ms pause; no live search or provider contract changes made. Restart the old frontend server and clear the two synthetic selections before live testing.

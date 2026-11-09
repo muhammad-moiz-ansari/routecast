@@ -1,5 +1,21 @@
 # Verification ledger
 
+## Processing presentation — 9 November 2026
+
+Focused existing StrictMode trip-submit integration passes with added assertions for active processing, current weather stage and aria-hidden decorative SVG (17 unrelated cases skipped). Final TypeScript and diff whitespace checks pass. Static CSS review confirms scroll-safe flex alignment, nonshrinking icon/content, connecting-line geometry, no pointer interception, paused terminal-state motion and reduced-motion animation exclusion. No new rendered-browser review claimed; no successful unrelated checks repeated or external APIs called. User's completed live trip is not resubmitted for visual verification.
+
+## Forecast index and compact navbar — 9 November 2026
+
+Header alignment follow-up: planner-only action wrapper moved down 3px using relative positioning, preserving button hover transforms and navbar sizing. CSS scope/whitespace reviewed; no application tests or provider calls needed for this spacing adjustment. No new rendered-browser verification claimed.
+
+Vite production bundling passed with existing Zod annotation/large-chunk advisories. Follow-up replaced a spread-based maximum with a reduction to avoid JavaScript argument limits for exceptionally large routes; the index equivalence case was rerun and passed, and final TypeScript passed. No full build repeated for that equivalent bound calculation.
+
+Seven targeted renderer/index/worker tests pass: new dense 1,044-arc exhaustive-equivalence comparison over 103 positions includes duplicate ties, bends and dateline crossings; existing missing-hole, scalar/risk, geometry-cache and cancellation cases reused through the focused run. Final TypeScript passes. Indexed search uses conservative triangle-inequality sphere bounds, exact leaf distance calculations and original segment-index tie handling; no geometry simplification or resolution reduction. No live provider calls or measured live-trip latency claim. Navbar CSS reviewed at desktop/mobile breakpoints (48px; header buttons at least 44px); planner footer JSX removed. Browser fixture preview on owned port 5174 timed out with ERR_CONNECTION_TIMED_OUT, so rendered layout/animation verification remains unconfirmed; owned preview stopped. Existing user servers/workers left alone.
+
+## Shared disclosures — 9 November 2026
+
+Four targeted offline cases pass across scoped runs: existing keyboard FAQ, affected forecast/detail cases and a new assessment timing integration case verifying expanded state, shared panel class and inert exclusion on close. TypeScript passes after final formatting. Shared CSS includes the same 260ms chevron rotation, 280ms height/220ms opacity transitions and a no-transition reduced-motion override. Scoped trigger styling prevents nested content buttons/SVGs inheriting disclosure rotation. No provider requests or backend/workers started; no new browser animation review claimed. User reports live route generation succeeded; this is user-reported core processing evidence, not agent-observed complete broker/corridor E2E. No staging, commits, pushes or deployment.
+
 ## Deployment preparation — 9 November 2026
 
 Synthetic-selection follow-up: screenshot proves fixture transport was active; frontend/.env.local reports only VITE_USE_FIXTURES=false and this agent shell has no override. Stale running-server configuration/user-shell override is suspected, not directly established. Fixed fixture search's shared-coordinate bug and added forced live dev startup. Two focused offline cases pass: prefix fixture matching/stable distinct endpoints and partial-query keyboard autocomplete selection (17 unrelated cases skipped). TypeScript, startup-script syntax and diff whitespace checks pass. Initial Vitest startup failed before tests because Windows sandbox temp-cache rename returned EPERM; reran with TEMP/TMP scoped to ignored frontend/.test-tmp, then passed. No browser runtime check or provider calls claimed; no workers, Git writes or deployment.

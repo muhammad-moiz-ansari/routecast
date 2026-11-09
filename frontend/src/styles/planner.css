@@ -12,8 +12,8 @@
   --sidebar-size: 400px;
 }
 .planner-app .shell {
-  height: 64px;
-  min-height: 64px;
+  height: 48px;
+  min-height: 48px;
   padding: 0 24px;
   background: var(--surface);
   color: var(--text);
@@ -1398,8 +1398,8 @@
 }
 /* User refinement: one RouteCast design language, from home to workspace. */
 .planner-app .shell {
-  height: 76px;
-  min-height: 76px;
+  height: 48px;
+  min-height: 48px;
   padding: 0 32px;
   background: var(--canvas);
   border-bottom: 0;
@@ -1895,8 +1895,8 @@
 }
 @media (max-width: 767px) {
   .planner-app .shell {
-    height: 68px;
-    min-height: 68px;
+    height: 48px;
+    min-height: 48px;
     padding: 0 16px;
   }
   .planner-app .brand {
@@ -1962,3 +1962,65 @@
 .planner-methodology {margin-top:24px;padding-top:16px;border-top:1px solid var(--border);}
 .methodology-trigger {min-height:44px;width:100%;justify-content:flex-start;border-radius:12px;background:var(--surface-muted);color:var(--text-muted);font-size:13px;}
 .methodology-trigger:is(:hover,:focus-visible) {color:var(--primary);background:var(--primary-soft);}
+
+/* Compact planner chrome preserves usable controls while giving space back to the map. */
+.planner-app .shell { flex-shrink: 0; padding-inline: 16px; }
+.planner-app .shell .theme-switch > button { width: 44px; height: 44px; min-height: 44px; }
+.planner-app .shell .theme-tooltip { top: 46px; }
+.planner-app .shell .header-actions { position: relative; top: 3px; }
+
+/* Processing content starts inside the card even when the viewport needs scrolling. */
+.planner-app .processing {
+  position: relative;
+  isolation: isolate;
+  justify-content: flex-start;
+  padding: 28px clamp(20px, 4vw, 48px);
+}
+.planner-app .processing > :not(.processing-route) {
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+.planner-app .processing > .workspace-icon { margin-top: auto; margin-bottom: 18px; }
+.planner-app .processing > .trip-reference { margin-bottom: auto; }
+.processing-route {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.22;
+  color: var(--primary);
+}
+.processing-route path { fill: none; stroke: currentColor; }
+.processing-route-track { stroke-width: 1; opacity: 0.45; }
+.processing-route-glow, .processing-route-trail {
+  stroke-dasharray: 0.12 0.88;
+  stroke-linecap: round;
+  animation: processing-route-travel 3.8s linear infinite;
+  animation-play-state: paused;
+}
+.processing-route-glow { stroke-width: 14; filter: blur(8px); }
+.processing-route-trail { stroke-width: 2; }
+.processing[data-loading="true"] .processing-route-glow,
+.processing[data-loading="true"] .processing-route-trail { animation-play-state: running; }
+.processing:not([data-loading="true"]) .processing-route { opacity: 0.08; }
+.processing .stages { text-align: left; }
+.processing .stages li { position: relative; }
+.processing .stages li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  top: calc(50% + 7px);
+  height: calc(100% + 1px);
+  width: 1px;
+  background: var(--control-border);
+  opacity: 0.45;
+}
+.processing .stages li.reached:not(:last-child)::after { background: var(--primary); opacity: 0.65; }
+.processing .stage-dot { flex-shrink: 0; }
+.processing .stages li[aria-current="step"] .stage-dot { box-shadow: 0 0 0 4px var(--primary-soft); }
+@keyframes processing-route-travel { to { stroke-dashoffset: -1; } }
+@media (prefers-reduced-motion: reduce) {
+  .processing-route-glow, .processing-route-trail { animation: none; }
+}

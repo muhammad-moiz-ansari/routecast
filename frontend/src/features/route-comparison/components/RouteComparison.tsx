@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { AnimatedDisclosure } from "../../../components/ui/AnimatedDisclosure";
 import { RouteCard } from "./RouteCard";
 import { CheckpointList } from "./CheckpointList";
 import {
@@ -185,8 +186,11 @@ export function RouteComparison({
           ))}
         </section>{" "}
         {data && (
-          <details className="assessment-metadata">
-            <summary>Assessment details & timing</summary>
+          <AnimatedDisclosure
+            compact
+            className="assessment-metadata"
+            question="Assessment details & timing"
+          >
             <p className="freshness">
               Analysis {analysis.analysis_version} · Completed{" "}
               {atTime(analysis.completed_at, zone)} · Routing fetched{" "}
@@ -198,7 +202,7 @@ export function RouteComparison({
             {routes.some((r) => r.timing_notice) && (
               <p>{routes.find((r) => r.timing_notice)?.timing_notice}</p>
             )}
-          </details>
+          </AnimatedDisclosure>
         )}
         {analysis.error_code && (
           <p className="state-warning">

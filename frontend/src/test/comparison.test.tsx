@@ -111,6 +111,22 @@ async function ready() {
   act(() => map.fire("style.load"));
   return map;
 }
+it("opens and closes assessment timing with the shared disclosure", () => {
+  render(<RouteComparison analysis={fixture()} />);
+  const button = screen.getByRole("button", {
+    name: "Assessment details & timing",
+  });
+  const panel = document.getElementById(button.getAttribute("aria-controls")!)!;
+  expect(panel).toHaveAttribute("inert");
+  fireEvent.click(button);
+  expect(button).toHaveAttribute("aria-expanded", "true");
+  expect(panel).toHaveClass("is-open");
+  expect(panel).not.toHaveAttribute("inert");
+  fireEvent.click(button);
+  expect(button).toHaveAttribute("aria-expanded", "false");
+  expect(panel).toHaveAttribute("inert");
+});
+
 it("synchronizes list/map inspection without changing backend recommendation or refitting camera", async () => {
   const a = fixture();
   const ui = render(<RouteComparison analysis={a} />);

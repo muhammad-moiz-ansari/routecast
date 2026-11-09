@@ -1,4 +1,5 @@
 import { MapPin, Pencil, Truck, Clock3 } from "lucide-react";
+import { AnimatedDisclosure } from "../../../components/ui/AnimatedDisclosure";
 import type { PlannerValues } from "../schemas";
 export function TripSummary({
   values,
@@ -24,8 +25,11 @@ export function TripSummary({
         <MapPin size={18} />
         <strong>{values.destination?.label ?? "Loading destination…"}</strong>
       </div>
-      <details className="trip-input-details">
-        <summary>Departure, cargo & spacing</summary>
+      <AnimatedDisclosure
+        compact
+        className="trip-input-details"
+        question="Departure, cargo & spacing"
+      >
         <p>
           <Clock3 size={14} />
           {values.departure.replace("T", " · ") || "Departure loading"}
@@ -35,7 +39,7 @@ export function TripSummary({
           <Truck size={14} />
           {values.cargo || "—"} lb cargo · {values.spacing} mi spacing
         </p>
-      </details>
+      </AnimatedDisclosure>
     </div>
   );
 }

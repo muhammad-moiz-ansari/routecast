@@ -1,4 +1,5 @@
 import { PlannerWelcome } from "../features/trip-planner/components/PlannerWelcome";
+import { ProcessingRoute } from "../features/trip-planner/components/ProcessingRoute";
 import { PlannerSidebar } from "../features/trip-planner/components/PlannerSidebar";
 import { PlannerHeader } from "../components/layout/PlannerHeader";
 import { TripForm } from "../features/trip-planner/components/TripForm";
@@ -41,6 +42,12 @@ export function App() {
   const navigate = useNavigate();
   const lifecycle = useTripLifecycle(id);
   const analysis = lifecycle.query;
+  const processingActive =
+    !analysis.error &&
+    !analysis.data?.stopped &&
+    !["failed", "cancelled", "complete", "stopped"].includes(
+      analysis.data?.status ?? "queued",
+    );
   const visible = lifecycle.active;
   const summary = useRef<HTMLDivElement>(null);
   const [busy, setBusy] = useState(false);
@@ -353,7 +360,12 @@ export function App() {
               pendingRoutes={pendingRoutes.data}
             />
           ) : id ? (
-            <div className="processing" aria-live="polite">
+            <div
+              className="processing"
+              aria-live="polite"
+              data-loading={processingActive}
+            >
+              <ProcessingRoute />
               <div className="workspace-icon">
                 <Route size={34} />
               </div>
@@ -385,6 +397,11 @@ export function App() {
                 {stages.map((s, i) => (
                   <li
                     key={s}
+                    aria-current={
+                      processingActive && s === (status?.stage ?? "queued")
+                        ? "step"
+                        : undefined
+                    }
                     className={
                       i <= stages.indexOf(status?.stage ?? "queued")
                         ? "reached"
@@ -406,10 +423,6 @@ export function App() {
           ) : (
             <PlannerWelcome />
           )}
-          <footer className="workspace-footer">
-            <span>Plan and review while stopped.</span>
-            <span>Forecasts and arrival times are estimates.</span>
-          </footer>
         </section>
       </main>
     </div>

@@ -116,6 +116,17 @@ it("selects places by keyboard and submits exactly once in StrictMode", async ()
   await screen.findByRole("heading", {
     name: "Checking weather at arrival times",
   });
+  const progress = screen.getByRole("list", { name: "Analysis stages" });
+  expect(progress.closest(".processing")).toHaveAttribute(
+    "data-loading",
+    "true",
+  );
+  expect(progress.querySelector('[aria-current="step"]')).toHaveTextContent(
+    "Checking weather at arrival times",
+  );
+  expect(
+    progress.closest(".processing")?.querySelector(".processing-route"),
+  ).toHaveAttribute("aria-hidden", "true");
   const posts = calls.filter(
     (c) => c.init.method === "POST" && c.url.endsWith("/trips/"),
   );
@@ -315,9 +326,7 @@ it("cancels a timezone search without changing the trip and applies an explicit 
   await user.click(trigger);
   await user.clear(screen.getByLabelText("Timezone"));
   await user.type(screen.getByLabelText("Timezone"), "London");
-  await user.click(
-    screen.getByRole("button", { name: "Europe/London" }),
-  );
+  await user.click(screen.getByRole("button", { name: "Europe/London" }));
   expect(trigger).toHaveTextContent("Europe/London");
   expect(
     calls.filter((c) => c.init.method === "POST" && c.url.endsWith("/trips/")),

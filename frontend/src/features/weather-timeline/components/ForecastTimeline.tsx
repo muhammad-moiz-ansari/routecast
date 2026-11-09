@@ -1,5 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { X, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
+import { AnimatedDisclosure } from "../../../components/ui/AnimatedDisclosure";
 import { RiskBadge } from "../../route-comparison/components/RiskBadge";
 import { WeatherAttribution } from "../../../components/ui/WeatherAttribution";
 import { useState } from "react";
@@ -49,7 +50,6 @@ export function ForecastTimeline({
 }) {
   const data = corridor?.data;
   const index = data ? frameIndex(data.timestamps, absoluteTime) : 0;
-  const [expanded, setExpanded] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const select = (i: number) => {
     if (data?.timestamps[i]) {
@@ -217,29 +217,25 @@ export function ForecastTimeline({
               <button disabled={!data || index === 0} onClick={() => select(0)}>
                 First hour
               </button>
-              <button
-                disabled={!data}
-                aria-expanded={expanded}
-                onClick={() => setExpanded(!expanded)}
-              >
-                Forecast sample values
-              </button>
-              {expanded && data && (
-                <ul className="sample-values">
-                  {values?.map((v) => (
-                    <li key={v.id}>
-                      {v.id} ({v.coordinate.latitude.toFixed(4)},{" "}
-                      {v.coordinate.longitude.toFixed(4)}){" "}
-                      {v.missing ? "(incomplete forecast)" : ""}:{" "}
-                      {typeof v.value === "string"
-                        ? riskLabels[v.value as keyof typeof riskLabels]
-                        : quantity(
-                            v.value,
-                            data.units[layer as keyof typeof data.units] ?? "",
-                          )}
-                    </li>
-                  ))}
-                </ul>
+              {data && (
+                <AnimatedDisclosure compact question="Forecast sample values">
+                  <ul className="sample-values">
+                    {values?.map((v) => (
+                      <li key={v.id}>
+                        {v.id} ({v.coordinate.latitude.toFixed(4)},{" "}
+                        {v.coordinate.longitude.toFixed(4)}){" "}
+                        {v.missing ? "(incomplete forecast)" : ""}:{" "}
+                        {typeof v.value === "string"
+                          ? riskLabels[v.value as keyof typeof riskLabels]
+                          : quantity(
+                              v.value,
+                              data.units[layer as keyof typeof data.units] ??
+                                "",
+                            )}
+                      </li>
+                    ))}
+                  </ul>
+                </AnimatedDisclosure>
               )}
               <WeatherAttribution />
               <Dialog.Close
