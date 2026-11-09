@@ -3,12 +3,7 @@ import type {
   ForecastLayer,
   RouteCandidate,
 } from "../../../api/contracts";
-import {
-  angular,
-  bearing,
-  mercator,
-  geographic,
-} from "../utils/corridorField";
+import { angular, bearing, mercator, geographic } from "../utils/corridorField";
 import {
   layerMissing,
   limits,
@@ -70,18 +65,23 @@ export function renderField(
     s.coordinate.longitude,
     s.coordinate.latitude,
   ]);
-  const segments = routes.flatMap((r, route) =>
-    r.geometry.coordinates
-      .slice(1)
-      .map((b, i) => ({
+  const segments = routes.flatMap((r, route) => {
+    let start = 0;
+    return r.geometry.coordinates.slice(1).map((b, i) => {
+      const length = angular(r.geometry.coordinates[i], b);
+      const segment = {
         a: r.geometry.coordinates[i],
         b,
         route,
         index: i,
-        length: angular(r.geometry.coordinates[i], b),
+        start,
+        length,
         bearing: bearing(r.geometry.coordinates[i], b),
-      })),
-  );
+      };
+      start += length * R;
+      return segment;
+    });
+  });
   const supported = samples.filter((p) => Math.abs(p[1]) <= 85);
   if (!supported.length) return [];
   const latitude =
@@ -126,7 +126,18 @@ export function renderField(
   const nearest = indexArcs(segments);
   const nearestSegment = (p: number[]) => {
     const result = nearest(p);
-    return { segment: segments[result.index], distance: result.distance };
+    const segment = segments[result.index];
+    const d = angular(segment.a, p);
+    const along = Math.atan2(
+      Math.sin(d) * Math.cos(bearing(segment.a, p) - segment.bearing),
+      Math.cos(d),
+    );
+    return {
+      segment,
+      distance: result.distance,
+      chainage:
+        segment.start + Math.max(0, Math.min(segment.length, along)) * R,
+    };
   };
   const support = samples.map(nearestSegment),
     radius =
@@ -176,7 +187,8 @@ export function renderField(
               !segment ||
               !near.segment ||
               segment.route !== near.segment.route ||
-              Math.abs(segment.index - near.segment.index) > 1 ||
+              // Support follows physical route distance, not the provider's vertex density.
+              Math.abs(support[i].chainage - near.chainage) > radius ||
               ((Math.abs(q[1] - p[1]) * Math.PI) / 180) * R > radius
             )
               continue;

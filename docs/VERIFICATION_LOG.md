@@ -1,5 +1,9 @@
 # Verification ledger
 
+## Live-route patchy overlay correction — 9 November 2026
+
+Five existing renderer cases plus worker cancellation passed in the affected run; new dense-route test initially exceeded the 10-second timeout when cold-rendering 1,000 road segments twice. Changed its second render to reuse support geometry, matching application behavior, then reran only that case: passed in 6.73s. It verifies six positions between forecast supports paint despite hundreds of intervening road segments, then changes the center support to missing and verifies its hole stays transparent even with cached geometry. No timeout threshold increased. Final TypeScript passes; no new browser/live-provider review claimed. No backend/provider, sampling-cap, ranking or risk-rule changes. Older screenshot evidence only establishes patchy rendering before this correction; current live visual confirmation remains pending.
+
 ## Processing presentation — 9 November 2026
 
 Focused existing StrictMode trip-submit integration passes with added assertions for active processing, current weather stage and aria-hidden decorative SVG (17 unrelated cases skipped). Final TypeScript and diff whitespace checks pass. Static CSS review confirms scroll-safe flex alignment, nonshrinking icon/content, connecting-line geometry, no pointer interception, paused terminal-state motion and reduced-motion animation exclusion. No new rendered-browser review claimed; no successful unrelated checks repeated or external APIs called. User's completed live trip is not resubmitted for visual verification.

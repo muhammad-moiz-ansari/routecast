@@ -1,5 +1,9 @@
 # Progress
 
+## Live-route patchy overlay correction — 9 November 2026
+
+User screenshots exposed tiny forecast patches on detailed live routes. Root cause in renderer: sample support was restricted to nearest geometry segment plus/minus one segment, making coverage depend on the provider's vertex density. Replaced segment-count proximity with projected spherical chainage proximity bounded by forecast sample spacing; Euclidean/spherical sample radius, same-route restriction, missing masks, clipping, palette and categorical maxima remain. No new provider requests or data acquisition; reload the existing trip to discard old raster/support caches. The configured corridor still represents a narrow route buffer, with missing/unsupported regions transparent.
+
 ## Processing presentation — 9 November 2026
 
 Fixed the processing card's clipped icon by replacing unsafe vertical centering with scroll-safe content and auto margins. Added subtle stage-dot connectors, active-step semantics and a decorative glowing SVG route trail behind the content. Motion runs only during active processing, pauses on errors/terminal/stopped states, and becomes static for reduced-motion users. No per-frame React work, dependency changes or provider requests. Existing backend stage text remains authoritative.
