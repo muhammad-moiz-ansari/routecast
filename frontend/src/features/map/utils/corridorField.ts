@@ -25,7 +25,7 @@ export const angular = (a: number[], b: number[]) =>
       ),
     ),
   );
-const bearing = (a: number[], b: number[]) =>
+export const bearing = (a: number[], b: number[]) =>
   Math.atan2(
     Math.sin((b[0] - a[0]) * rad) * Math.cos(b[1] * rad),
     Math.cos(a[1] * rad) * Math.sin(b[1] * rad) -
@@ -33,11 +33,11 @@ const bearing = (a: number[], b: number[]) =>
         Math.cos(b[1] * rad) *
         Math.cos((b[0] - a[0]) * rad),
   );
-export function distanceToArc(p: number[], a: number[], b: number[]) {
+export function distanceToArc(p: number[], a: number[], b: number[], prepared?: {length:number; bearing:number}) {
   const d = angular(a, p),
-    length = angular(a, b);
+    length = prepared?.length ?? angular(a, b);
   if (length < 1e-10) return d * R;
-  const delta = bearing(a, p) - bearing(a, b);
+  const delta = bearing(a, p) - (prepared?.bearing ?? bearing(a, b));
   const along = Math.atan2(Math.sin(d) * Math.cos(delta), Math.cos(d));
   return along < 0 || along > length
     ? Math.min(d, angular(b, p)) * R

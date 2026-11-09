@@ -1,13 +1,14 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
 import type { Map as GLMap } from "maplibre-gl";
 import type { MapProps } from "../components/RouteMap";
-import type { Tile } from "./field";
+import type { Tile, GeometryCache } from "./field";
 type ImageTile = { coordinates: any; url: string };
 export function useFieldOverlay(
   map: RefObject<GLMap | null>,
   props: MapProps,
   epoch: number,
 ) {
+  const support = useRef<{ key: string; value: GeometryCache } | null>(null);
   const [status, setStatus] = useState("");
   const sequence = useRef(0),
     cache = useRef(new Map<string, ImageTile[]>()),
@@ -36,6 +37,10 @@ export function useFieldOverlay(
       props.routes.map((r) => r.geometry),
       props.forecastLayer,
       props.forecastFrame,
+    ]);
+    const supportKey = JSON.stringify([
+      props.corridor.grid,
+      props.routes.map((r) => r.geometry),
     ]);
     const publish = (tiles: ImageTile[]) => {
       if (id !== sequence.current || !m.getLayer("route-casing")) return;
@@ -80,18 +85,25 @@ export function useFieldOverlay(
         worker.onmessage = ({
           data,
         }: {
-          data: { id: number; error?: string; tiles: Tile[] };
+          data: {
+            id: number;
+            error?: string;
+            tiles: Tile[];
+            geometry?: GeometryCache;
+          };
         }) => {
           if (data.id !== sequence.current) return;
           try {
             if (data.error) throw Error(data.error);
+            if (data.geometry)
+              support.current = { key: supportKey, value: data.geometry };
             const images = data.tiles.map((tile) => {
               const canvas = document.createElement("canvas");
-              canvas.width = canvas.height = 256;
+              canvas.width = canvas.height = 128;
               const context = canvas.getContext("2d");
               if (!context) throw Error("Canvas unavailable");
               context.putImageData(
-                new ImageData(new Uint8ClampedArray(tile.pixels), 256, 256),
+                new ImageData(new Uint8ClampedArray(tile.pixels), 128, 128),
                 0,
                 0,
               );
@@ -119,6 +131,8 @@ export function useFieldOverlay(
         };
         worker.postMessage({
           id,
+          geometry:
+            support.current?.key === supportKey ? support.current.value : {},
           dataset: props.corridor,
           routes: props.routes,
           layer: props.forecastLayer ?? "wind_mph",
@@ -145,6 +159,7 @@ export function useFieldOverlay(
   useEffect(
     () => () => {
       cache.current.clear();
+      support.current = null;
     },
     [],
   );

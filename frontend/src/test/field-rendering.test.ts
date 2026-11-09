@@ -51,7 +51,7 @@ it('preserves a missing hole surrounded by valid samples and gives outside pixel
  const d=structuredClone(raw.data) as unknown as CorridorDataset;d.grid={...d.grid,width_miles:2,along_spacing_meters:10000,cross_spacing_meters:1000,samples:[.02,.05,.08].map((longitude,i)=>({id:String(i),coordinate:{longitude,latitude:0}}))};d.values.wind_mph=[0,1,2].map(()=>[18]);d.missing.wind_mph=[[false],[true],[false]];
  const routes=structuredClone(analysis.data.routes.routes.slice(0,1)) as unknown as RouteCandidate[];routes[0].geometry.coordinates=[[0,0],[.1,0]];
  const tiles=renderField(d,routes,'wind_mph',0);
- const alpha=(p:number[])=>{const q=mercator(p);for(const t of tiles){const a=mercator(t.coordinates[0]),b=mercator(t.coordinates[2]);if(q[0]>=a[0]&&q[0]<b[0]&&q[1]<=a[1]&&q[1]>b[1]){const x=Math.floor((q[0]-a[0])/(b[0]-a[0])*256),y=Math.floor((a[1]-q[1])/(a[1]-b[1])*256);return t.pixels[(y*256+x)*4+3];}}return 0;};
+ const alpha=(p:number[])=>{const q=mercator(p);for(const t of tiles){const a=mercator(t.coordinates[0]),b=mercator(t.coordinates[2]);if(q[0]>=a[0]&&q[0]<b[0]&&q[1]<=a[1]&&q[1]>b[1]){const x=Math.floor((q[0]-a[0])/(b[0]-a[0])*128),y=Math.floor((a[1]-q[1])/(a[1]-b[1])*128);return t.pixels[(y*128+x)*4+3];}}return 0;};
  expect(alpha([.02,.001])).toBeGreaterThan(0);expect(alpha([.05,.001])).toBe(0);expect(alpha([.05,.04])).toBe(0);
  d.values.rain_inches_per_hour=[0,1,2].map(()=>[0]);d.missing.rain_inches_per_hour=[0,1,2].map(()=>[false]);expect(renderField(d,routes,'rain_inches_per_hour',0).every(t=>t.pixels.every((v,i)=>i%4!==3||v===0))).toBe(true);
 });

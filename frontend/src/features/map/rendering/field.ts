@@ -5,6 +5,7 @@ import type {
 } from "../../../api/contracts";
 import {
   angular,
+  bearing,
   distanceToArc,
   mercator,
   geographic,
@@ -15,6 +16,10 @@ import {
   scalarColors,
 } from "../../weather-timeline/frame";
 import { riskColors } from "../../route-comparison/riskPalette";
+export type GeometryCache = Record<
+  string,
+  ({ distance: number; neighbors: { i: number; distance: number }[] } | null)[]
+>;
 export type Tile = { coordinates: number[][]; pixels: Uint8ClampedArray };
 const order = ["low", "moderate", "high", "severe", "no_travel", "unknown"];
 export const conservativeRisk = (categories: string[]) =>
@@ -32,6 +37,9 @@ export function interpolate(values: { distance: number; value: number }[]) {
   }
   return total / weight;
 }
+const palette = scalarColors.map((h) =>
+  [1, 3, 5].map((n) => parseInt(h.slice(n, n + 2), 16)),
+);
 export function color(value: number, layer: Exclude<ForecastLayer, "risk">) {
   const stops = [0, ...limits[layer]];
   let i = 0;
@@ -42,16 +50,17 @@ export function color(value: number, layer: Exclude<ForecastLayer, "risk">) {
   );
   const rgb = (h: string) =>
     [1, 3, 5].map((n) => parseInt(h.slice(n, n + 2), 16));
-  const a = rgb(scalarColors[i]),
-    b = rgb(scalarColors[i + 1]);
+  const a = palette[i],
+    b = palette[i + 1];
   return a.map((x, j) => Math.round(x + (b[j] - x) * t));
 }
-// Nonoverlapping Mercator tiles; at most 1,048,576 pixels per job. No global-image stretching.
+// Nonoverlapping Mercator tiles; at most 262,144 pixels per job. No global-image stretching.
 export function renderField(
   data: CorridorDataset,
   routes: RouteCandidate[],
   layer: ForecastLayer,
   frame: number,
+  geometry?: GeometryCache,
 ): Tile[] {
   const R = 6371008.8,
     world = 2 * Math.PI * R,
@@ -64,7 +73,14 @@ export function renderField(
   const segments = routes.flatMap((r, route) =>
     r.geometry.coordinates
       .slice(1)
-      .map((b, i) => ({ a: r.geometry.coordinates[i], b, route, index: i })),
+      .map((b, i) => ({
+        a: r.geometry.coordinates[i],
+        b,
+        route,
+        index: i,
+        length: angular(r.geometry.coordinates[i], b),
+        bearing: bearing(r.geometry.coordinates[i], b),
+      })),
   );
   const supported = samples.filter((p) => Math.abs(p[1]) <= 85);
   if (!supported.length) return [];
@@ -111,7 +127,7 @@ export function renderField(
     let best = 0,
       d = Infinity;
     segments.forEach((s, i) => {
-      const n = distanceToArc(p, s.a, s.b);
+      const n = distanceToArc(p, s.a, s.b, s);
       if (n < d) {
         d = n;
         best = i;
@@ -137,27 +153,58 @@ export function renderField(
       bottom + span > world / 2
     )
       continue;
-    const pixels = new Uint8ClampedArray(256 * 256 * 4);
-    for (let y = 0; y < 256; y++)
-      for (let x = 0; x < 256; x++) {
-        const p = geographic(
-          left + ((x + 0.5) * span) / 256,
-          bottom + ((255.5 - y) * span) / 256,
-        );
-        if (Math.abs(p[1]) > 85) continue;
-        const near = nearestSegment(p);
-        if (near.distance >= width) continue;
-        const neighbors = samples
-          .map((q, i) => ({ i, distance: angular(p, q) * R }))
-          .filter(
-            (n) =>
-              Math.abs(samples[n.i][1]) <= 85 &&
-              n.distance <= radius &&
-              support[n.i].segment?.route === near.segment?.route &&
-              Math.abs(support[n.i].segment.index - near.segment.index) <= 1,
-          )
-          .sort((a, b) => a.distance - b.distance)
-          .slice(0, 6);
+    const pixels = new Uint8ClampedArray(128 * 128 * 4);
+    const cached = geometry?.[key];
+    const records = cached ?? new Array(128 * 128).fill(null);
+    if (geometry) geometry[key] = records;
+    for (let y = 0; y < 128; y++)
+      for (let x = 0; x < 128; x++) {
+        let distance: number, neighbors: { i: number; distance: number }[];
+        if (cached) {
+          const record = cached[y * 128 + x];
+          if (!record) continue;
+          distance = record.distance;
+          neighbors = record.neighbors;
+        } else {
+          const p = geographic(
+            left + ((x + 0.5) * span) / 128,
+            bottom + ((127.5 - y) * span) / 128,
+          );
+          if (Math.abs(p[1]) > 85) continue;
+          const near = nearestSegment(p);
+          if (near.distance >= width) continue;
+          // Reject unsupported branches/latitude bands before expensive spherical distances.
+          const candidates: { i: number; distance: number }[] = [];
+          for (let i = 0; i < samples.length; i++) {
+            const q = samples[i],
+              segment = support[i].segment;
+            if (
+              Math.abs(q[1]) > 85 ||
+              !segment ||
+              !near.segment ||
+              segment.route !== near.segment.route ||
+              Math.abs(segment.index - near.segment.index) > 1 ||
+              ((Math.abs(q[1] - p[1]) * Math.PI) / 180) * R > radius
+            )
+              continue;
+            const distance = angular(p, q) * R;
+            if (distance > radius) continue;
+            let position = 0;
+            while (
+              position < candidates.length &&
+              candidates[position].distance <= distance
+            )
+              position++;
+            if (position < 6) {
+              candidates.splice(position, 0, { i, distance });
+              if (candidates.length > 6) candidates.pop();
+            }
+          }
+
+          distance = near.distance;
+          neighbors = candidates;
+          records[y * 128 + x] = { distance, neighbors };
+        }
         if (
           !neighbors.length ||
           layerMissing(data, layer, neighbors[0].i, frame)
@@ -168,7 +215,7 @@ export function renderField(
         );
         if (!valid.length) continue;
         let rgb: number[],
-          alpha = Math.min(1, (width - near.distance) / (width * 0.15)) * 185;
+          alpha = Math.min(1, (width - distance) / (width * 0.15)) * 185;
         const absent = neighbors.find((n) =>
           layerMissing(data, layer, n.i, frame),
         );
@@ -203,7 +250,7 @@ export function renderField(
           if (layer !== "wind_mph")
             alpha *= Math.min(1, value / limits[layer][0]);
         }
-        const offset = (y * 256 + x) * 4;
+        const offset = (y * 128 + x) * 4;
         pixels.set([...rgb, Math.round(alpha)], offset);
       }
     tiles.push({

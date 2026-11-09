@@ -6,9 +6,10 @@ self.onmessage = ({ data }) => {
       data.routes,
       data.layer,
       data.frame,
+      data.geometry,
     );
     self.postMessage(
-      { id: data.id, tiles },
+      { id: data.id, tiles, geometry: data.geometry },
       { transfer: tiles.map((t) => t.pixels.buffer) },
     );
   } catch (error) {
