@@ -18,6 +18,12 @@ The adapter uses https://api.open-meteo.com/v1/forecast with hourly wind_speed_1
 
 Transport bounds each batch to 50 locations, two in-flight calls per process, connect 3s/other 20s, no redirects/client retries. Exact-coordinate series are reused fresh for 15 minutes and retained 24 hours; no coarse coordinate substitution. Weather attempt/location/estimated-unit counters are shared in Redis with two-day retention. These remain telemetry only; a separate PostgreSQL ledger now enforces shared hard caps on conservative weighted units. Per-owner enforcement remains absent. Core checkpoint acquisition is independent of the <=100-location corridor cap. A longer trip can use more checkpoint locations than that cap; estimated units are not a billing promise.
 
+## Groq (optional AI suggestions)
+
+GROQ_API_KEY is backend-only and optional; without it the planner's suggestion box reports that AI suggestions are not set up and nothing is sent. GROQ_MODEL defaults to `openai/gpt-oss-20b`, which Groq listed as a current production model on 9 November 2026; Llama 3.x models were shut down for free/developer keys on 16 August 2026, so check [Groq models](https://console.groq.com/docs/models) and [deprecations](https://console.groq.com/docs/deprecations) if requests start failing with `ai_request_rejected`.
+
+The adapter sends one HTTPS POST to `https://api.groq.com/openai/v1/chat/completions` per uncached request, with strict `json_schema` output, `reasoning_effort: low`, `include_reasoning: false`, connect 3s/other 20s limits, no redirects/retries and sanitized errors. Requests carry route statistics, local times, checkpoint weather and cargo load, not coordinates or place names; review Groq's terms and data policy before using real trip data. No live Groq request has been made by the agent.
+
 ## Jobs and verification
 
 Only explicitly queued worker jobs acquire forecast/routing data; geocoding remains an explicit search operation. One Beat coordinates eligible viewed trips, 15-minute reassessment, cooldown/recovery and bounded retries. ROUTECAST_LIVE_TEST_MODE=true disables periodic scheduling, not queued creation/manual jobs. Do not start workers/Beat as an unannounced live check. Planning allows <=3 controlled transient attempts; corridor batch failure yields partial coverage rather than retries to force completeness. Token leases/publication checks do not recall an HTTP request already in flight. No GET or slider movement fetches providers.

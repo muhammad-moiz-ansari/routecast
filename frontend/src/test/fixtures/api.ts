@@ -86,6 +86,27 @@ export async function fixtureFetch(
       stopped: true,
     });
   }
+  if (path.endsWith("/suggestions/") && init.method === "POST")
+    return Response.json({
+      analysis_version: version,
+      generated_at: new Date().toISOString(),
+      model: "synthetic-preview",
+      cached: false,
+      suggestions: [
+        {
+          kind: "route",
+          text: "Synthetic preview: Route B is the only eligible route; A has 50 No Travel miles and C has 50 unassessed miles.",
+        },
+        {
+          kind: "caution",
+          text: "Synthetic preview: Route B still carries 50 Severe miles. Check its worst checkpoints before departure.",
+        },
+        {
+          kind: "data",
+          text: "Synthetic preview: Refresh before leaving so the forecast is current.",
+        },
+      ],
+    });
   if (path.endsWith("/corridor/")) {
     const result = structuredClone(storedCorridor);
     result.stopped = stopped;

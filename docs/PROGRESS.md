@@ -1,5 +1,9 @@
 # Progress
 
+## AI suggestions — 9 November 2026
+
+Added an optional, on-demand "AI suggestions" box below the recommendation summary. `POST /trips/{id}/suggestions/` sends a compact, coordinate-free fact sheet of the frozen analysis to Groq (`openai/gpt-oss-20b`, strict JSON schema) and returns 1–3 short tips, cached 24h per analysis version. The tips are advisory and labeled as AI-generated; they never change risk, eligibility or ranking. Calls go through the shared PostgreSQL provider budget as `groq` (5/minute, 30/hour, 100/day, 2,000/month defaults; no migration needed). Offline fixture mode returns synthetic tips. 10 new backend tests and 3 new frontend tests pass; the full backend suite (201) passes. No live Groq call has been made; add GROQ_API_KEY to backend/.env and restart Django to try it.
+
 ## Capability marquee — 9 November 2026
 
 Home capability strip now loops seamlessly left to right using pinned GSAP 3.15.1. Equal-width duplicate groups preserve the seam; clone is aria-hidden/inert. Persistent pause/resume, hover pause, viewport/tab suspension and a static wrapping reduced-motion layout preserve user control. Scoped context/observer/listeners clean up on unmount. Dependency notices retain GSAP's upstream README copyright/standard-license reference. Two focused offline tests pass; no provider/backend changes or new rendered visual confirmation.
