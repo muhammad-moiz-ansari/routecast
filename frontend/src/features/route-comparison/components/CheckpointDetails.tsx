@@ -102,7 +102,7 @@ export function CheckpointDetails({
           ) : (
             <p>No applied rule details available.</p>
           )}
-          <WeatherAttribution />
+          <WeatherAttribution provider={data.weather.provider} />
           <Dialog.Close className="close" aria-label="Close checkpoint details">
             <X />
           </Dialog.Close>

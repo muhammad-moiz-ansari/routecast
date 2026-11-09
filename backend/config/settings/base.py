@@ -77,6 +77,8 @@ TOMTOM_API_KEY = os.environ.get("TOMTOM_API_KEY", "")
 # Optional advisory text only; risk/ranking never depend on it.
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
 GROQ_MODEL = os.environ.get("GROQ_MODEL", "openai/gpt-oss-20b")
+# When set, forecasts come from Pirate Weather (limits per key) instead of Open-Meteo (per IP).
+PIRATE_WEATHER_API_KEY = os.environ.get("PIRATE_WEATHER_API_KEY", "")
 
 
 def provider_limits(prefix, defaults):
@@ -99,6 +101,8 @@ PROVIDER_BUDGETS = {
     "tomtom": provider_limits("TOMTOM", (20, 100, 100, 2000)),
     "open-meteo": provider_limits("OPEN_METEO", (200, 1000, 4000, 100000)),
     "groq": provider_limits("GROQ", (5, 30, 100, 2000)),
+    # One unit per location call; the free key allows 10,000 calls per month.
+    "pirate-weather": provider_limits("PIRATE_WEATHER", (300, 1500, 2000, 9500)),
 }
 
 # Celery commonly runs with INFO logging; HTTPX INFO includes credential-bearing URLs.

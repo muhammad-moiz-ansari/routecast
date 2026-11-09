@@ -65,6 +65,8 @@ def normalize(payload, coordinate, fetched_at):
 
 
 class OpenMeteoClient:
+    name = "open-meteo"
+
     def __init__(
         self, transport=None, clock=lambda: datetime.now(UTC), budget=reserve_provider_budget
     ):

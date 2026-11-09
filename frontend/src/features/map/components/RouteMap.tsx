@@ -45,6 +45,7 @@ export interface MapProps {
   selectedPointId: string | null;
   onSelectRoute: (id: string) => void;
   onSelectPoint: (id: string) => void;
+  weatherProvider?: string;
 }
 function styleForTheme(): string | StyleSpecification {
   const night = document.documentElement.dataset.theme === "night";
@@ -513,7 +514,7 @@ export default function RouteMap(props: MapProps) {
         <small>
           MapLibre GL JS · Routing: <a href="https://www.tomtom.com/">TomTom</a>
         </small>
-        <WeatherAttribution />
+        <WeatherAttribution provider={props.weatherProvider} />
       </div>
     </div>
   );

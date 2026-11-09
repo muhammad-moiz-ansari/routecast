@@ -81,4 +81,5 @@ class WeatherService(WeatherRepo):
             provider_requests=requests,
             unique_locations_requested=locations,
             estimated_usage_units=locations,
+            provider=getattr(self.client, "name", "open-meteo"),
         )

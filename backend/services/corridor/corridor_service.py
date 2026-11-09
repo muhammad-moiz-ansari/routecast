@@ -134,6 +134,7 @@ class CorridorService(CorridorRepo):
                 },
                 coverage="partial" if partial else "ready",
                 notices=notices,
+                provider=getattr(self.client, "name", "open-meteo"),
             ).model_dump(mode="json")
             guard()
             self.store.publish(job.id, job.token, self.clock(), data)

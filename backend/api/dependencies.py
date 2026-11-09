@@ -37,18 +37,34 @@ def get_checkpoint_service():
     return CheckpointService()
 
 
+def get_forecast_source():
+    """Pick the forecast client and its own cache namespace; constructing them performs no I/O."""
+    from django.conf import settings
+    from django.core.cache import cache
+
+    from cache.forecast_cache import ForecastCache
+
+    if settings.PIRATE_WEATHER_API_KEY:
+        from integrations.pirate_weather.weather_client import PirateWeatherClient
+
+        return (
+            PirateWeatherClient(settings.PIRATE_WEATHER_API_KEY),
+            ForecastCache(cache, "forecast:pirate-weather:v1:"),
+        )
+    from integrations.open_meteo.weather_client import OpenMeteoClient
+
+    return OpenMeteoClient(), ForecastCache(cache)
+
+
 def get_weather_service():
     """Wire the forecast adapter, Redis cache and shared usage accounting without I/O."""
     from django.core.cache import cache
 
-    from cache.forecast_cache import ForecastCache
     from cache.provider_usage import record_weather_usage
-    from integrations.open_meteo.weather_client import OpenMeteoClient
     from services.weather.weather_service import WeatherService
 
-    return WeatherService(
-        OpenMeteoClient(), ForecastCache(cache), lambda n: record_weather_usage(cache, n)
-    )
+    client, forecasts = get_forecast_source()
+    return WeatherService(client, forecasts, lambda n: record_weather_usage(cache, n))
 
 
 def get_recommendation_service():
@@ -132,10 +148,8 @@ def get_corridor_service():
     from redis import Redis
 
     from cache.corridor_cache import CorridorCache
-    from cache.forecast_cache import ForecastCache
     from cache.locks import RedisLocks
     from cache.provider_usage import record_weather_usage
-    from integrations.open_meteo.weather_client import OpenMeteoClient
     from persistence.stores.corridor_store import CorridorStore
     from services.corridor.corridor_service import CorridorService
 
@@ -144,10 +158,11 @@ def get_corridor_service():
 
         corridor.apply_async(args=[job_id], retry=False)
 
+    client, forecasts = get_forecast_source()
     return CorridorService(
         CorridorStore(),
-        OpenMeteoClient(),
-        ForecastCache(cache),
+        client,
+        forecasts,
         CorridorCache(cache),
         lambda n: record_weather_usage(cache, n),
         RedisLocks(Redis.from_url(settings.REDIS_URL, socket_connect_timeout=2, socket_timeout=2)),

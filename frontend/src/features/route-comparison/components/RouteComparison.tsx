@@ -283,6 +283,7 @@ export function RouteComparison({
             selectedPointId={pointId}
             onSelectRoute={select}
             onSelectPoint={inspect}
+            weatherProvider={data?.weather.provider}
           />
         </Suspense>
         {corridorError && (
@@ -304,6 +305,7 @@ export function RouteComparison({
           onPreferences={setPreferences}
           absoluteTime={absoluteTime}
           onTime={setAbsoluteTime}
+          weatherProvider={data?.weather.provider}
         />
       </section>
       {data && (
